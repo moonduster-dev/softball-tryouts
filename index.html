@@ -1,0 +1,1244 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Softball Tryout Scorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-green-50 to-blue-50 min-h-screen p-4">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800 mb-2">Softball Tryout Scorer</h1>
+                    <p class="text-gray-600">Track player performance across key categories (0-10 scale)</p>
+                </div>
+                <div class="flex gap-2 flex-wrap">
+                    <button
+                        onclick="uploadToSheets()"
+                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
+                        title="Upload current data to Google Sheets"
+                    >
+                        ⬆️ Upload to Sheets
+                    </button>
+                    <button
+                        onclick="downloadFromSheets()"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+                        title="Download data from Google Sheets"
+                    >
+                        ⬇️ Download from Sheets
+                    </button>
+                    <button
+                        onclick="showAllPlayers()"
+                        class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center gap-2"
+                    >
+                        📊 View All
+                    </button>
+                    <button
+                        onclick="clearAllData()"
+                        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-2"
+                    >
+                        🗑️ Clear All
+                    </button>
+                </div>
+            </div>
+            <div class="mt-3 text-sm text-green-600 flex items-center gap-2" id="saveStatus">
+                💾 Data auto-saves to browser
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Add Player</h2>
+            <div class="flex gap-3 flex-wrap">
+                <input
+                    type="text"
+                    id="playerName"
+                    placeholder="Player Name"
+                    class="flex-1 min-w-[200px] px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+                <input
+                    type="text"
+                    id="playerNumber"
+                    placeholder="Jersey # (optional)"
+                    class="w-40 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+                <button
+                    onclick="addPlayer()"
+                    class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
+                >
+                    <span>➕</span> Add Player
+                </button>
+            </div>
+            
+            <div class="mt-4 pt-4 border-t border-gray-200">
+                <h3 class="text-sm font-semibold text-gray-700 mb-3">Import from CSV</h3>
+                <div class="flex gap-3 flex-wrap">
+                    <div>
+                        <input
+                            type="file"
+                            id="importPlayersFile"
+                            accept=".csv"
+                            class="hidden"
+                            onchange="importPlayers()"
+                        />
+                        <button
+                            onclick="document.getElementById('importPlayersFile').click()"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+                        >
+                            <span>📥</span> Import Players
+                        </button>
+                        <p class="text-xs text-gray-500 mt-1">CSV: Name, Number</p>
+                    </div>
+                    
+                    <div>
+                        <input
+                            type="file"
+                            id="importFullDataFile"
+                            accept=".csv"
+                            class="hidden"
+                            onchange="importFullData()"
+                        />
+                        <button
+                            onclick="document.getElementById('importFullDataFile').click()"
+                            class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center gap-2"
+                        >
+                            <span>📥</span> Import Full Data
+                        </button>
+                        <p class="text-xs text-gray-500 mt-1">Full tryout data CSV</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Single Player View -->
+        <div id="singlePlayerView" class="hidden">
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <!-- Navigation -->
+                <div class="mb-6 pb-4 border-b">
+                    <div class="flex justify-between items-center mb-4">
+                        <button
+                            onclick="previousPlayer()"
+                            id="prevBtn"
+                            tabindex="-1"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                        >
+                            ⬅️ Previous
+                        </button>
+                        <div class="text-center">
+                            <div class="text-sm text-gray-500" id="playerCounter">Player 1 of 1</div>
+                            <div class="text-xs text-gray-400 mt-1">Use arrow keys to navigate</div>
+                        </div>
+                        <button
+                            onclick="nextPlayer()"
+                            id="nextBtn"
+                            tabindex="-1"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                        >
+                            Next ➡️
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Jump to player:</label>
+                        <select
+                            id="playerDropdown"
+                            onchange="jumpToPlayer(this.value)"
+                            class="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Player Card -->
+                <div id="currentPlayerCard"></div>
+            </div>
+        </div>
+
+        <!-- All Players View -->
+        <div id="allPlayersView" class="hidden">
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold">All Players - Ranked by Score</h2>
+                    <div class="flex gap-2">
+                        <button
+                            onclick="exportData()"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+                        >
+                            <span>⬇️</span> Export CSV
+                        </button>
+                        <button
+                            onclick="showSinglePlayer()"
+                            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
+                        >
+                            👤 Single View
+                        </button>
+                    </div>
+                </div>
+                <div id="playersList" class="space-y-4"></div>
+            </div>
+        </div>
+
+        <div id="emptyState" class="bg-white rounded-lg shadow-lg p-12 text-center text-gray-500">
+            <p class="text-lg">No players added yet. Add your first player to start scoring!</p>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // GOOGLE SHEETS CONFIGURATION
+        // ============================================
+        // IMPORTANT: Replace this URL with your Google Apps Script Web App URL
+        // Instructions in google-apps-script.js file
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyNLjLju_nYIaRfa_R27jUD05MBamDWu0F0_WPdgd634DUbVex-w0OSseGXYphvKPDwvw/exec';
+        // ============================================
+
+        let players = [];
+        let currentPlayerIndex = 0;
+        let viewMode = 'single'; // 'single' or 'all'
+        let isSyncing = false;
+
+        const STORAGE_KEY = 'softball_tryout_data';
+
+        const categories = [
+            { id: 'fielding', name: 'Fielding', max: 10 },
+            { id: 'throwing', name: 'Throwing', max: 10 },
+            { id: 'attitude', name: 'Attitude', max: 10 }
+        ];
+
+        const hittingDrills = [
+            { id: 'batspeed', name: 'Bat Speed (mph)', attempts: 3, type: 'number' },
+            { id: 'exitvel', name: 'Exit Velocity (mph)', attempts: 3, type: 'number' },
+            { id: 'bunt1b', name: 'Bunt → 1B', attempts: 3, type: 'yesno' },
+            { id: 'buntp', name: 'Bunt → P', attempts: 3, type: 'yesno' },
+            { id: 'bunt3b', name: 'Bunt → 3B', attempts: 3, type: 'yesno' },
+            { id: 'pitchrecog', name: 'Pitch Recognition', attempts: 5, type: 'yesno_sum' },
+            { id: 'strikerecog', name: 'Strikezone Recognition', attempts: 5, type: 'yesno_sum' }
+        ];
+
+        const speedDrills = [
+            { id: 'h1b', name: 'H→1B', attempts: 3 },
+            { id: 'h2b', name: 'H→2B', attempts: 3 },
+            { id: 'hh', name: 'H→H', attempts: 3 }
+        ];
+
+        // Local storage functions
+        function loadData() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    players = JSON.parse(saved);
+                    showSaveStatus('✓ Data loaded from browser');
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showSaveStatus('⚠️ Could not load saved data');
+            }
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
+                showSaveStatus('✓ Saved locally');
+            } catch (error) {
+                console.error('Error saving data:', error);
+                showSaveStatus('⚠️ Save failed');
+            }
+        }
+
+        // Google Sheets sync functions
+        function uploadToSheets() {
+            if (GOOGLE_SCRIPT_URL.includes('PASTE_YOUR')) {
+                alert('Please configure your Google Apps Script URL first.\nSee google-apps-script.js for instructions.');
+                return;
+            }
+
+            if (isSyncing) return;
+            isSyncing = true;
+
+            showSaveStatus('⏳ Uploading to Google Sheets...');
+
+            // Create a hidden form to POST data (avoids CORS and URL length limits)
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = GOOGLE_SCRIPT_URL;
+            form.target = 'upload-iframe';
+            form.style.display = 'none';
+
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'data';
+            input.value = JSON.stringify(players);
+            form.appendChild(input);
+
+            // Create hidden iframe to receive response
+            let iframe = document.getElementById('upload-iframe');
+            if (!iframe) {
+                iframe = document.createElement('iframe');
+                iframe.id = 'upload-iframe';
+                iframe.name = 'upload-iframe';
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+            }
+
+            // Handle response
+            iframe.onload = function() {
+                try {
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    const responseText = iframeDoc.body.textContent;
+
+                    if (responseText) {
+                        const result = JSON.parse(responseText);
+                        console.log('Upload response:', result);
+                        if (result.success) {
+                            showSaveStatus('✓ Uploaded to Google Sheets!');
+                            alert(`Successfully uploaded ${players.length} player(s) to Google Sheets!\n\nCheck the "Players (Readable)" tab in your spreadsheet.`);
+                        } else {
+                            showSaveStatus('⚠️ Upload failed');
+                            alert('Upload failed: ' + (result.error || 'Unknown error'));
+                        }
+                    } else {
+                        showSaveStatus('✓ Uploaded to Google Sheets!');
+                        alert(`Upload completed! Check the "Players (Readable)" tab in your spreadsheet.`);
+                    }
+                } catch (error) {
+                    console.error('Error processing upload response:', error);
+                    // Assume success if we can't read the response (cross-origin)
+                    showSaveStatus('✓ Upload sent to Google Sheets!');
+                    alert(`Upload sent to Google Sheets!\n\nCheck your spreadsheet to verify the data.`);
+                }
+                isSyncing = false;
+                document.body.removeChild(form);
+            };
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        async function downloadFromSheets() {
+            if (GOOGLE_SCRIPT_URL.includes('PASTE_YOUR')) {
+                alert('Please configure your Google Apps Script URL first.\nSee google-apps-script.js for instructions.');
+                return;
+            }
+
+            if (isSyncing) return;
+            isSyncing = true;
+
+            try {
+                showSaveStatus('⏳ Downloading from Google Sheets...');
+                const response = await fetch(GOOGLE_SCRIPT_URL);
+
+                if (!response.ok) {
+                    throw new Error('Failed to download from Google Sheets');
+                }
+
+                const data = await response.json();
+                if (Array.isArray(data) && data.length > 0) {
+                    const proceed = confirm(`Found ${data.length} player(s) in Google Sheets.\n\nThis will replace your current local data. Continue?`);
+                    if (proceed) {
+                        players = data;
+                        saveData(); // Save to local storage
+                        render();
+                        showSaveStatus('✓ Downloaded from Google Sheets!');
+                        alert(`Successfully downloaded ${players.length} player(s) from Google Sheets!`);
+                    } else {
+                        showSaveStatus('Download cancelled');
+                    }
+                } else {
+                    showSaveStatus('No data found in Google Sheets');
+                    alert('No player data found in Google Sheets.');
+                }
+            } catch (error) {
+                console.error('Error downloading from Google Sheets:', error);
+                showSaveStatus('⚠️ Download from Google Sheets failed');
+                alert('Error downloading from Google Sheets. Check console for details.');
+            } finally {
+                isSyncing = false;
+            }
+        }
+
+        function showSaveStatus(message) {
+            const status = document.getElementById('saveStatus');
+            const originalMessage = '💾 Data auto-saves to browser';
+            status.textContent = message;
+            if (message !== originalMessage) {
+                setTimeout(() => {
+                    status.textContent = originalMessage;
+                }, 2000);
+            }
+        }
+
+        function addPlayer() {
+            const nameInput = document.getElementById('playerName');
+            const numberInput = document.getElementById('playerNumber');
+            const name = nameInput.value.trim();
+            
+            if (name) {
+                const newPlayer = {
+                    id: Date.now(),
+                    name: name,
+                    number: numberInput.value.trim(),
+                    scores: {},
+                    hittingData: {
+                        batspeed: [null, null, null],
+                        exitvel: [null, null, null],
+                        bunt1b: [null, null, null],
+                        buntp: [null, null, null],
+                        bunt3b: [null, null, null],
+                        pitchrecog: [null, null, null, null, null],
+                        strikerecog: [null, null, null, null, null]
+                    },
+                    speedTimes: {
+                        h1b: [null, null, null],
+                        h2b: [null, null, null],
+                        hh: [null, null, null]
+                    },
+                    notes: ''
+                };
+                
+                categories.forEach(cat => {
+                    newPlayer.scores[cat.id] = 0;
+                });
+                
+                players.push(newPlayer);
+                currentPlayerIndex = players.length - 1;
+                nameInput.value = '';
+                numberInput.value = '';
+                saveData();
+                render();
+            }
+        }
+
+        function removePlayer(id) {
+            if (confirm('Are you sure you want to remove this player?')) {
+                const index = players.findIndex(p => p.id === id);
+                players = players.filter(p => p.id !== id);
+                
+                if (currentPlayerIndex >= players.length && currentPlayerIndex > 0) {
+                    currentPlayerIndex = players.length - 1;
+                }
+                
+                saveData();
+                render();
+            }
+        }
+
+        function updateScore(playerId, category, value) {
+            const numValue = Math.max(0, Math.min(10, parseInt(value) || 0));
+            const player = players.find(p => p.id === playerId);
+            if (player) {
+                player.scores[category] = numValue;
+                saveData();
+                updateScoresOnly(playerId);
+            }
+        }
+
+        function updateNotes(playerId, notes) {
+            const player = players.find(p => p.id === playerId);
+            if (player) {
+                player.notes = notes;
+                saveData();
+            }
+        }
+
+        function updateHittingData(playerId, drill, attemptIndex, value) {
+            const player = players.find(p => p.id === playerId);
+            if (player) {
+                if (!player.hittingData) {
+                    player.hittingData = {};
+                }
+
+                // Ensure the drill array exists
+                const drillInfo = hittingDrills.find(d => d.id === drill);
+                if (!player.hittingData[drill]) {
+                    player.hittingData[drill] = Array(drillInfo ? drillInfo.attempts : 3).fill(null);
+                }
+
+                // For yes/no drills, convert to boolean
+                if (drillInfo && (drillInfo.type === 'yesno' || drillInfo.type === 'yesno_sum')) {
+                    player.hittingData[drill][attemptIndex] = value === '' ? null : (value === 'Y' || value === true);
+                } else {
+                    const numValue = value === '' ? null : parseFloat(value);
+                    player.hittingData[drill][attemptIndex] = numValue;
+                }
+
+                saveData();
+                updateScoresOnly(playerId);
+            }
+        }
+
+        function updateSpeedTime(playerId, drill, attemptIndex, time) {
+            const player = players.find(p => p.id === playerId);
+            if (player) {
+                if (!player.speedTimes) {
+                    player.speedTimes = {};
+                }
+
+                // Ensure the drill array exists
+                if (!player.speedTimes[drill]) {
+                    player.speedTimes[drill] = [null, null, null];
+                }
+
+                const numTime = time === '' ? null : parseFloat(time);
+                player.speedTimes[drill][attemptIndex] = numTime;
+                saveData();
+                updateScoresOnly(playerId);
+            }
+        }
+
+        function calculateHittingScore(drill, values) {
+            if (!values) return 0;
+            const validValues = values.filter(v => v !== null && v !== undefined && v !== '');
+            if (validValues.length === 0) return 0;
+            
+            // For recognition drills (sum of Y's)
+            if (drill === 'pitchrecog' || drill === 'strikerecog') {
+                return validValues.filter(v => v === true || v === 'Y').length;
+            }
+            
+            // For bunting drills (2+ Y's = 1 point)
+            if (drill === 'bunt1b' || drill === 'buntp' || drill === 'bunt3b') {
+                const yesCount = validValues.filter(v => v === true || v === 'Y').length;
+                return yesCount >= 2 ? 1 : 0;
+            }
+            
+            // For numeric drills (bat speed, exit velocity)
+            const numericValues = validValues.map(v => parseFloat(v)).filter(v => !isNaN(v));
+            if (numericValues.length === 0) return 0;
+            
+            const avgValue = numericValues.reduce((sum, v) => sum + v, 0) / numericValues.length;
+            
+            if (drill === 'batspeed') {
+                if (avgValue <= 40) return 0;
+                if (avgValue <= 50) return 1;
+                if (avgValue <= 55) return 2;
+                if (avgValue <= 60) return 3;
+                if (avgValue <= 65) return 4;
+                return 5;
+            } else if (drill === 'exitvel') {
+                if (avgValue <= 50) return 0;
+                if (avgValue <= 55) return 1;
+                if (avgValue <= 60) return 2;
+                if (avgValue <= 65) return 3;
+                if (avgValue <= 70) return 4;
+                return 5;
+            }
+            return 0;
+        }
+
+        function getHittingScore(player) {
+            if (!player.hittingData) return 0;
+            const batspeedScore = calculateHittingScore('batspeed', player.hittingData.batspeed);
+            const exitvelScore = calculateHittingScore('exitvel', player.hittingData.exitvel);
+            const bunt1bScore = calculateHittingScore('bunt1b', player.hittingData.bunt1b);
+            const buntpScore = calculateHittingScore('buntp', player.hittingData.buntp);
+            const bunt3bScore = calculateHittingScore('bunt3b', player.hittingData.bunt3b);
+            const pitchrecogScore = calculateHittingScore('pitchrecog', player.hittingData.pitchrecog || [null, null, null, null, null]);
+            const strikerecogScore = calculateHittingScore('strikerecog', player.hittingData.strikerecog || [null, null, null, null, null]);
+            return batspeedScore + exitvelScore + bunt1bScore + buntpScore + bunt3bScore + pitchrecogScore + strikerecogScore;
+        }
+
+        function calculateSpeedScore(drill, times) {
+            const validTimes = times.filter(t => t !== null && !isNaN(t));
+            if (validTimes.length === 0) return 0;
+            
+            const avgTime = validTimes.reduce((sum, t) => sum + t, 0) / validTimes.length;
+            
+            if (drill === 'h1b') {
+                if (avgTime >= 5.2) return 1;
+                if (avgTime >= 4.6) return 2;
+                if (avgTime >= 3.8) return 3;
+                if (avgTime >= 3.1) return 4;
+                return 5;
+            } else if (drill === 'h2b') {
+                if (avgTime >= 8) return 1;
+                if (avgTime >= 7) return 2;
+                if (avgTime >= 6.25) return 3;
+                if (avgTime >= 5.75) return 4;
+                return 5;
+            } else if (drill === 'hh') {
+                // H→H scoring
+                if (avgTime < 11.8) return 5;
+                if (avgTime < 13.3) return 4;
+                if (avgTime < 15.0) return 3;
+                if (avgTime < 17.0) return 2;
+                return 1;
+            }
+            return 0;
+        }
+
+        function getSpeedScore(player) {
+            if (!player.speedTimes) return 0;
+            const h1bScore = calculateSpeedScore('h1b', player.speedTimes.h1b);
+            const h2bScore = calculateSpeedScore('h2b', player.speedTimes.h2b);
+            const hhScore = calculateSpeedScore('hh', player.speedTimes.hh);
+            return h1bScore + h2bScore + hhScore;
+        }
+
+        function getTotalScore(player) {
+            const regularScore = Object.values(player.scores).reduce((sum, score) => sum + score, 0);
+            const hittingScore = getHittingScore(player);
+            const speedScore = getSpeedScore(player);
+            return regularScore + hittingScore + speedScore;
+        }
+
+        function previousPlayer() {
+            if (currentPlayerIndex > 0) {
+                currentPlayerIndex--;
+                render();
+            }
+        }
+
+        function nextPlayer() {
+            if (currentPlayerIndex < players.length - 1) {
+                currentPlayerIndex++;
+                render();
+            }
+        }
+
+        function jumpToPlayer(index) {
+            currentPlayerIndex = parseInt(index);
+            render();
+        }
+
+        function showSinglePlayer() {
+            viewMode = 'single';
+            render();
+        }
+
+        function showAllPlayers() {
+            viewMode = 'all';
+            render();
+        }
+
+        function clearAllData() {
+            if (confirm('Are you sure you want to clear ALL player data? This cannot be undone!')) {
+                players = [];
+                currentPlayerIndex = 0;
+                localStorage.removeItem(STORAGE_KEY);
+                render();
+                showSaveStatus('✓ All data cleared');
+            }
+        }
+
+        function exportData() {
+            if (players.length === 0) {
+                alert('No players to export! Please add players first.');
+                return;
+            }
+
+            try {
+                const sortedPlayers = [...players].sort((a, b) => getTotalScore(b) - getTotalScore(a));
+                const headers = ['Rank', 'Name', 'Number', 'Bat Speed Avg', 'Bat Speed Score', 'Exit Vel Avg', 'Exit Vel Score', 'Bunt→1B Y/N', 'Bunt→1B Score', 'Bunt→P Y/N', 'Bunt→P Score', 'Bunt→3B Y/N', 'Bunt→3B Score', 'Hitting Total', ...categories.map(c => c.name), 'H→1B Avg', 'H→1B Score', 'H→2B Avg', 'H→2B Score', 'H→H Avg', 'H→H Score', 'Speed Total', 'Total Score', 'Notes'];
+                const rows = sortedPlayers.map((p, idx) => {
+                    const batspeedVals = p.hittingData?.batspeed || [null, null, null];
+                    const exitvelVals = p.hittingData?.exitvel || [null, null, null];
+                    const bunt1bVals = p.hittingData?.bunt1b || [null, null, null];
+                    const buntpVals = p.hittingData?.buntp || [null, null, null];
+                    const bunt3bVals = p.hittingData?.bunt3b || [null, null, null];
+                    const h1bTimes = p.speedTimes?.h1b || [null, null, null];
+                    const h2bTimes = p.speedTimes?.h2b || [null, null, null];
+                    const hhTimes = p.speedTimes?.hh || [null, null, null];
+                    
+                    const batspeedAvg = batspeedVals.filter(v => v !== null).length > 0
+                        ? (batspeedVals.filter(v => v !== null).reduce((sum, v) => sum + v, 0) / batspeedVals.filter(v => v !== null).length).toFixed(1)
+                        : '';
+                    const exitvelAvg = exitvelVals.filter(v => v !== null).length > 0
+                        ? (exitvelVals.filter(v => v !== null).reduce((sum, v) => sum + v, 0) / exitvelVals.filter(v => v !== null).length).toFixed(1)
+                        : '';
+                    
+                    const bunt1bYes = bunt1bVals.filter(v => v === true || v === 'Y').length;
+                    const buntpYes = buntpVals.filter(v => v === true || v === 'Y').length;
+                    const bunt3bYes = bunt3bVals.filter(v => v === true || v === 'Y').length;
+                    
+                    const h1bAvg = h1bTimes.filter(t => t !== null).length > 0
+                        ? (h1bTimes.filter(t => t !== null).reduce((sum, t) => sum + t, 0) / h1bTimes.filter(t => t !== null).length).toFixed(2)
+                        : '';
+                    const h2bAvg = h2bTimes.filter(t => t !== null).length > 0
+                        ? (h2bTimes.filter(t => t !== null).reduce((sum, t) => sum + t, 0) / h2bTimes.filter(t => t !== null).length).toFixed(2)
+                        : '';
+                    const hhAvg = hhTimes.filter(t => t !== null).length > 0
+                        ? (hhTimes.filter(t => t !== null).reduce((sum, t) => sum + t, 0) / hhTimes.filter(t => t !== null).length).toFixed(2)
+                        : '';
+                    
+                    return [
+                        idx + 1,
+                        `"${p.name}"`,
+                        p.number || '',
+                        batspeedAvg,
+                        calculateHittingScore('batspeed', batspeedVals),
+                        exitvelAvg,
+                        calculateHittingScore('exitvel', exitvelVals),
+                        `${bunt1bYes}/3`,
+                        calculateHittingScore('bunt1b', bunt1bVals),
+                        `${buntpYes}/3`,
+                        calculateHittingScore('buntp', buntpVals),
+                        `${bunt3bYes}/3`,
+                        calculateHittingScore('bunt3b', bunt3bVals),
+                        getHittingScore(p),
+                        ...categories.map(c => p.scores[c.id]),
+                        h1bAvg,
+                        calculateSpeedScore('h1b', h1bTimes),
+                        h2bAvg,
+                        calculateSpeedScore('h2b', h2bTimes),
+                        hhAvg,
+                        calculateSpeedScore('hh', hhTimes),
+                        getSpeedScore(p),
+                        getTotalScore(p),
+                        `"${p.notes.replace(/"/g, '""')}"`
+                    ];
+                });
+                
+                const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `softball_tryout_${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                
+                showSaveStatus('✓ CSV exported successfully!');
+            } catch (error) {
+                console.error('Export error:', error);
+                alert('Error exporting CSV. Please try again.');
+            }
+        }
+
+        function importPlayers() {
+            const fileInput = document.getElementById('importPlayersFile');
+            const file = fileInput.files[0];
+            
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const text = e.target.result;
+                    const lines = text.split('\n').filter(line => line.trim());
+                    
+                    // Skip header if it exists
+                    const startIndex = lines[0].toLowerCase().includes('name') ? 1 : 0;
+                    let addedCount = 0;
+                    
+                    for (let i = startIndex; i < lines.length; i++) {
+                        const parts = lines[i].split(',').map(p => p.trim().replace(/"/g, ''));
+                        if (parts[0]) {
+                            const newPlayer = {
+                                id: Date.now() + i,
+                                name: parts[0],
+                                number: parts[1] || '',
+                                scores: {},
+                                hittingData: {
+                                    batspeed: [null, null, null],
+                                    exitvel: [null, null, null],
+                                    bunt1b: [null, null, null],
+                                    buntp: [null, null, null],
+                                    bunt3b: [null, null, null]
+                                },
+                                speedTimes: {
+                                    h1b: [null, null, null],
+                                    h2b: [null, null, null],
+                                    hh: [null, null, null]
+                                },
+                                notes: ''
+                            };
+                            
+                            categories.forEach(cat => {
+                                newPlayer.scores[cat.id] = 0;
+                            });
+                            
+                            players.push(newPlayer);
+                            addedCount++;
+                        }
+                    }
+                    
+                    saveData();
+                    render();
+                    alert(`Successfully imported ${addedCount} player${addedCount !== 1 ? 's' : ''}!`);
+                    fileInput.value = '';
+                } catch (error) {
+                    console.error('Import error:', error);
+                    alert('Error importing players. Make sure your CSV has Name in the first column and Number (optional) in the second column.');
+                }
+            };
+            
+            reader.readAsText(file);
+        }
+
+        function importFullData() {
+            const fileInput = document.getElementById('importFullDataFile');
+            const file = fileInput.files[0];
+            
+            if (!file) return;
+            
+            if (!confirm('This will replace all current data. Continue?')) {
+                fileInput.value = '';
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const text = e.target.result;
+                    const lines = text.split('\n').filter(line => line.trim());
+                    
+                    if (lines.length < 2) {
+                        throw new Error('CSV file appears to be empty');
+                    }
+                    
+                    const headers = lines[0].toLowerCase().split(',').map(h => h.trim());
+                    const newPlayers = [];
+                    
+                    for (let i = 1; i < lines.length; i++) {
+                        const parts = lines[i].split(',').map(p => p.trim().replace(/"/g, ''));
+                        
+                        const nameIdx = headers.indexOf('name');
+                        const numberIdx = headers.indexOf('number');
+                        
+                        if (nameIdx === -1 || !parts[nameIdx]) continue;
+                        
+                        const newPlayer = {
+                            id: Date.now() + i,
+                            name: parts[nameIdx],
+                            number: numberIdx !== -1 ? parts[numberIdx] : '',
+                            scores: {},
+                            hittingData: {
+                                batspeed: [null, null, null],
+                                exitvel: [null, null, null],
+                                bunt1b: [null, null, null],
+                                buntp: [null, null, null],
+                                bunt3b: [null, null, null],
+                                pitchrecog: [null, null, null, null, null],
+                                strikerecog: [null, null, null, null, null]
+                            },
+                            speedTimes: {
+                                h1b: [null, null, null],
+                                h2b: [null, null, null],
+                                hh: [null, null, null]
+                            },
+                            notes: ''
+                        };
+                        
+                        // Import category scores
+                        categories.forEach(cat => {
+                            const idx = headers.indexOf(cat.name.toLowerCase());
+                            newPlayer.scores[cat.id] = (idx !== -1 && parts[idx]) ? parseInt(parts[idx]) || 0 : 0;
+                        });
+                        
+                        // Import notes if present
+                        const notesIdx = headers.indexOf('notes');
+                        if (notesIdx !== -1) {
+                            newPlayer.notes = parts[notesIdx] || '';
+                        }
+                        
+                        newPlayers.push(newPlayer);
+                    }
+                    
+                    players = newPlayers;
+                    currentPlayerIndex = 0;
+                    saveData();
+                    render();
+                    alert(`Successfully imported ${newPlayers.length} player${newPlayers.length !== 1 ? 's' : ''} with data!`);
+                    fileInput.value = '';
+                } catch (error) {
+                    console.error('Import error:', error);
+                    alert('Error importing full data: ' + error.message);
+                }
+            };
+            
+            reader.readAsText(file);
+        }
+
+        function renderPlayerCard(player, showDelete = true) {
+            if (!player.hittingData) {
+                player.hittingData = {
+                    batspeed: [null, null, null],
+                    exitvel: [null, null, null],
+                    bunt1b: [null, null, null],
+                    buntp: [null, null, null],
+                    bunt3b: [null, null, null],
+                    pitchrecog: [null, null, null, null, null],
+                    strikerecog: [null, null, null, null, null]
+                };
+            }
+            if (!player.speedTimes) {
+                player.speedTimes = {
+                    h1b: [null, null, null],
+                    h2b: [null, null, null],
+                    hh: [null, null, null]
+                };
+            }
+
+            const hittingScore = getHittingScore(player);
+            const speedScore = getSpeedScore(player);
+            const regularScore = Object.values(player.scores).reduce((sum, score) => sum + score, 0);
+
+            return `
+                <div class="border-2 border-blue-200 rounded-lg p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-800">${player.name}</h3>
+                            ${player.number ? `<p class="text-gray-500">Jersey #${player.number}</p>` : ''}
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="text-right">
+                                <div class="text-sm text-gray-500">Total Score</div>
+                                <div class="text-3xl font-bold text-green-600" data-total-score>${getTotalScore(player)}/68</div>
+                                <div class="text-xs text-gray-400" data-subscore>Hitting: ${hittingScore}/23 | Speed: ${speedScore}/15</div>
+                            </div>
+                            ${showDelete ? `
+                            <button
+                                onclick="removePlayer(${player.id})"
+                                tabindex="-1"
+                                class="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                                title="Remove player"
+                            >
+                                🗑️
+                            </button>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">Hitting Drills</h4>
+                        ${hittingDrills.map(drill => {
+                            const values = player.hittingData[drill.id] || Array(drill.attempts).fill(null);
+                            const score = calculateHittingScore(drill.id, values);
+                            
+                            if (drill.type === 'yesno_sum') {
+                                const yesCount = values.filter(v => v === true || v === 'Y').length;
+                                
+                                return `
+                                    <div class="bg-gray-50 p-4 rounded-lg mb-3">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <label class="text-sm font-medium text-gray-700">${drill.name}</label>
+                                            <div class="text-right">
+                                                <span class="ml-3 text-sm font-bold text-green-600" data-score-display data-drill-id="${drill.id}" data-drill-type="hitting" data-max-score="5">Score: ${score}/5</span>
+                                            </div>
+                                        </div>
+                                        <div class="grid grid-cols-5 gap-2">
+                                            ${values.map((val, idx) => `
+                                                <div>
+                                                    <label class="block text-xs text-gray-600 mb-1">Attempt ${idx + 1}</label>
+                                                    <select
+                                                        onchange="updateHittingData(${player.id}, '${drill.id}', ${idx}, this.value)"
+                                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    >
+                                                        <option value="" ${val === null ? 'selected' : ''}>-</option>
+                                                        <option value="Y" ${val === true || val === 'Y' ? 'selected' : ''}>Y</option>
+                                                        <option value="N" ${val === false || val === 'N' ? 'selected' : ''}>N</option>
+                                                    </select>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                `;
+                            } else if (drill.type === 'yesno') {
+                                const yesCount = values.filter(v => v === true || v === 'Y').length;
+                                const noCount = values.filter(v => v === false || v === 'N').length;
+                                
+                                return `
+                                    <div class="bg-gray-50 p-4 rounded-lg mb-3">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <label class="text-sm font-medium text-gray-700">${drill.name}</label>
+                                            <div class="text-right">
+                                                <span class="text-xs text-gray-500" data-avg-display="${drill.id}">Y: ${yesCount} | N: ${noCount}</span>
+                                                <span class="ml-3 text-sm font-bold text-green-600" data-score-display data-drill-id="${drill.id}" data-drill-type="hitting" data-max-score="1">Score: ${score}/1</span>
+                                            </div>
+                                        </div>
+                                        <div class="grid grid-cols-3 gap-2">
+                                            ${values.map((val, idx) => `
+                                                <div>
+                                                    <label class="block text-xs text-gray-600 mb-1">Attempt ${idx + 1}</label>
+                                                    <select
+                                                        onchange="updateHittingData(${player.id}, '${drill.id}', ${idx}, this.value)"
+                                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    >
+                                                        <option value="" ${val === null ? 'selected' : ''}>-</option>
+                                                        <option value="Y" ${val === true || val === 'Y' ? 'selected' : ''}>Y</option>
+                                                        <option value="N" ${val === false || val === 'N' ? 'selected' : ''}>N</option>
+                                                    </select>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                `;
+                            } else {
+                                const validVals = values.filter(v => v !== null && !isNaN(v));
+                                const avgValue = validVals.length > 0
+                                    ? (validVals.reduce((sum, v) => sum + v, 0) / validVals.length).toFixed(1)
+                                    : 'N/A';
+                                
+                                return `
+                                    <div class="bg-gray-50 p-4 rounded-lg mb-3">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <label class="text-sm font-medium text-gray-700">${drill.name}</label>
+                                            <div class="text-right">
+                                                <span class="text-xs text-gray-500" data-avg-display="${drill.id}">Avg: ${avgValue} mph</span>
+                                                <span class="ml-3 text-sm font-bold text-green-600" data-score-display data-drill-id="${drill.id}" data-drill-type="hitting" data-max-score="5">Score: ${score}/5</span>
+                                            </div>
+                                        </div>
+                                        <div class="grid grid-cols-3 gap-2">
+                                            ${values.map((val, idx) => `
+                                                <div>
+                                                    <label class="block text-xs text-gray-600 mb-1">Attempt ${idx + 1}</label>
+                                                    <input
+                                                        type="number"
+                                                        step="0.1"
+                                                        min="0"
+                                                        placeholder="0.0"
+                                                        value="${val !== null ? val : ''}"
+                                                        onchange="updateHittingData(${player.id}, '${drill.id}', ${idx}, this.value)"
+                                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    />
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        }).join('')}
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        ${categories.map(cat => `
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">${cat.name}</label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    max="${cat.max}"
+                                    value="${player.scores[cat.id]}"
+                                    onchange="updateScore(${player.id}, '${cat.id}', this.value)"
+                                    class="w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                />
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="mb-4">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">Speed Drills (enter times in seconds)</h4>
+                        ${speedDrills.map(drill => {
+                            const times = player.speedTimes[drill.id];
+                            const score = calculateSpeedScore(drill.id, times);
+                            const avgTime = times.filter(t => t !== null && !isNaN(t)).length > 0
+                                ? (times.filter(t => t !== null && !isNaN(t)).reduce((sum, t) => sum + t, 0) / times.filter(t => t !== null && !isNaN(t)).length).toFixed(2)
+                                : 'N/A';
+                            
+                            return `
+                                <div class="bg-gray-50 p-4 rounded-lg mb-3">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <label class="text-sm font-medium text-gray-700">${drill.name}</label>
+                                        <div class="text-right">
+                                            <span class="text-xs text-gray-500" data-avg-display="${drill.id}">Avg: ${avgTime}s</span>
+                                            <span class="ml-3 text-sm font-bold text-green-600" data-score-display data-drill-id="${drill.id}" data-drill-type="speed">Score: ${score}/5</span>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        ${times.map((time, idx) => `
+                                            <div>
+                                                <label class="block text-xs text-gray-600 mb-1">Attempt ${idx + 1}</label>
+                                                <input
+                                                    type="number"
+                                                    step="0.01"
+                                                    min="0"
+                                                    placeholder="0.00"
+                                                    value="${time !== null ? time : ''}"
+                                                    onchange="updateSpeedTime(${player.id}, '${drill.id}', ${idx}, this.value)"
+                                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                />
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                        <textarea
+                            onchange="updateNotes(${player.id}, this.value)"
+                            placeholder="Add observations, positions tried, etc..."
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
+                            rows="3"
+                        >${player.notes}</textarea>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateScoresOnly(playerId) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+
+            // Update all score displays in the current player's card
+            document.querySelectorAll('[data-score-display]').forEach(el => {
+                const drillId = el.getAttribute('data-drill-id');
+                const drillType = el.getAttribute('data-drill-type');
+
+                if (drillType === 'hitting') {
+                    const score = calculateHittingScore(drillId, player.hittingData[drillId]);
+                    el.textContent = `Score: ${score}/${el.getAttribute('data-max-score')}`;
+
+                    // Update averages and counts
+                    const avgEl = document.querySelector(`[data-avg-display="${drillId}"]`);
+                    if (avgEl) {
+                        const values = player.hittingData[drillId] || [];
+                        const drillInfo = hittingDrills.find(d => d.id === drillId);
+
+                        if (drillInfo && drillInfo.type === 'yesno') {
+                            const yesCount = values.filter(v => v === true || v === 'Y').length;
+                            const noCount = values.filter(v => v === false || v === 'N').length;
+                            avgEl.textContent = `Y: ${yesCount} | N: ${noCount}`;
+                        } else if (drillInfo && drillInfo.type !== 'yesno_sum') {
+                            const validVals = values.filter(v => v !== null && !isNaN(v));
+                            const avgValue = validVals.length > 0
+                                ? (validVals.reduce((sum, v) => sum + v, 0) / validVals.length).toFixed(1)
+                                : 'N/A';
+                            avgEl.textContent = `Avg: ${avgValue} mph`;
+                        }
+                    }
+                } else if (drillType === 'speed') {
+                    const score = calculateSpeedScore(drillId, player.speedTimes[drillId]);
+                    el.textContent = `Score: ${score}/5`;
+
+                    // Update average
+                    const avgEl = document.querySelector(`[data-avg-display="${drillId}"]`);
+                    if (avgEl) {
+                        const times = player.speedTimes[drillId] || [];
+                        const validTimes = times.filter(t => t !== null && !isNaN(t));
+                        const avgTime = validTimes.length > 0
+                            ? (validTimes.reduce((sum, t) => sum + t, 0) / validTimes.length).toFixed(2)
+                            : 'N/A';
+                        avgEl.textContent = `Avg: ${avgTime}s`;
+                    }
+                }
+            });
+
+            // Update total score
+            const hittingScore = getHittingScore(player);
+            const speedScore = getSpeedScore(player);
+            const regularScore = Object.values(player.scores).reduce((sum, score) => sum + score, 0);
+            const totalScore = getTotalScore(player);
+
+            const totalScoreEl = document.querySelector('[data-total-score]');
+            if (totalScoreEl) {
+                totalScoreEl.textContent = `${totalScore}/68`;
+            }
+
+            const subscoreEl = document.querySelector('[data-subscore]');
+            if (subscoreEl) {
+                subscoreEl.textContent = `Hitting: ${hittingScore}/23 | Speed: ${speedScore}/15`;
+            }
+
+            // Update dropdown
+            const dropdown = document.getElementById('playerDropdown');
+            if (dropdown && viewMode === 'single') {
+                const option = dropdown.querySelector(`option[value="${currentPlayerIndex}"]`);
+                if (option) {
+                    option.textContent = `${player.name}${player.number ? ' (#' + player.number + ')' : ''} - Score: ${totalScore}/68`;
+                }
+            }
+        }
+
+        function renderWithFocus() {
+            // Save the currently focused element
+            const activeElement = document.activeElement;
+            const tagName = activeElement ? activeElement.tagName : null;
+            const tabIndex = activeElement ? Array.from(document.querySelectorAll('input, select, textarea')).indexOf(activeElement) : -1;
+
+            render();
+
+            // Restore focus to the next input element
+            if (tabIndex >= 0) {
+                const allInputs = document.querySelectorAll('input, select, textarea');
+                if (allInputs[tabIndex]) {
+                    setTimeout(() => {
+                        allInputs[tabIndex].focus();
+                    }, 0);
+                }
+            }
+        }
+
+        function render() {
+            const singleView = document.getElementById('singlePlayerView');
+            const allView = document.getElementById('allPlayersView');
+            const emptyState = document.getElementById('emptyState');
+
+            if (players.length === 0) {
+                singleView.classList.add('hidden');
+                allView.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            if (viewMode === 'single') {
+                singleView.classList.remove('hidden');
+                allView.classList.add('hidden');
+
+                const player = players[currentPlayerIndex];
+                document.getElementById('currentPlayerCard').innerHTML = renderPlayerCard(player);
+                document.getElementById('playerCounter').textContent = `Player ${currentPlayerIndex + 1} of ${players.length}`;
+
+                // Update dropdown
+                const dropdown = document.getElementById('playerDropdown');
+                dropdown.innerHTML = players.map((p, idx) => 
+                    `<option value="${idx}" ${idx === currentPlayerIndex ? 'selected' : ''}>
+                        ${p.name}${p.number ? ' (#' + p.number + ')' : ''} - Score: ${getTotalScore(p)}/68
+                    </option>`
+                ).join('');
+
+                const prevBtn = document.getElementById('prevBtn');
+                const nextBtn = document.getElementById('nextBtn');
+                prevBtn.disabled = currentPlayerIndex === 0;
+                nextBtn.disabled = currentPlayerIndex === players.length - 1;
+
+            } else {
+                singleView.classList.add('hidden');
+                allView.classList.remove('hidden');
+
+                const sortedPlayers = [...players].sort((a, b) => getTotalScore(b) - getTotalScore(a));
+                const playersList = document.getElementById('playersList');
+
+                playersList.innerHTML = sortedPlayers.map((player, index) => `
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-xl font-bold text-gray-400">#${index + 1}</span>
+                        </div>
+                        ${renderPlayerCard(player, true)}
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (viewMode === 'single' && players.length > 0) {
+                if (e.key === 'ArrowLeft') {
+                    previousPlayer();
+                } else if (e.key === 'ArrowRight') {
+                    nextPlayer();
+                }
+            }
+        });
+
+        // Allow Enter key to add player
+        document.getElementById('playerName').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addPlayer();
+        });
+        document.getElementById('playerNumber').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addPlayer();
+        });
+
+        // Load saved data and render on page load
+        loadData();
+        render();
+    </script>
+</body>
+</html>

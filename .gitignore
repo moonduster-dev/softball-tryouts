@@ -1,0 +1,5 @@
+# Don't upload these files to GitHub
+google-apps-script.js
+SETUP_INSTRUCTIONS.md
+HOW_TO_USE.md
+softball_scorer_html.html
