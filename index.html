@@ -61,7 +61,7 @@
                 </div>
                 <div class="text-center">
                     <h1 class="text-3xl font-bold text-gray-800 mb-2">Our Lady of Good Counsel High School 2026 Softball Tryouts</h1>
-                    <p class="text-gray-600">Track player performance across key categories (0-10 scale)</p>
+                    <p class="text-gray-600">Track Player Performance Across Key Categories</p>
                 </div>
                 <div class="flex gap-2 flex-wrap justify-center">
                     <button
@@ -734,6 +734,33 @@
             }
         }
 
+        function updatePlayerInfo(playerId, name, number) {
+            const player = players.find(p => p.id === playerId);
+            if (player && name.trim()) {
+                player.name = name.trim();
+                player.number = number.trim();
+                saveData();
+                render();
+            }
+        }
+
+        function editPlayerInfo(playerId) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+
+            const newName = prompt('Enter player name:', player.name);
+            if (newName === null) return; // User cancelled
+
+            const newNumber = prompt('Enter jersey number (optional):', player.number || '');
+            if (newNumber === null) return; // User cancelled
+
+            if (newName.trim()) {
+                updatePlayerInfo(playerId, newName, newNumber);
+            } else {
+                alert('Player name cannot be empty!');
+            }
+        }
+
         function updateHittingData(playerId, drill, attemptIndex, value) {
             const player = players.find(p => p.id === playerId);
             if (player) {
@@ -1292,6 +1319,14 @@
                                 <div class="text-xs text-gray-400" data-subscore>Hitting: ${hittingScore}/23 | Speed: ${speedScore}/15</div>
                             </div>
                             ${showDelete ? `
+                            <button
+                                onclick="editPlayerInfo(${player.id})"
+                                tabindex="-1"
+                                class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                                title="Edit player name/number"
+                            >
+                                ✏️
+                            </button>
                             <button
                                 onclick="removePlayer(${player.id})"
                                 tabindex="-1"
