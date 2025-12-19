@@ -206,7 +206,7 @@
                 <!-- Station Selection -->
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-3">Step 1: Select Your Station</label>
-                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                         <button
                             onclick="selectStation('fielding')"
                             id="station-fielding"
@@ -241,6 +241,13 @@
                             class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-100 hover:text-blue-700 font-medium border-2 border-transparent transition"
                         >
                             ⚡ Speed
+                        </button>
+                        <button
+                            onclick="selectStation('catcher')"
+                            id="station-catcher"
+                            class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-100 hover:text-blue-700 font-medium border-2 border-transparent transition"
+                        >
+                            🧤 Catcher
                         </button>
                     </div>
                 </div>
@@ -394,6 +401,14 @@
             { id: 'h1b', name: 'H→1B', attempts: 3 },
             { id: 'h2b', name: 'H→2B', attempts: 3 },
             { id: 'hh', name: 'H→H', attempts: 3 }
+        ];
+
+        const catcherDrills = [
+            { id: 'poptime', name: 'Pop Time (seconds)', attempts: 3, type: 'number' },
+            { id: 'throwaccuracy', name: 'Throwing Accuracy (2B)', attempts: 3, type: 'accuracy' },
+            { id: 'throwspeed', name: 'Throwing Speed to 2B (mph)', attempts: 3, type: 'number' },
+            { id: 'blocking', name: 'Blocking Balls in the Dirt', attempts: 1, type: 'overall' },
+            { id: 'buntfielding', name: 'Bunt Fielding Throws to 1B', attempts: 1, type: 'overall' }
         ];
 
         // Local storage functions
@@ -686,6 +701,13 @@
                         h2b: [null, null, null],
                         hh: [null, null, null]
                     },
+                    catcherData: {
+                        poptime: [null, null, null],
+                        throwaccuracy: [null, null, null],
+                        throwspeed: [null, null, null],
+                        blocking: null,
+                        buntfielding: null
+                    },
                     notes: ''
                 };
                 
@@ -895,11 +917,101 @@
             return h1bScore + h2bScore + hhScore;
         }
 
+        function updateCatcherData(playerId, drill, attemptIndex, value) {
+            const player = players.find(p => p.id === playerId);
+            if (player) {
+                if (!player.catcherData) {
+                    player.catcherData = {
+                        poptime: [null, null, null],
+                        throwaccuracy: [null, null, null],
+                        throwspeed: [null, null, null],
+                        blocking: null,
+                        buntfielding: null
+                    };
+                }
+
+                const drillInfo = catcherDrills.find(d => d.id === drill);
+                if (!drillInfo) return;
+
+                if (drillInfo.type === 'overall') {
+                    // Single overall score (1-5)
+                    const numValue = value === '' ? null : parseInt(value);
+                    player.catcherData[drill] = numValue;
+                } else if (drillInfo.type === 'accuracy') {
+                    // Accuracy values: 0, 1, or 3
+                    if (!player.catcherData[drill]) {
+                        player.catcherData[drill] = [null, null, null];
+                    }
+                    const numValue = value === '' ? null : parseInt(value);
+                    player.catcherData[drill][attemptIndex] = numValue;
+                } else {
+                    // Number type (poptime, throwspeed)
+                    if (!player.catcherData[drill]) {
+                        player.catcherData[drill] = [null, null, null];
+                    }
+                    const numValue = value === '' ? null : parseFloat(value);
+                    player.catcherData[drill][attemptIndex] = numValue;
+                }
+
+                saveData();
+                updateScoresOnly(playerId);
+            }
+        }
+
+        function calculateCatcherScore(drill, values) {
+            if (drill === 'blocking' || drill === 'buntfielding') {
+                // Overall score (1-5)
+                return values !== null && values !== undefined ? values : 0;
+            }
+
+            if (!values || !Array.isArray(values)) return 0;
+            const validValues = values.filter(v => v !== null && v !== undefined && v !== '');
+            if (validValues.length === 0) return 0;
+
+            if (drill === 'throwaccuracy') {
+                // Sum of accuracy scores (0, 1, or 3 per attempt)
+                return validValues.reduce((sum, v) => sum + parseInt(v), 0);
+            }
+
+            // For poptime and throwspeed, calculate average and score
+            const numericValues = validValues.map(v => parseFloat(v)).filter(v => !isNaN(v));
+            if (numericValues.length === 0) return 0;
+
+            const avgValue = numericValues.reduce((sum, v) => sum + v, 0) / numericValues.length;
+
+            if (drill === 'poptime') {
+                if (avgValue > 4) return 1;
+                if (avgValue >= 3.15) return 2;
+                if (avgValue >= 2.51) return 3;
+                if (avgValue >= 2.31) return 4;
+                return 5;
+            } else if (drill === 'throwspeed') {
+                if (avgValue < 40) return 1;
+                if (avgValue < 45) return 2;
+                if (avgValue < 52) return 3;
+                if (avgValue < 60) return 4;
+                return 5;
+            }
+
+            return 0;
+        }
+
+        function getCatcherScore(player) {
+            if (!player.catcherData) return 0;
+            const poptimeScore = calculateCatcherScore('poptime', player.catcherData.poptime);
+            const accuracyScore = calculateCatcherScore('throwaccuracy', player.catcherData.throwaccuracy);
+            const throwspeedScore = calculateCatcherScore('throwspeed', player.catcherData.throwspeed);
+            const blockingScore = calculateCatcherScore('blocking', player.catcherData.blocking);
+            const buntfieldingScore = calculateCatcherScore('buntfielding', player.catcherData.buntfielding);
+            return poptimeScore + accuracyScore + throwspeedScore + blockingScore + buntfieldingScore;
+        }
+
         function getTotalScore(player) {
             const regularScore = Object.values(player.scores).reduce((sum, score) => sum + score, 0);
             const hittingScore = getHittingScore(player);
             const speedScore = getSpeedScore(player);
-            return regularScore + hittingScore + speedScore;
+            const catcherScore = getCatcherScore(player);
+            return regularScore + hittingScore + speedScore + catcherScore;
         }
 
         function previousPlayer() {
@@ -967,7 +1079,7 @@
                     <option value="">-- Select a player --</option>
                     ${players.map(p => `
                         <option value="${p.id}" ${p.id === selectedStationPlayer ? 'selected' : ''}>
-                            ${p.name}${p.number ? ' (#' + p.number + ')' : ''} - Score: ${getTotalScore(p)}/68
+                            ${p.name}${p.number ? ' (#' + p.number + ')' : ''} - Score: ${getTotalScore(p)}/97
                         </option>
                     `).join('')}
                 `;
@@ -1179,6 +1291,115 @@
                         </div>
                     </div>
                 `;
+            } else if (selectedStation === 'catcher') {
+                // Initialize catcherData if needed
+                if (!player.catcherData) {
+                    player.catcherData = {
+                        poptime: [null, null, null],
+                        throwaccuracy: [null, null, null],
+                        throwspeed: [null, null, null],
+                        blocking: null,
+                        buntfielding: null
+                    };
+                }
+
+                stationHTML = `
+                    <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-8">
+                        <div class="max-w-4xl mx-auto">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-2">Catcher Drills</h3>
+                            <p class="text-gray-600 mb-6">Scoring for: <span class="font-semibold text-purple-700">${player.name}${player.number ? ' (#' + player.number + ')' : ''}</span></p>
+                            ${catcherDrills.map(drill => {
+                                if (drill.type === 'overall') {
+                                    const value = player.catcherData[drill.id];
+                                    const score = calculateCatcherScore(drill.id, value);
+
+                                    return `
+                                        <div class="bg-white p-6 rounded-lg mb-4 shadow-md">
+                                            <div class="flex justify-between items-center mb-3">
+                                                <label class="text-lg font-semibold text-gray-800">${drill.name}</label>
+                                                <span class="text-lg font-bold text-purple-600">Score: ${score}/5</span>
+                                            </div>
+                                            <select
+                                                onchange="updateCatcherData(${player.id}, '${drill.id}', 0, this.value); renderStationContent();"
+                                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-center text-lg"
+                                            >
+                                                <option value="">-</option>
+                                                <option value="1" ${value === 1 ? 'selected' : ''}>1</option>
+                                                <option value="2" ${value === 2 ? 'selected' : ''}>2</option>
+                                                <option value="3" ${value === 3 ? 'selected' : ''}>3</option>
+                                                <option value="4" ${value === 4 ? 'selected' : ''}>4</option>
+                                                <option value="5" ${value === 5 ? 'selected' : ''}>5</option>
+                                            </select>
+                                        </div>
+                                    `;
+                                } else if (drill.type === 'accuracy') {
+                                    const values = player.catcherData[drill.id] || [null, null, null];
+                                    const score = calculateCatcherScore(drill.id, values);
+
+                                    return `
+                                        <div class="bg-white p-6 rounded-lg mb-4 shadow-md">
+                                            <div class="flex justify-between items-center mb-3">
+                                                <label class="text-lg font-semibold text-gray-800">${drill.name}</label>
+                                                <span class="text-lg font-bold text-purple-600">Score: ${score}/9</span>
+                                            </div>
+                                            <div class="grid grid-cols-3 gap-3">
+                                                ${values.map((val, idx) => `
+                                                    <div>
+                                                        <label class="block text-sm text-gray-600 mb-1">Attempt ${idx + 1}</label>
+                                                        <select
+                                                            onchange="updateCatcherData(${player.id}, '${drill.id}', ${idx}, this.value); renderStationContent();"
+                                                            class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-center"
+                                                        >
+                                                            <option value="">-</option>
+                                                            <option value="0" ${val === 0 ? 'selected' : ''}>Off (0)</option>
+                                                            <option value="1" ${val === 1 ? 'selected' : ''}>1 Bounce (1)</option>
+                                                            <option value="3" ${val === 3 ? 'selected' : ''}>On Mark (3)</option>
+                                                        </select>
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                    `;
+                                } else {
+                                    const values = player.catcherData[drill.id] || [null, null, null];
+                                    const score = calculateCatcherScore(drill.id, values);
+                                    const validVals = values.filter(v => v !== null && !isNaN(v));
+                                    const avgValue = validVals.length > 0
+                                        ? (validVals.reduce((sum, v) => sum + v, 0) / validVals.length).toFixed(2)
+                                        : 'N/A';
+
+                                    return `
+                                        <div class="bg-white p-6 rounded-lg mb-4 shadow-md">
+                                            <div class="flex justify-between items-center mb-3">
+                                                <label class="text-lg font-semibold text-gray-800">${drill.name}</label>
+                                                <div class="text-right">
+                                                    <span class="text-sm text-gray-500">Avg: ${avgValue}</span>
+                                                    <span class="ml-3 text-lg font-bold text-purple-600">Score: ${score}/5</span>
+                                                </div>
+                                            </div>
+                                            <div class="grid grid-cols-3 gap-3">
+                                                ${values.map((val, idx) => `
+                                                    <div>
+                                                        <label class="block text-sm text-gray-600 mb-1">Attempt ${idx + 1}</label>
+                                                        <input
+                                                            type="number"
+                                                            step="0.01"
+                                                            min="0"
+                                                            placeholder="0.00"
+                                                            value="${val !== null ? val : ''}"
+                                                            onchange="updateCatcherData(${player.id}, '${drill.id}', ${idx}, this.value); renderStationContent();"
+                                                            class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-center"
+                                                        />
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                    `;
+                                }
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
             }
 
             contentDiv.innerHTML = stationHTML;
@@ -1303,6 +1524,7 @@
 
             const hittingScore = getHittingScore(player);
             const speedScore = getSpeedScore(player);
+            const catcherScore = getCatcherScore(player);
             const regularScore = Object.values(player.scores).reduce((sum, score) => sum + score, 0);
 
             return `
@@ -1315,8 +1537,8 @@
                         <div class="flex items-center gap-3">
                             <div class="text-right">
                                 <div class="text-sm text-gray-500">Total Score</div>
-                                <div class="text-3xl font-bold text-green-600" data-total-score>${getTotalScore(player)}/68</div>
-                                <div class="text-xs text-gray-400" data-subscore>Hitting: ${hittingScore}/23 | Speed: ${speedScore}/15</div>
+                                <div class="text-3xl font-bold text-green-600" data-total-score>${getTotalScore(player)}/97</div>
+                                <div class="text-xs text-gray-400" data-subscore>Hitting: ${hittingScore}/23 | Speed: ${speedScore}/15 | Catcher: ${catcherScore}/29</div>
                             </div>
                             ${showDelete ? `
                             <button
@@ -1495,6 +1717,112 @@
                         }).join('')}
                     </div>
 
+                    <div class="mb-4">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">Catcher Drills</h4>
+                        ${catcherDrills.map(drill => {
+                            if (!player.catcherData) {
+                                player.catcherData = {
+                                    poptime: [null, null, null],
+                                    throwaccuracy: [null, null, null],
+                                    throwspeed: [null, null, null],
+                                    blocking: null,
+                                    buntfielding: null
+                                };
+                            }
+
+                            if (drill.type === 'overall') {
+                                // Single overall score (1-5)
+                                const value = player.catcherData[drill.id];
+                                const score = calculateCatcherScore(drill.id, value);
+
+                                return `
+                                    <div class="bg-gray-50 p-4 rounded-lg mb-3">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <label class="text-sm font-medium text-gray-700">${drill.name}</label>
+                                            <span class="text-sm font-bold text-green-600">Score: ${score}/5</span>
+                                        </div>
+                                        <select
+                                            onchange="updateCatcherData(${player.id}, '${drill.id}', 0, this.value)"
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        >
+                                            <option value="">-</option>
+                                            <option value="1" ${value === 1 ? 'selected' : ''}>1</option>
+                                            <option value="2" ${value === 2 ? 'selected' : ''}>2</option>
+                                            <option value="3" ${value === 3 ? 'selected' : ''}>3</option>
+                                            <option value="4" ${value === 4 ? 'selected' : ''}>4</option>
+                                            <option value="5" ${value === 5 ? 'selected' : ''}>5</option>
+                                        </select>
+                                    </div>
+                                `;
+                            } else if (drill.type === 'accuracy') {
+                                // Throwing accuracy: 0, 1, or 3 per attempt
+                                const values = player.catcherData[drill.id] || [null, null, null];
+                                const score = calculateCatcherScore(drill.id, values);
+
+                                return `
+                                    <div class="bg-gray-50 p-4 rounded-lg mb-3">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <label class="text-sm font-medium text-gray-700">${drill.name}</label>
+                                            <span class="text-sm font-bold text-green-600">Score: ${score}/9</span>
+                                        </div>
+                                        <div class="grid grid-cols-3 gap-2">
+                                            ${values.map((val, idx) => `
+                                                <div>
+                                                    <label class="block text-xs text-gray-600 mb-1">Attempt ${idx + 1}</label>
+                                                    <select
+                                                        onchange="updateCatcherData(${player.id}, '${drill.id}', ${idx}, this.value)"
+                                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    >
+                                                        <option value="">-</option>
+                                                        <option value="0" ${val === 0 ? 'selected' : ''}>Off (0)</option>
+                                                        <option value="1" ${val === 1 ? 'selected' : ''}>1 Bounce (1)</option>
+                                                        <option value="3" ${val === 3 ? 'selected' : ''}>On Mark (3)</option>
+                                                    </select>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                `;
+                            } else {
+                                // Number type (poptime, throwspeed)
+                                const values = player.catcherData[drill.id] || [null, null, null];
+                                const score = calculateCatcherScore(drill.id, values);
+                                const validVals = values.filter(v => v !== null && !isNaN(v));
+                                const avgValue = validVals.length > 0
+                                    ? (validVals.reduce((sum, v) => sum + v, 0) / validVals.length).toFixed(2)
+                                    : 'N/A';
+
+                                return `
+                                    <div class="bg-gray-50 p-4 rounded-lg mb-3">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <label class="text-sm font-medium text-gray-700">${drill.name}</label>
+                                            <div class="text-right">
+                                                <span class="text-xs text-gray-500">Avg: ${avgValue}</span>
+                                                <span class="ml-3 text-sm font-bold text-green-600">Score: ${score}/5</span>
+                                            </div>
+                                        </div>
+                                        <div class="grid grid-cols-3 gap-2">
+                                            ${values.map((val, idx) => `
+                                                <div>
+                                                    <label class="block text-xs text-gray-600 mb-1">Attempt ${idx + 1}</label>
+                                                    <input
+                                                        type="number"
+                                                        step="0.01"
+                                                        min="0"
+                                                        placeholder="0.00"
+                                                        value="${val !== null ? val : ''}"
+                                                        onchange="updateCatcherData(${player.id}, '${drill.id}', ${idx}, this.value)"
+                                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    />
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        }).join('')}
+                    </div>
+
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
                         <textarea
@@ -1559,17 +1887,18 @@
             // Update total score
             const hittingScore = getHittingScore(player);
             const speedScore = getSpeedScore(player);
+            const catcherScore = getCatcherScore(player);
             const regularScore = Object.values(player.scores).reduce((sum, score) => sum + score, 0);
             const totalScore = getTotalScore(player);
 
             const totalScoreEl = document.querySelector('[data-total-score]');
             if (totalScoreEl) {
-                totalScoreEl.textContent = `${totalScore}/68`;
+                totalScoreEl.textContent = `${totalScore}/97`;
             }
 
             const subscoreEl = document.querySelector('[data-subscore]');
             if (subscoreEl) {
-                subscoreEl.textContent = `Hitting: ${hittingScore}/23 | Speed: ${speedScore}/15`;
+                subscoreEl.textContent = `Hitting: ${hittingScore}/23 | Speed: ${speedScore}/15 | Catcher: ${catcherScore}/29`;
             }
 
             // Update dropdown
@@ -1577,7 +1906,7 @@
             if (dropdown && viewMode === 'single') {
                 const option = dropdown.querySelector(`option[value="${currentPlayerIndex}"]`);
                 if (option) {
-                    option.textContent = `${player.name}${player.number ? ' (#' + player.number + ')' : ''} - Score: ${totalScore}/68`;
+                    option.textContent = `${player.name}${player.number ? ' (#' + player.number + ')' : ''} - Score: ${totalScore}/97`;
                 }
             }
         }
@@ -1630,7 +1959,7 @@
                 const dropdown = document.getElementById('playerDropdown');
                 dropdown.innerHTML = players.map((p, idx) =>
                     `<option value="${idx}" ${idx === currentPlayerIndex ? 'selected' : ''}>
-                        ${p.name}${p.number ? ' (#' + p.number + ')' : ''} - Score: ${getTotalScore(p)}/68
+                        ${p.name}${p.number ? ' (#' + p.number + ')' : ''} - Score: ${getTotalScore(p)}/97
                     </option>`
                 ).join('');
 
@@ -1655,7 +1984,7 @@
                         <option value="">-- Select a player --</option>
                         ${players.map(p => `
                             <option value="${p.id}" ${p.id === selectedStationPlayer ? 'selected' : ''}>
-                                ${p.name}${p.number ? ' (#' + p.number + ')' : ''} - Score: ${getTotalScore(p)}/68
+                                ${p.name}${p.number ? ' (#' + p.number + ')' : ''} - Score: ${getTotalScore(p)}/97
                             </option>
                         `).join('')}
                     `;
@@ -1711,7 +2040,7 @@
                                             <td class="px-4 py-3 text-center border-b text-gray-700">${hittingScore}/23</td>
                                             <td class="px-4 py-3 text-center border-b text-gray-700">${speedScore}/15</td>
                                             <td class="px-4 py-3 text-center border-b bg-green-50">
-                                                <span class="text-lg font-bold text-green-600">${totalScore}/68</span>
+                                                <span class="text-lg font-bold text-green-600">${totalScore}/97</span>
                                             </td>
                                         </tr>
                                     `;
