@@ -1,0 +1,42 @@
+═══════════════════════════════════════════════════════════════
+  📱 MOBILE QUICK START - iPhone/iPad/Android
+═══════════════════════════════════════════════════════════════
+
+STEP 1: OPEN THE FILE FROM EMAIL
+
+iPhone/iPad (DO NOT SAVE TO FILES):
+→ Tap attachment to preview
+→ Tap Share button (top right)
+→ Scroll down and tap "Safari"
+→ File opens in Safari!
+
+Android:
+→ Tap attachment → Download
+→ Downloads folder → tap index.html → select Chrome
+
+STEP 2: ADD TO HOME SCREEN (Optional but Recommended!)
+→ iPhone/iPad: Share button → "Add to Home Screen"
+→ Android: Menu (⋮) → "Add to Home screen"
+→ Now it's like a real app on your phone!
+
+STEP 3: USE THE APP
+→ Auto-loads latest data when you open it
+→ Choose view: 👤 Players or 🎯 Stations
+→ Enter scores - auto-saves instantly
+→ Auto-syncs to Google Sheets
+
+TIPS FOR MOBILE:
+✓ Works offline - syncs when you get internet back
+✓ Use landscape mode on tablets for more space
+✓ Station view works great on phones
+✓ All features work same as computer version
+
+TROUBLESHOOTING:
+? File won't open → Make sure you open with Safari/Chrome
+? Can't find file → Check Files app (iOS) or Downloads (Android)
+? Looks weird → Rotate device or zoom out
+
+═══════════════════════════════════════════════════════════════
+For detailed instructions, see: MOBILE_INSTRUCTIONS.md
+Questions? Ask the person who sent you this file!
+═══════════════════════════════════════════════════════════════

@@ -4,48 +4,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Softball Tryout Scorer</title>
+    <title>Our Lady of Good Counsel High School 2026 Softball Tryouts</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gradient-to-br from-green-50 to-blue-50 min-h-screen p-4">
-    <div class="max-w-4xl mx-auto">
+    <!-- Password Protection Screen -->
+    <div id="passwordScreen" class="fixed inset-0 bg-gray-900 bg-opacity-95 flex items-center justify-center z-50" style="display: none;">
+        <div class="bg-white rounded-lg shadow-2xl p-8 max-w-md w-full mx-4">
+            <div class="text-center mb-6">
+                <!-- Logo on password screen -->
+                <img
+                    src="GClogo.jpg"
+                    alt="Logo"
+                    class="h-20 w-20 object-contain mx-auto mb-4"
+                    id="passwordLogo"
+                />
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">🔒 Softball Tryout Scorer</h1>
+                <p class="text-gray-600">Enter password to access</p>
+            </div>
+            <div class="space-y-4">
+                <input
+                    type="password"
+                    id="passwordInput"
+                    placeholder="Enter password"
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-lg"
+                    onkeypress="if(event.key === 'Enter') checkPassword()"
+                    autofocus
+                />
+                <button
+                    onclick="checkPassword()"
+                    class="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold text-lg"
+                >
+                    Unlock
+                </button>
+                <div id="passwordError" class="text-red-600 text-center text-sm" style="display: none;">
+                    ❌ Incorrect password. Please try again.
+                </div>
+            </div>
+            <div class="mt-6 text-center text-sm text-gray-500">
+                Contact your coach if you don't have the password
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto" id="appContent" style="display: none;">
         <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <div class="flex justify-between items-start">
-                <div>
-                    <h1 class="text-3xl font-bold text-gray-800 mb-2">Softball Tryout Scorer</h1>
+            <div class="flex flex-col gap-4">
+                <!-- Logo Image -->
+                <div class="flex justify-center">
+                    <img
+                        src="GClogo.jpg"
+                        alt="Logo"
+                        class="h-24 w-24 object-contain"
+                        id="appLogo"
+                    />
+                </div>
+                <div class="text-center">
+                    <h1 class="text-3xl font-bold text-gray-800 mb-2">Our Lady of Good Counsel High School 2026 Softball Tryouts</h1>
                     <p class="text-gray-600">Track player performance across key categories (0-10 scale)</p>
                 </div>
-                <div class="flex gap-2 flex-wrap">
-                    <button
-                        onclick="uploadToSheets()"
-                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
-                        title="Upload current data to Google Sheets"
-                    >
-                        ⬆️ Upload to Sheets
-                    </button>
-                    <button
-                        onclick="downloadFromSheets()"
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
-                        title="Download data from Google Sheets"
-                    >
-                        ⬇️ Download from Sheets
-                    </button>
-                    <button
-                        onclick="showAllPlayers()"
-                        class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center gap-2"
-                    >
-                        📊 View All
-                    </button>
+                <div class="flex gap-2 flex-wrap justify-center">
                     <button
                         onclick="clearAllData()"
                         class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-2"
                     >
-                        🗑️ Clear All
+                        🗑️ Clear All Data
                     </button>
+                    <button
+                        onclick="document.getElementById('advancedOptions').classList.toggle('hidden')"
+                        class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 flex items-center gap-2"
+                    >
+                        ⚙️ Advanced Options
+                    </button>
+                </div>
+
+                <!-- Advanced Options (Hidden by default) -->
+                <div id="advancedOptions" class="hidden mt-4 pt-4 border-t border-gray-200">
+                    <p class="text-sm text-gray-600 mb-3 text-center">Manual sync options (auto-sync is always active)</p>
+                    <div class="flex gap-2 flex-wrap justify-center">
+                        <button
+                            onclick="uploadToSheets()"
+                            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
+                            title="Manually upload current data to Google Sheets"
+                        >
+                            ⬆️ Upload to Sheets
+                        </button>
+                        <button
+                            onclick="downloadFromSheets()"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+                            title="Manually download data from Google Sheets"
+                        >
+                            ⬇️ Download from Sheets
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="mt-3 text-sm text-green-600 flex items-center gap-2" id="saveStatus">
-                💾 Data auto-saves to browser
+                🔄 Auto-syncing with Google Sheets
+            </div>
+        </div>
+
+        <!-- View Navigation Buttons -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="flex gap-3 flex-wrap justify-center">
+                <button
+                    onclick="showPlayersView()"
+                    class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center gap-2"
+                    id="playersViewBtn"
+                >
+                    👤 Players
+                </button>
+                <button
+                    onclick="showStationsView()"
+                    class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 flex items-center gap-2"
+                    id="stationsViewBtn"
+                >
+                    🎯 Stations
+                </button>
+                <button
+                    onclick="showAllPlayers()"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+                >
+                    📊 View All
+                </button>
             </div>
         </div>
 
@@ -116,11 +197,80 @@
             </div>
         </div>
 
+        <!-- Stations View -->
+        <div id="stationsView" class="hidden">
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <h2 class="text-xl font-semibold mb-4">Station-Based Scoring</h2>
+                <p class="text-gray-600 mb-6">Select your station, then score players as they come through</p>
+
+                <!-- Station Selection -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-3">Step 1: Select Your Station</label>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                        <button
+                            onclick="selectStation('fielding')"
+                            id="station-fielding"
+                            class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-100 hover:text-blue-700 font-medium border-2 border-transparent transition"
+                        >
+                            ⚾ Fielding
+                        </button>
+                        <button
+                            onclick="selectStation('throwing')"
+                            id="station-throwing"
+                            class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-100 hover:text-blue-700 font-medium border-2 border-transparent transition"
+                        >
+                            🎯 Throwing
+                        </button>
+                        <button
+                            onclick="selectStation('attitude')"
+                            id="station-attitude"
+                            class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-100 hover:text-blue-700 font-medium border-2 border-transparent transition"
+                        >
+                            ⭐ Attitude
+                        </button>
+                        <button
+                            onclick="selectStation('hitting')"
+                            id="station-hitting"
+                            class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-100 hover:text-blue-700 font-medium border-2 border-transparent transition"
+                        >
+                            🏏 Hitting
+                        </button>
+                        <button
+                            onclick="selectStation('speed')"
+                            id="station-speed"
+                            class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-100 hover:text-blue-700 font-medium border-2 border-transparent transition"
+                        >
+                            ⚡ Speed
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Player Selection -->
+                <div class="mb-6 p-4 bg-blue-50 rounded-lg" id="stationPlayerSelector" style="display: none;">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Step 2: Select Player to Score</label>
+                    <select
+                        id="stationPlayerDropdown"
+                        onchange="selectStationPlayer(this.value)"
+                        class="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg"
+                    >
+                        <option value="">-- Select a player --</option>
+                    </select>
+                </div>
+
+                <!-- Station Content Area -->
+                <div id="stationContent" class="mt-6">
+                    <div class="text-center text-gray-500 py-12">
+                        <p class="text-lg">Select your station to begin</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- All Players View -->
         <div id="allPlayersView" class="hidden">
             <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-semibold">All Players - Ranked by Score</h2>
+                    <h2 class="text-xl font-semibold">All Players - Ranked by Total Score</h2>
                     <div class="flex gap-2">
                         <button
                             onclick="exportData()"
@@ -129,14 +279,14 @@
                             <span>⬇️</span> Export CSV
                         </button>
                         <button
-                            onclick="showSinglePlayer()"
+                            onclick="showPlayersView()"
                             class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
                         >
-                            👤 Single View
+                            👤 Players View
                         </button>
                     </div>
                 </div>
-                <div id="playersList" class="space-y-4"></div>
+                <div id="playersList"></div>
             </div>
         </div>
 
@@ -147,6 +297,65 @@
 
     <script>
         // ============================================
+        // PASSWORD PROTECTION
+        // ============================================
+        // CHANGE THIS PASSWORD to something secure!
+        const APP_PASSWORD = 'nick2026';
+
+        // Check if user is already authenticated
+        function initPasswordProtection() {
+            const isAuthenticated = sessionStorage.getItem('appAuthenticated');
+            if (isAuthenticated === 'true') {
+                unlockApp();
+            } else {
+                showPasswordScreen();
+            }
+        }
+
+        function showPasswordScreen() {
+            document.getElementById('passwordScreen').style.display = 'flex';
+            document.getElementById('appContent').style.display = 'none';
+            setTimeout(() => {
+                document.getElementById('passwordInput').focus();
+            }, 100);
+        }
+
+        function unlockApp() {
+            document.getElementById('passwordScreen').style.display = 'none';
+            document.getElementById('appContent').style.display = 'block';
+            // Initialize the app
+            autoDownloadFromSheets().then(() => {
+                render();
+            });
+        }
+
+        function checkPassword() {
+            const input = document.getElementById('passwordInput');
+            const errorDiv = document.getElementById('passwordError');
+
+            if (input.value === APP_PASSWORD) {
+                // Correct password
+                sessionStorage.setItem('appAuthenticated', 'true');
+                errorDiv.style.display = 'none';
+                unlockApp();
+            } else {
+                // Wrong password
+                errorDiv.style.display = 'block';
+                input.value = '';
+                input.focus();
+                // Shake animation
+                input.classList.add('animate-shake');
+                setTimeout(() => {
+                    input.classList.remove('animate-shake');
+                }, 500);
+            }
+        }
+
+        // Initialize password protection on page load
+        window.addEventListener('DOMContentLoaded', initPasswordProtection);
+        // ============================================
+
+        // ============================================
         // GOOGLE SHEETS CONFIGURATION
         // ============================================
         // IMPORTANT: Replace this URL with your Google Apps Script Web App URL
@@ -156,10 +365,14 @@
 
         let players = [];
         let currentPlayerIndex = 0;
-        let viewMode = 'single'; // 'single' or 'all'
+        let viewMode = 'players'; // 'players', 'stations', or 'all'
+        let selectedStationPlayer = null; // Player ID for station view
+        let selectedStation = null; // Current station: 'fielding', 'throwing', 'attitude', 'hitting', 'speed'
         let isSyncing = false;
+        let autoUploadTimer = null; // Timer for debouncing auto-upload
 
         const STORAGE_KEY = 'softball_tryout_data';
+        const AUTO_UPLOAD_DELAY = 2000; // 2 seconds debounce
 
         const categories = [
             { id: 'fielding', name: 'Fielding', max: 10 },
@@ -201,6 +414,14 @@
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
                 showSaveStatus('✓ Saved locally');
+
+                // Trigger auto-upload with debouncing
+                if (autoUploadTimer) {
+                    clearTimeout(autoUploadTimer);
+                }
+                autoUploadTimer = setTimeout(() => {
+                    autoUploadToSheets();
+                }, AUTO_UPLOAD_DELAY);
             } catch (error) {
                 console.error('Error saving data:', error);
                 showSaveStatus('⚠️ Save failed');
@@ -276,6 +497,74 @@
             form.submit();
         }
 
+        // Auto-upload function (silent, no alerts)
+        function autoUploadToSheets() {
+            if (GOOGLE_SCRIPT_URL.includes('PASTE_YOUR')) {
+                console.log('Google Apps Script URL not configured');
+                return;
+            }
+
+            if (isSyncing) {
+                console.log('Already syncing, skipping auto-upload');
+                return;
+            }
+
+            isSyncing = true;
+            showSaveStatus('⏳ Auto-uploading to Google Sheets...');
+
+            // Create a hidden form to POST data (avoids CORS and URL length limits)
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = GOOGLE_SCRIPT_URL;
+            form.target = 'upload-iframe';
+            form.style.display = 'none';
+
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'data';
+            input.value = JSON.stringify(players);
+            form.appendChild(input);
+
+            // Create hidden iframe to receive response
+            let iframe = document.getElementById('upload-iframe');
+            if (!iframe) {
+                iframe = document.createElement('iframe');
+                iframe.id = 'upload-iframe';
+                iframe.name = 'upload-iframe';
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+            }
+
+            // Handle response
+            iframe.onload = function() {
+                try {
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    const responseText = iframeDoc.body.textContent;
+
+                    if (responseText) {
+                        const result = JSON.parse(responseText);
+                        console.log('Auto-upload response:', result);
+                        if (result.success) {
+                            showSaveStatus('✓ Auto-synced to Google Sheets');
+                        } else {
+                            showSaveStatus('⚠️ Auto-upload failed');
+                            console.error('Auto-upload error:', result.error);
+                        }
+                    } else {
+                        showSaveStatus('✓ Auto-synced to Google Sheets');
+                    }
+                } catch (error) {
+                    console.log('Auto-upload sent (cross-origin response)');
+                    showSaveStatus('✓ Auto-synced to Google Sheets');
+                }
+                isSyncing = false;
+                document.body.removeChild(form);
+            };
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
         async function downloadFromSheets() {
             if (GOOGLE_SCRIPT_URL.includes('PASTE_YOUR')) {
                 alert('Please configure your Google Apps Script URL first.\nSee google-apps-script.js for instructions.');
@@ -318,14 +607,57 @@
             }
         }
 
+        // Auto-download function (silent, on page load)
+        async function autoDownloadFromSheets() {
+            if (GOOGLE_SCRIPT_URL.includes('PASTE_YOUR')) {
+                console.log('Google Apps Script URL not configured, loading from local storage');
+                loadData(); // Fall back to local storage
+                return;
+            }
+
+            if (isSyncing) {
+                console.log('Already syncing, loading from local storage');
+                loadData();
+                return;
+            }
+
+            isSyncing = true;
+
+            try {
+                showSaveStatus('⏳ Auto-loading from Google Sheets...');
+                const response = await fetch(GOOGLE_SCRIPT_URL);
+
+                if (!response.ok) {
+                    throw new Error('Failed to download from Google Sheets');
+                }
+
+                const data = await response.json();
+                if (Array.isArray(data) && data.length > 0) {
+                    players = data;
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(players)); // Save to local storage without triggering auto-upload
+                    showSaveStatus('✓ Auto-loaded from Google Sheets');
+                    console.log(`Auto-loaded ${players.length} player(s) from Google Sheets`);
+                } else {
+                    showSaveStatus('No data in Google Sheets, loading local data');
+                    loadData(); // Fall back to local storage
+                }
+            } catch (error) {
+                console.error('Error auto-downloading from Google Sheets:', error);
+                showSaveStatus('⚠️ Auto-load failed, using local data');
+                loadData(); // Fall back to local storage
+            } finally {
+                isSyncing = false;
+            }
+        }
+
         function showSaveStatus(message) {
             const status = document.getElementById('saveStatus');
-            const originalMessage = '💾 Data auto-saves to browser';
+            const originalMessage = '🔄 Auto-syncing with Google Sheets';
             status.textContent = message;
             if (message !== originalMessage) {
                 setTimeout(() => {
                     status.textContent = originalMessage;
-                }, 2000);
+                }, 3000);
             }
         }
 
@@ -562,14 +894,267 @@
             render();
         }
 
-        function showSinglePlayer() {
-            viewMode = 'single';
+        function showPlayersView() {
+            viewMode = 'players';
+            render();
+        }
+
+        function showStationsView() {
+            viewMode = 'stations';
             render();
         }
 
         function showAllPlayers() {
             viewMode = 'all';
             render();
+        }
+
+        function selectStationPlayer(playerId) {
+            selectedStationPlayer = playerId ? parseInt(playerId) : null;
+            renderStationContent();
+        }
+
+        function selectStation(stationId) {
+            selectedStation = stationId;
+            // Update button styles
+            document.querySelectorAll('[id^="station-"]').forEach(btn => {
+                btn.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
+                btn.classList.add('bg-gray-100', 'text-gray-700');
+            });
+            const selectedBtn = document.getElementById(`station-${stationId}`);
+            if (selectedBtn) {
+                selectedBtn.classList.remove('bg-gray-100', 'text-gray-700');
+                selectedBtn.classList.add('bg-blue-500', 'text-white', 'border-blue-500');
+            }
+
+            // Show player selector
+            const playerSelector = document.getElementById('stationPlayerSelector');
+            if (playerSelector) {
+                playerSelector.style.display = 'block';
+            }
+
+            // Populate player dropdown if not already done
+            if (viewMode === 'stations') {
+                const stationDropdown = document.getElementById('stationPlayerDropdown');
+                stationDropdown.innerHTML = `
+                    <option value="">-- Select a player --</option>
+                    ${players.map(p => `
+                        <option value="${p.id}" ${p.id === selectedStationPlayer ? 'selected' : ''}>
+                            ${p.name}${p.number ? ' (#' + p.number + ')' : ''} - Score: ${getTotalScore(p)}/68
+                        </option>
+                    `).join('')}
+                `;
+            }
+
+            renderStationContent();
+        }
+
+        function renderStationContent() {
+            const contentDiv = document.getElementById('stationContent');
+
+            if (!selectedStation) {
+                contentDiv.innerHTML = `
+                    <div class="text-center text-gray-500 py-12">
+                        <p class="text-lg">Select your station to begin</p>
+                    </div>
+                `;
+                return;
+            }
+
+            if (!selectedStationPlayer) {
+                contentDiv.innerHTML = `
+                    <div class="text-center text-gray-500 py-12">
+                        <p class="text-lg">Select a player to score at this station</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const player = players.find(p => p.id === selectedStationPlayer);
+            if (!player) {
+                contentDiv.innerHTML = `
+                    <div class="text-center text-red-500 py-12">
+                        <p class="text-lg">Player not found</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Render station-specific content
+            let stationHTML = '';
+
+            if (selectedStation === 'fielding' || selectedStation === 'throwing' || selectedStation === 'attitude') {
+                const category = categories.find(c => c.id === selectedStation);
+                stationHTML = `
+                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-8">
+                        <div class="max-w-md mx-auto">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-2">${category.name}</h3>
+                            <p class="text-gray-600 mb-6">Scoring for: <span class="font-semibold text-blue-700">${player.name}${player.number ? ' (#' + player.number + ')' : ''}</span></p>
+                            <div class="bg-white rounded-lg p-6 shadow-md">
+                                <label class="block text-lg font-medium text-gray-700 mb-3">Score (0-${category.max}):</label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    max="${category.max}"
+                                    value="${player.scores[category.id]}"
+                                    onchange="updateScore(${player.id}, '${category.id}', this.value); renderStationContent();"
+                                    class="w-full px-6 py-4 text-3xl font-bold text-center border-4 border-blue-300 rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-500 focus:border-blue-500"
+                                    autofocus
+                                />
+                                <div class="mt-4 text-center">
+                                    <span class="text-2xl font-bold text-blue-600" id="stationScoreDisplay">${player.scores[category.id]}/${category.max}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (selectedStation === 'hitting') {
+                stationHTML = `
+                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-8">
+                        <div class="max-w-4xl mx-auto">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-2">Hitting Drills</h3>
+                            <p class="text-gray-600 mb-6">Scoring for: <span class="font-semibold text-green-700">${player.name}${player.number ? ' (#' + player.number + ')' : ''}</span></p>
+                            ${hittingDrills.map(drill => {
+                                const values = player.hittingData[drill.id] || Array(drill.attempts).fill(null);
+                                const score = calculateHittingScore(drill.id, values);
+
+                                if (drill.type === 'yesno_sum') {
+                                    return `
+                                        <div class="bg-white p-6 rounded-lg mb-4 shadow-md">
+                                            <div class="flex justify-between items-center mb-3">
+                                                <label class="text-lg font-semibold text-gray-800">${drill.name}</label>
+                                                <span class="text-lg font-bold text-green-600">Score: ${score}/5</span>
+                                            </div>
+                                            <div class="grid grid-cols-5 gap-3">
+                                                ${values.map((val, idx) => `
+                                                    <div>
+                                                        <label class="block text-sm text-gray-600 mb-1">Attempt ${idx + 1}</label>
+                                                        <select
+                                                            onchange="updateHittingData(${player.id}, '${drill.id}', ${idx}, this.value); renderStationContent();"
+                                                            class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-center"
+                                                        >
+                                                            <option value="" ${val === null ? 'selected' : ''}>-</option>
+                                                            <option value="Y" ${val === true || val === 'Y' ? 'selected' : ''}>Y</option>
+                                                            <option value="N" ${val === false || val === 'N' ? 'selected' : ''}>N</option>
+                                                        </select>
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                    `;
+                                } else if (drill.type === 'yesno') {
+                                    const yesCount = values.filter(v => v === true || v === 'Y').length;
+                                    const noCount = values.filter(v => v === false || v === 'N').length;
+                                    return `
+                                        <div class="bg-white p-6 rounded-lg mb-4 shadow-md">
+                                            <div class="flex justify-between items-center mb-3">
+                                                <label class="text-lg font-semibold text-gray-800">${drill.name}</label>
+                                                <div class="text-right">
+                                                    <span class="text-sm text-gray-500">Y: ${yesCount} | N: ${noCount}</span>
+                                                    <span class="ml-3 text-lg font-bold text-green-600">Score: ${score}/1</span>
+                                                </div>
+                                            </div>
+                                            <div class="grid grid-cols-3 gap-3">
+                                                ${values.map((val, idx) => `
+                                                    <div>
+                                                        <label class="block text-sm text-gray-600 mb-1">Attempt ${idx + 1}</label>
+                                                        <select
+                                                            onchange="updateHittingData(${player.id}, '${drill.id}', ${idx}, this.value); renderStationContent();"
+                                                            class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-center"
+                                                        >
+                                                            <option value="" ${val === null ? 'selected' : ''}>-</option>
+                                                            <option value="Y" ${val === true || val === 'Y' ? 'selected' : ''}>Y</option>
+                                                            <option value="N" ${val === false || val === 'N' ? 'selected' : ''}>N</option>
+                                                        </select>
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                    `;
+                                } else {
+                                    const validVals = values.filter(v => v !== null && !isNaN(v));
+                                    const avgValue = validVals.length > 0
+                                        ? (validVals.reduce((sum, v) => sum + v, 0) / validVals.length).toFixed(1)
+                                        : 'N/A';
+                                    return `
+                                        <div class="bg-white p-6 rounded-lg mb-4 shadow-md">
+                                            <div class="flex justify-between items-center mb-3">
+                                                <label class="text-lg font-semibold text-gray-800">${drill.name}</label>
+                                                <div class="text-right">
+                                                    <span class="text-sm text-gray-500">Avg: ${avgValue} mph</span>
+                                                    <span class="ml-3 text-lg font-bold text-green-600">Score: ${score}/5</span>
+                                                </div>
+                                            </div>
+                                            <div class="grid grid-cols-3 gap-3">
+                                                ${values.map((val, idx) => `
+                                                    <div>
+                                                        <label class="block text-sm text-gray-600 mb-1">Attempt ${idx + 1}</label>
+                                                        <input
+                                                            type="number"
+                                                            step="0.1"
+                                                            min="0"
+                                                            placeholder="0.0"
+                                                            value="${val !== null ? val : ''}"
+                                                            onchange="updateHittingData(${player.id}, '${drill.id}', ${idx}, this.value); renderStationContent();"
+                                                            class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-center"
+                                                        />
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                    `;
+                                }
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            } else if (selectedStation === 'speed') {
+                stationHTML = `
+                    <div class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-lg p-8">
+                        <div class="max-w-4xl mx-auto">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-2">Speed Drills</h3>
+                            <p class="text-gray-600 mb-6">Scoring for: <span class="font-semibold text-orange-700">${player.name}${player.number ? ' (#' + player.number + ')' : ''}</span></p>
+                            ${speedDrills.map(drill => {
+                                const times = player.speedTimes[drill.id];
+                                const score = calculateSpeedScore(drill.id, times);
+                                const avgTime = times.filter(t => t !== null && !isNaN(t)).length > 0
+                                    ? (times.filter(t => t !== null && !isNaN(t)).reduce((sum, t) => sum + t, 0) / times.filter(t => t !== null && !isNaN(t)).length).toFixed(2)
+                                    : 'N/A';
+
+                                return `
+                                    <div class="bg-white p-6 rounded-lg mb-4 shadow-md">
+                                        <div class="flex justify-between items-center mb-3">
+                                            <label class="text-lg font-semibold text-gray-800">${drill.name}</label>
+                                            <div class="text-right">
+                                                <span class="text-sm text-gray-500">Avg: ${avgTime}s</span>
+                                                <span class="ml-3 text-lg font-bold text-orange-600">Score: ${score}/5</span>
+                                            </div>
+                                        </div>
+                                        <div class="grid grid-cols-3 gap-3">
+                                            ${times.map((time, idx) => `
+                                                <div>
+                                                    <label class="block text-sm text-gray-600 mb-1">Attempt ${idx + 1}</label>
+                                                    <input
+                                                        type="number"
+                                                        step="0.01"
+                                                        min="0"
+                                                        placeholder="0.00"
+                                                        value="${time !== null ? time : ''}"
+                                                        onchange="updateSpeedTime(${player.id}, '${drill.id}', ${idx}, this.value); renderStationContent();"
+                                                        class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-center"
+                                                    />
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            contentDiv.innerHTML = stationHTML;
         }
 
         function clearAllData() {
@@ -983,11 +1568,13 @@
 
         function render() {
             const singleView = document.getElementById('singlePlayerView');
+            const stationsView = document.getElementById('stationsView');
             const allView = document.getElementById('allPlayersView');
             const emptyState = document.getElementById('emptyState');
 
             if (players.length === 0) {
                 singleView.classList.add('hidden');
+                stationsView.classList.add('hidden');
                 allView.classList.add('hidden');
                 emptyState.classList.remove('hidden');
                 return;
@@ -995,8 +1582,9 @@
 
             emptyState.classList.add('hidden');
 
-            if (viewMode === 'single') {
+            if (viewMode === 'players') {
                 singleView.classList.remove('hidden');
+                stationsView.classList.add('hidden');
                 allView.classList.add('hidden');
 
                 const player = players[currentPlayerIndex];
@@ -1005,7 +1593,7 @@
 
                 // Update dropdown
                 const dropdown = document.getElementById('playerDropdown');
-                dropdown.innerHTML = players.map((p, idx) => 
+                dropdown.innerHTML = players.map((p, idx) =>
                     `<option value="${idx}" ${idx === currentPlayerIndex ? 'selected' : ''}>
                         ${p.name}${p.number ? ' (#' + p.number + ')' : ''} - Score: ${getTotalScore(p)}/68
                     </option>`
@@ -1016,27 +1604,93 @@
                 prevBtn.disabled = currentPlayerIndex === 0;
                 nextBtn.disabled = currentPlayerIndex === players.length - 1;
 
+            } else if (viewMode === 'stations') {
+                singleView.classList.add('hidden');
+                stationsView.classList.remove('hidden');
+                allView.classList.add('hidden');
+
+                // Show/hide player selector based on whether station is selected
+                const playerSelector = document.getElementById('stationPlayerSelector');
+                if (selectedStation) {
+                    playerSelector.style.display = 'block';
+
+                    // Populate station player dropdown
+                    const stationDropdown = document.getElementById('stationPlayerDropdown');
+                    stationDropdown.innerHTML = `
+                        <option value="">-- Select a player --</option>
+                        ${players.map(p => `
+                            <option value="${p.id}" ${p.id === selectedStationPlayer ? 'selected' : ''}>
+                                ${p.name}${p.number ? ' (#' + p.number + ')' : ''} - Score: ${getTotalScore(p)}/68
+                            </option>
+                        `).join('')}
+                    `;
+                } else {
+                    playerSelector.style.display = 'none';
+                }
+
+                // Render station content
+                renderStationContent();
+
             } else {
                 singleView.classList.add('hidden');
+                stationsView.classList.add('hidden');
                 allView.classList.remove('hidden');
 
                 const sortedPlayers = [...players].sort((a, b) => getTotalScore(b) - getTotalScore(a));
                 const playersList = document.getElementById('playersList');
 
-                playersList.innerHTML = sortedPlayers.map((player, index) => `
-                    <div>
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="text-xl font-bold text-gray-400">#${index + 1}</span>
-                        </div>
-                        ${renderPlayerCard(player, true)}
+                playersList.innerHTML = `
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white border border-gray-300">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b">Rank</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b">Name</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b">Jersey #</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b">Fielding</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b">Throwing</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b">Attitude</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b">Hitting</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b">Speed</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b bg-green-50">Total Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${sortedPlayers.map((player, index) => {
+                                    const hittingScore = getHittingScore(player);
+                                    const speedScore = getSpeedScore(player);
+                                    const totalScore = getTotalScore(player);
+
+                                    return `
+                                        <tr class="hover:bg-gray-50 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-25'}">
+                                            <td class="px-4 py-3 text-center border-b">
+                                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 text-gray-700 font-bold">
+                                                    ${index + 1}
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-3 border-b font-medium text-gray-800">${player.name}</td>
+                                            <td class="px-4 py-3 text-center border-b text-gray-600">${player.number || '-'}</td>
+                                            <td class="px-4 py-3 text-center border-b text-gray-700">${player.scores.fielding}/10</td>
+                                            <td class="px-4 py-3 text-center border-b text-gray-700">${player.scores.throwing}/10</td>
+                                            <td class="px-4 py-3 text-center border-b text-gray-700">${player.scores.attitude}/10</td>
+                                            <td class="px-4 py-3 text-center border-b text-gray-700">${hittingScore}/23</td>
+                                            <td class="px-4 py-3 text-center border-b text-gray-700">${speedScore}/15</td>
+                                            <td class="px-4 py-3 text-center border-b bg-green-50">
+                                                <span class="text-lg font-bold text-green-600">${totalScore}/68</span>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
                     </div>
-                `).join('');
+                `;
             }
         }
 
         // Keyboard navigation
         document.addEventListener('keydown', (e) => {
-            if (viewMode === 'single' && players.length > 0) {
+            if (viewMode === 'players' && players.length > 0) {
                 if (e.key === 'ArrowLeft') {
                     previousPlayer();
                 } else if (e.key === 'ArrowRight') {
@@ -1053,9 +1707,7 @@
             if (e.key === 'Enter') addPlayer();
         });
 
-        // Load saved data and render on page load
-        loadData();
-        render();
+        // Note: Auto-load from Google Sheets happens in unlockApp() after password check
     </script>
 </body>
 </html>

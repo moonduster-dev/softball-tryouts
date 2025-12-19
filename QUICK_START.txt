@@ -1,0 +1,37 @@
+═══════════════════════════════════════════════════════════════
+  SOFTBALL TRYOUT SCORER - QUICK START GUIDE
+═══════════════════════════════════════════════════════════════
+
+HOW TO USE:
+1. Open "index.html" in your web browser
+   - Computer: Double-click the file
+   - Phone/Tablet: See MOBILE_INSTRUCTIONS.md
+2. Enter the password (get from your coach)
+3. Data auto-downloads from Google Sheets after unlock
+4. Score your players
+5. Data auto-syncs to Google Sheets (2 seconds after changes)
+
+IMPORTANT:
+→ Data syncs AUTOMATICALLY - no need to manually upload!
+→ Everyone shares the same Google Sheet
+→ Works on phones, tablets, and computers
+
+VIEWS:
+👤 Players  - Score one player at a time
+🎯 Stations - Pick your station, score players rotating through
+📊 View All - See rankings table
+
+BUTTONS:
+⬆️ Upload to Sheets   - Force upload (optional - auto-uploads anyway)
+⬇️ Download from Sheets - Refresh data (optional - auto-loads on open)
+⬇️ Export CSV         - Download spreadsheet
+
+MOBILE USERS:
+→ Works on iPhone, iPad, and Android!
+→ Save to Files/Downloads, open in Safari/Chrome
+→ Add to Home Screen for easy access
+→ See MOBILE_INSTRUCTIONS.md for detailed steps
+
+═══════════════════════════════════════════════════════════════
+Questions? Ask the person who gave you this file!
+═══════════════════════════════════════════════════════════════
