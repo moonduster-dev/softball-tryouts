@@ -240,6 +240,34 @@
                             ⭐ Attitude
                         </button>
                         <button
+                            onclick="selectStation('runsonoff')"
+                            id="station-runsonoff"
+                            class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-100 hover:text-blue-700 font-medium border-2 border-transparent transition"
+                        >
+                            🏃 Runs on/off Field
+                        </button>
+                        <button
+                            onclick="selectStation('cheers')"
+                            id="station-cheers"
+                            class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-100 hover:text-blue-700 font-medium border-2 border-transparent transition"
+                        >
+                            📣 Cheers
+                        </button>
+                        <button
+                            onclick="selectStation('dives')"
+                            id="station-dives"
+                            class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-100 hover:text-blue-700 font-medium border-2 border-transparent transition"
+                        >
+                            🤸 Dives
+                        </button>
+                        <button
+                            onclick="selectStation('baserunning')"
+                            id="station-baserunning"
+                            class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-100 hover:text-blue-700 font-medium border-2 border-transparent transition"
+                        >
+                            ⚡ Baserunning
+                        </button>
+                        <button
                             onclick="selectStation('hitting')"
                             id="station-hitting"
                             class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-100 hover:text-blue-700 font-medium border-2 border-transparent transition"
@@ -433,8 +461,15 @@
 
         const categories = [
             { id: 'fielding', name: 'Fielding', max: 10 },
-            { id: 'throwing', name: 'Throwing', max: 10 },
-            { id: 'attitude', name: 'Attitude', max: 10 }
+            { id: 'throwing', name: 'Throwing', max: 10 }
+        ];
+
+        const hustleEnergyCategories = [
+            { id: 'attitude', name: 'Attitude', max: 5 },
+            { id: 'runsonoff', name: 'Runs on/off Field', max: 5 },
+            { id: 'cheers', name: 'Cheers for Teammates', max: 5 },
+            { id: 'dives', name: 'Dives for Balls', max: 5 },
+            { id: 'baserunning', name: 'Aggressive Baserunning', max: 5 }
         ];
 
         const hittingDrills = [
@@ -457,6 +492,7 @@
             { id: 'poptime', name: 'Pop Time (seconds)', attempts: 3, type: 'number' },
             { id: 'throwaccuracy', name: 'Throwing Accuracy (2B)', attempts: 3, type: 'accuracy' },
             { id: 'throwspeed', name: 'Throwing Speed to 2B (mph)', attempts: 3, type: 'number' },
+            { id: 'popfly', name: 'Pop Fly', attempts: 3, type: 'popfly' },
             { id: 'blocking', name: 'Blocking Balls in the Dirt', attempts: 1, type: 'overall' },
             { id: 'buntfielding', name: 'Bunt Fielding Throws to 1B', attempts: 1, type: 'overall' }
         ];
@@ -770,6 +806,7 @@
                         poptime: [null, null, null],
                         throwaccuracy: [null, null, null],
                         throwspeed: [null, null, null],
+                        popfly: [null, null, null],
                         blocking: null,
                         buntfielding: null
                     },
@@ -781,6 +818,10 @@
                 };
                 
                 categories.forEach(cat => {
+                    newPlayer.scores[cat.id] = 0;
+                });
+
+                hustleEnergyCategories.forEach(cat => {
                     newPlayer.scores[cat.id] = 0;
                 });
                 
@@ -808,7 +849,14 @@
         }
 
         function updateScore(playerId, category, value) {
-            const numValue = Math.max(0, Math.min(10, parseInt(value) || 0));
+            // Find the max value for this category
+            let maxValue = 10; // default
+            const regularCat = categories.find(c => c.id === category);
+            const hustleCat = hustleEnergyCategories.find(c => c.id === category);
+            if (regularCat) maxValue = regularCat.max;
+            if (hustleCat) maxValue = hustleCat.max;
+
+            const numValue = Math.max(0, Math.min(maxValue, parseInt(value) || 0));
             const player = players.find(p => p.id === playerId);
             if (player) {
                 player.scores[category] = numValue;
@@ -1042,6 +1090,11 @@
                 return validValues.reduce((sum, v) => sum + parseInt(v), 0);
             }
 
+            if (drill === 'popfly') {
+                // Sum of pop fly scores (0, 1, or 2 per attempt)
+                return validValues.reduce((sum, v) => sum + parseInt(v), 0);
+            }
+
             // For poptime and throwspeed, calculate average and score
             const numericValues = validValues.map(v => parseFloat(v)).filter(v => !isNaN(v));
             if (numericValues.length === 0) return 0;
@@ -1070,9 +1123,10 @@
             const poptimeScore = calculateCatcherScore('poptime', player.catcherData.poptime);
             const accuracyScore = calculateCatcherScore('throwaccuracy', player.catcherData.throwaccuracy);
             const throwspeedScore = calculateCatcherScore('throwspeed', player.catcherData.throwspeed);
+            const popflyScore = calculateCatcherScore('popfly', player.catcherData.popfly);
             const blockingScore = calculateCatcherScore('blocking', player.catcherData.blocking);
             const buntfieldingScore = calculateCatcherScore('buntfielding', player.catcherData.buntfielding);
-            return poptimeScore + accuracyScore + throwspeedScore + blockingScore + buntfieldingScore;
+            return poptimeScore + accuracyScore + throwspeedScore + popflyScore + blockingScore + buntfieldingScore;
         }
 
         function updatePitchingData(playerId, drill, attemptIndex, value, field = null) {
@@ -1228,7 +1282,7 @@
                     <option value="">-- Select a player --</option>
                     ${players.map(p => `
                         <option value="${p.id}" ${p.id === selectedStationPlayer ? 'selected' : ''}>
-                            ${p.name}${p.number ? ' (#' + p.number + ')' : ''} - Score: ${getTotalScore(p)}/97
+                            ${p.name}${p.number ? ' (#' + p.number + ')' : ''} - Score: ${getTotalScore(p)}/118
                         </option>
                     `).join('')}
                 `;
@@ -1271,8 +1325,33 @@
             // Render station-specific content
             let stationHTML = '';
 
-            if (selectedStation === 'fielding' || selectedStation === 'throwing' || selectedStation === 'attitude') {
+            if (selectedStation === 'fielding' || selectedStation === 'throwing') {
                 const category = categories.find(c => c.id === selectedStation);
+                stationHTML = `
+                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-8">
+                        <div class="max-w-md mx-auto">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-2">${category.name}</h3>
+                            <p class="text-gray-600 mb-6">Scoring for: <span class="font-semibold text-blue-700">${player.name}${player.number ? ' (#' + player.number + ')' : ''}</span></p>
+                            <div class="bg-white rounded-lg p-6 shadow-md">
+                                <label class="block text-lg font-medium text-gray-700 mb-3">Score (0-${category.max}):</label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    max="${category.max}"
+                                    value="${player.scores[category.id]}"
+                                    onchange="updateScore(${player.id}, '${category.id}', this.value); renderStationContent();"
+                                    class="w-full px-6 py-4 text-3xl font-bold text-center border-4 border-blue-300 rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-500 focus:border-blue-500"
+                                    autofocus
+                                />
+                                <div class="mt-4 text-center">
+                                    <span class="text-2xl font-bold text-blue-600" id="stationScoreDisplay">${player.scores[category.id]}/${category.max}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (selectedStation === 'attitude' || selectedStation === 'runsonoff' || selectedStation === 'cheers' || selectedStation === 'dives' || selectedStation === 'baserunning') {
+                const category = hustleEnergyCategories.find(c => c.id === selectedStation);
                 stationHTML = `
                     <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-8">
                         <div class="max-w-md mx-auto">
@@ -1447,6 +1526,7 @@
                         poptime: [null, null, null],
                         throwaccuracy: [null, null, null],
                         throwspeed: [null, null, null],
+                        popfly: [null, null, null],
                         blocking: null,
                         buntfielding: null
                     };
@@ -1503,6 +1583,34 @@
                                                             <option value="0" ${val === 0 ? 'selected' : ''}>Off (0)</option>
                                                             <option value="1" ${val === 1 ? 'selected' : ''}>1 Bounce (1)</option>
                                                             <option value="3" ${val === 3 ? 'selected' : ''}>On Mark (3)</option>
+                                                        </select>
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                    `;
+                                } else if (drill.type === 'popfly') {
+                                    const values = player.catcherData[drill.id] || [null, null, null];
+                                    const score = calculateCatcherScore(drill.id, values);
+
+                                    return `
+                                        <div class="bg-white p-6 rounded-lg mb-4 shadow-md">
+                                            <div class="flex justify-between items-center mb-3">
+                                                <label class="text-lg font-semibold text-gray-800">${drill.name}</label>
+                                                <span class="text-lg font-bold text-purple-600">Score: ${score}/6</span>
+                                            </div>
+                                            <div class="grid grid-cols-3 gap-3">
+                                                ${values.map((val, idx) => `
+                                                    <div>
+                                                        <label class="block text-sm text-gray-600 mb-1">Attempt ${idx + 1}</label>
+                                                        <select
+                                                            onchange="updateCatcherData(${player.id}, '${drill.id}', ${idx}, this.value); renderStationContent();"
+                                                            class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-center"
+                                                        >
+                                                            <option value="">-</option>
+                                                            <option value="0" ${val === 0 ? 'selected' : ''}>Bad Read (0)</option>
+                                                            <option value="1" ${val === 1 ? 'selected' : ''}>Good Attempt (1)</option>
+                                                            <option value="2" ${val === 2 ? 'selected' : ''}>Caught (2)</option>
                                                         </select>
                                                     </div>
                                                 `).join('')}
@@ -1803,8 +1911,8 @@
                         <div class="flex items-center gap-3">
                             <div class="text-right">
                                 <div class="text-sm text-gray-500">Total Score</div>
-                                <div class="text-3xl font-bold text-green-600" data-total-score>${getTotalScore(player)}/97</div>
-                                <div class="text-xs text-gray-400" data-subscore>Hitting: ${hittingScore}/23 | Speed: ${speedScore}/15 | Catcher: ${catcherScore}/29</div>
+                                <div class="text-3xl font-bold text-green-600" data-total-score>${getTotalScore(player)}/118</div>
+                                <div class="text-xs text-gray-400" data-subscore>Hitting: ${hittingScore}/23 | Speed: ${speedScore}/15 | Catcher: ${catcherScore}/35 | Pitching: ${getPitchingScore(player)}/21</div>
                             </div>
                             ${showDelete ? `
                             <button
@@ -1928,7 +2036,7 @@
                         }).join('')}
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         ${categories.map(cat => `
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">${cat.name}</label>
@@ -1942,6 +2050,25 @@
                                 />
                             </div>
                         `).join('')}
+                    </div>
+
+                    <div class="mb-4">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">Hustle & Energy</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            ${hustleEnergyCategories.map(cat => `
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">${cat.name}</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        max="${cat.max}"
+                                        value="${player.scores[cat.id] !== undefined ? player.scores[cat.id] : 0}"
+                                        onchange="updateScore(${player.id}, '${cat.id}', this.value)"
+                                        class="w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                    />
+                                </div>
+                            `).join('')}
+                        </div>
                     </div>
 
                     <div class="mb-4">
@@ -1991,6 +2118,7 @@
                                     poptime: [null, null, null],
                                     throwaccuracy: [null, null, null],
                                     throwspeed: [null, null, null],
+                                    popfly: [null, null, null],
                                     blocking: null,
                                     buntfielding: null
                                 };
@@ -2043,6 +2171,35 @@
                                                         <option value="0" ${val === 0 ? 'selected' : ''}>Off (0)</option>
                                                         <option value="1" ${val === 1 ? 'selected' : ''}>1 Bounce (1)</option>
                                                         <option value="3" ${val === 3 ? 'selected' : ''}>On Mark (3)</option>
+                                                    </select>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                `;
+                            } else if (drill.type === 'popfly') {
+                                // Pop Fly: 0 = bad read, 1 = good attempt, 2 = caught
+                                const values = player.catcherData[drill.id] || [null, null, null];
+                                const score = calculateCatcherScore(drill.id, values);
+
+                                return `
+                                    <div class="bg-gray-50 p-4 rounded-lg mb-3">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <label class="text-sm font-medium text-gray-700">${drill.name}</label>
+                                            <span class="text-sm font-bold text-green-600">Score: ${score}/6</span>
+                                        </div>
+                                        <div class="grid grid-cols-3 gap-2">
+                                            ${values.map((val, idx) => `
+                                                <div>
+                                                    <label class="block text-xs text-gray-600 mb-1">Attempt ${idx + 1}</label>
+                                                    <select
+                                                        onchange="updateCatcherData(${player.id}, '${drill.id}', ${idx}, this.value)"
+                                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    >
+                                                        <option value="">-</option>
+                                                        <option value="0" ${val === 0 ? 'selected' : ''}>Bad Read (0)</option>
+                                                        <option value="1" ${val === 1 ? 'selected' : ''}>Good Attempt (1)</option>
+                                                        <option value="2" ${val === 2 ? 'selected' : ''}>Caught (2)</option>
                                                     </select>
                                                 </div>
                                             `).join('')}
@@ -2269,13 +2426,13 @@
 
             const totalScoreEl = document.querySelector('[data-total-score]');
             if (totalScoreEl) {
-                totalScoreEl.textContent = `${totalScore}/97`;
+                totalScoreEl.textContent = `${totalScore}/118`;
             }
 
             const pitchingScore = getPitchingScore(player);
             const subscoreEl = document.querySelector('[data-subscore]');
             if (subscoreEl) {
-                subscoreEl.textContent = `Hitting: ${hittingScore}/23 | Speed: ${speedScore}/15 | Catcher: ${catcherScore}/29 | Pitching: ${pitchingScore}/21`;
+                subscoreEl.textContent = `Hitting: ${hittingScore}/23 | Speed: ${speedScore}/15 | Catcher: ${catcherScore}/35 | Pitching: ${pitchingScore}/21`;
             }
 
             // Update dropdown
@@ -2283,7 +2440,7 @@
             if (dropdown && viewMode === 'single') {
                 const option = dropdown.querySelector(`option[value="${currentPlayerIndex}"]`);
                 if (option) {
-                    option.textContent = `${player.name}${player.number ? ' (#' + player.number + ')' : ''} - Score: ${totalScore}/97`;
+                    option.textContent = `${player.name}${player.number ? ' (#' + player.number + ')' : ''} - Score: ${totalScore}/118`;
                 }
             }
         }
@@ -2369,7 +2526,7 @@
                         <option value="">-- Select a player --</option>
                         ${players.map(p => `
                             <option value="${p.id}" ${p.id === selectedStationPlayer ? 'selected' : ''}>
-                                ${p.name}${p.number ? ' (#' + p.number + ')' : ''} - Score: ${getTotalScore(p)}/97
+                                ${p.name}${p.number ? ' (#' + p.number + ')' : ''} - Score: ${getTotalScore(p)}/118
                             </option>
                         `).join('')}
                     `;
@@ -2427,7 +2584,7 @@
                                             <td class="px-4 py-3 text-center border-b text-gray-700">${hittingScore}/23</td>
                                             <td class="px-4 py-3 text-center border-b text-gray-700">${speedScore}/15</td>
                                             <td class="px-4 py-3 text-center border-b bg-green-50">
-                                                <span class="text-lg font-bold text-green-600">${totalScore}/97</span>
+                                                <span class="text-lg font-bold text-green-600">${totalScore}/118</span>
                                             </td>
                                         </tr>
                                     `;
@@ -2448,6 +2605,7 @@
                         (p.catcherData.poptime && p.catcherData.poptime.some(v => v !== null)) ||
                         (p.catcherData.throwaccuracy && p.catcherData.throwaccuracy.some(v => v !== null)) ||
                         (p.catcherData.throwspeed && p.catcherData.throwspeed.some(v => v !== null)) ||
+                        (p.catcherData.popfly && p.catcherData.popfly.some(v => v !== null)) ||
                         p.catcherData.blocking !== null ||
                         p.catcherData.buntfielding !== null
                     ))
@@ -2473,6 +2631,7 @@
                                         <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b">Pop Time</th>
                                         <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b">Throw Accuracy</th>
                                         <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b">Throw Speed</th>
+                                        <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b">Pop Fly</th>
                                         <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b">Blocking</th>
                                         <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b">Bunt Fielding</th>
                                         <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b bg-purple-50">Total Catcher</th>
@@ -2484,6 +2643,7 @@
                                         const poptime = catcherData.poptime || [null, null, null];
                                         const throwaccuracy = catcherData.throwaccuracy || [null, null, null];
                                         const throwspeed = catcherData.throwspeed || [null, null, null];
+                                        const popfly = catcherData.popfly || [null, null, null];
 
                                         const poptimeAvg = poptime.filter(v => v !== null && !isNaN(v)).length > 0
                                             ? (poptime.filter(v => v !== null && !isNaN(v)).reduce((s, v) => s + v, 0) / poptime.filter(v => v !== null && !isNaN(v)).length).toFixed(2)
@@ -2506,10 +2666,11 @@
                                                 <td class="px-4 py-3 text-center border-b text-gray-700">${poptimeAvg}s (${calculateCatcherScore('poptime', poptime)}/5)</td>
                                                 <td class="px-4 py-3 text-center border-b text-gray-700">${calculateCatcherScore('throwaccuracy', throwaccuracy)}/9</td>
                                                 <td class="px-4 py-3 text-center border-b text-gray-700">${throwspeedAvg} mph (${calculateCatcherScore('throwspeed', throwspeed)}/5)</td>
+                                                <td class="px-4 py-3 text-center border-b text-gray-700">${calculateCatcherScore('popfly', popfly)}/6</td>
                                                 <td class="px-4 py-3 text-center border-b text-gray-700">${catcherData.blocking || '-'}/5</td>
                                                 <td class="px-4 py-3 text-center border-b text-gray-700">${catcherData.buntfielding || '-'}/5</td>
                                                 <td class="px-4 py-3 text-center border-b bg-purple-50">
-                                                    <span class="text-lg font-bold text-purple-600">${catcherScore}/29</span>
+                                                    <span class="text-lg font-bold text-purple-600">${catcherScore}/35</span>
                                                 </td>
                                             </tr>
                                         `;
