@@ -65,12 +65,6 @@
                 </div>
                 <div class="flex gap-2 flex-wrap justify-center">
                     <button
-                        onclick="clearAllData()"
-                        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-2"
-                    >
-                        🗑️ Clear All Data
-                    </button>
-                    <button
                         onclick="document.getElementById('advancedOptions').classList.toggle('hidden')"
                         class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 flex items-center gap-2"
                     >
@@ -118,6 +112,23 @@
                             title="Manually download data from Google Sheets"
                         >
                             ⬇️ Download from Sheets
+                        </button>
+                    </div>
+
+                    <h3 class="text-lg font-semibold mb-3 mt-6">Data Management</h3>
+                    <div class="flex gap-2 flex-wrap justify-center">
+                        <button
+                            onclick="exportData()"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+                        >
+                            ⬇️ Export CSV
+                        </button>
+                        <button
+                            onclick="clearAllData()"
+                            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-2"
+                            title="Clear all player data from browser (Google Sheets data remains safe)"
+                        >
+                            🗑️ Clear All Data
                         </button>
                     </div>
                 </div>
@@ -873,6 +884,132 @@
             } else {
                 alert('Player name cannot be empty!');
             }
+        }
+
+        function generatePlayerReport(playerId) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+
+            // Calculate all scores
+            const scores = {
+                throwing: { score: player.scores?.throwing || 0, max: 10, category: 'Throwing' },
+                hustleEnergy: {
+                    score: hustleEnergyCategories.reduce((sum, cat) => sum + (player.scores[cat.id] || 0), 0),
+                    max: 25,
+                    category: 'Hustle & Energy',
+                    breakdown: hustleEnergyCategories.map(cat => ({
+                        name: cat.name,
+                        score: player.scores[cat.id] || 0,
+                        max: cat.max
+                    }))
+                },
+                hitting: { score: getHittingScore(player), max: 23, category: 'Hitting' },
+                speed: { score: getSpeedScore(player), max: 15, category: 'Speed' },
+                fielding: { score: getFieldingScore(player), max: 19, category: 'Fielding' },
+                catcher: { score: getCatcherScore(player), max: 35, category: 'Catcher' },
+                pitching: { score: getPitchingScore(player), max: 21, category: 'Pitching' }
+            };
+
+            // Calculate percentages
+            const percentages = {};
+            for (const [key, data] of Object.entries(scores)) {
+                if (data.max > 0) {
+                    percentages[key] = {
+                        ...data,
+                        percentage: (data.score / data.max) * 100
+                    };
+                }
+            }
+
+            // Filter out catcher and pitching if no data
+            const relevantScores = Object.entries(percentages).filter(([key, data]) => {
+                if (key === 'catcher' && data.score === 0) return false;
+                if (key === 'pitching' && data.score === 0) return false;
+                return true;
+            });
+
+            // Sort by percentage
+            relevantScores.sort((a, b) => b[1].percentage - a[1].percentage);
+
+            // Identify strengths (top 3) and areas for improvement (bottom 3)
+            const strengths = relevantScores.slice(0, 3);
+            const improvements = relevantScores.slice(-3).reverse();
+
+            // Build report
+            let report = `📊 PERFORMANCE REPORT\n`;
+            report += `${'='.repeat(50)}\n\n`;
+            report += `Player: ${player.name}${player.number ? ' (#' + player.number + ')' : ''}\n`;
+            report += `Total Score: ${getTotalScore(player)}/127\n\n`;
+
+            report += `✨ STRENGTHS (Top Areas)\n`;
+            report += `${'-'.repeat(50)}\n`;
+            strengths.forEach((entry, idx) => {
+                const [key, data] = entry;
+                report += `${idx + 1}. ${data.category}: ${data.score}/${data.max} (${data.percentage.toFixed(1)}%)\n`;
+
+                // Add Hustle & Energy breakdown if it's a strength
+                if (key === 'hustleEnergy' && data.breakdown) {
+                    const topHE = data.breakdown.filter(b => b.score >= 4).sort((a, b) => b.score - a.score);
+                    if (topHE.length > 0) {
+                        report += `   Highlights: ${topHE.map(b => `${b.name} (${b.score}/${b.max})`).join(', ')}\n`;
+                    }
+                }
+            });
+
+            report += `\n🎯 AREAS FOR IMPROVEMENT\n`;
+            report += `${'-'.repeat(50)}\n`;
+            improvements.forEach((entry, idx) => {
+                const [key, data] = entry;
+                const gap = data.max - data.score;
+                report += `${idx + 1}. ${data.category}: ${data.score}/${data.max} (${data.percentage.toFixed(1)}%) - `;
+                report += `${gap} points below max\n`;
+
+                // Add Hustle & Energy breakdown if it's an area for improvement
+                if (key === 'hustleEnergy' && data.breakdown) {
+                    const lowHE = data.breakdown.filter(b => b.score < 3).sort((a, b) => a.score - b.score);
+                    if (lowHE.length > 0) {
+                        report += `   Focus on: ${lowHE.map(b => `${b.name} (${b.score}/${b.max})`).join(', ')}\n`;
+                    }
+                }
+            });
+
+            report += `\n💡 RECOMMENDATIONS\n`;
+            report += `${'-'.repeat(50)}\n`;
+
+            // Generate specific recommendations based on weak areas
+            improvements.forEach(([key, data]) => {
+                if (data.percentage < 50) {
+                    if (key === 'hitting') {
+                        report += `• Focus on batting practice - work on bat speed and exit velocity\n`;
+                    } else if (key === 'speed') {
+                        report += `• Incorporate speed/agility drills into training routine\n`;
+                    } else if (key === 'fielding') {
+                        report += `• Practice fly ball tracking and throwing accuracy drills\n`;
+                    } else if (key === 'throwing') {
+                        report += `• Work on arm strength and throwing mechanics\n`;
+                    } else if (key === 'hustleEnergy') {
+                        report += `• Show more energy on and off the field - cheer for teammates!\n`;
+                    } else if (key === 'catcher') {
+                        report += `• Practice catcher-specific drills: pop time, blocking, accuracy\n`;
+                    } else if (key === 'pitching') {
+                        report += `• Work on pitch variety, spin, and location control\n`;
+                    }
+                }
+            });
+
+            // If player is doing well overall
+            const avgPercentage = relevantScores.reduce((sum, [_, data]) => sum + data.percentage, 0) / relevantScores.length;
+            if (avgPercentage >= 70) {
+                report += `\n✅ Overall: Strong performance! Continue current training regimen.\n`;
+            } else if (avgPercentage >= 50) {
+                report += `\n📈 Overall: Good foundation. Focus on weak areas for next level.\n`;
+            } else {
+                report += `\n💪 Overall: Lots of room for growth. Consistent practice will show results.\n`;
+            }
+
+            // Display report in an alert (simple method)
+            // In a real app, you'd use a modal dialog
+            alert(report);
         }
 
         function updateHittingData(playerId, drill, attemptIndex, value) {
@@ -2060,6 +2197,14 @@
                                 <div class="text-3xl font-bold text-green-600" data-total-score>${getTotalScore(player)}/127</div>
                                 <div class="text-xs text-gray-400" data-subscore>Hitting: ${hittingScore}/23 | Speed: ${speedScore}/15 | Fielding: ${getFieldingScore(player)}/19 | Catcher: ${catcherScore}/35 | Pitching: ${getPitchingScore(player)}/21</div>
                             </div>
+                            <button
+                                onclick="generatePlayerReport(${player.id})"
+                                tabindex="-1"
+                                class="px-3 py-2 text-purple-600 hover:bg-purple-50 rounded-lg border border-purple-300 text-sm font-medium"
+                                title="Generate performance report"
+                            >
+                                📊 Report
+                            </button>
                             ${showDelete ? `
                             <button
                                 onclick="editPlayerInfo(${player.id})"
