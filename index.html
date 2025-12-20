@@ -1007,9 +1007,177 @@
                 report += `\n💪 Overall: Lots of room for growth. Consistent practice will show results.\n`;
             }
 
-            // Display report in an alert (simple method)
-            // In a real app, you'd use a modal dialog
-            alert(report);
+            // Display report in modal with save options
+            showReportModal(player, report);
+        }
+
+        function showReportModal(player, reportText) {
+            // Create modal overlay
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.right = '0';
+            modal.style.bottom = '0';
+            modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+            modal.style.display = 'flex';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'center';
+            modal.style.zIndex = '9999';
+            modal.style.padding = '20px';
+
+            // Create modal content
+            const modalContent = document.createElement('div');
+            modalContent.className = 'bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col';
+            modalContent.style.backgroundColor = 'white';
+            modalContent.style.borderRadius = '8px';
+            modalContent.style.maxWidth = '42rem';
+            modalContent.style.width = '100%';
+            modalContent.style.maxHeight = '90vh';
+            modalContent.style.display = 'flex';
+            modalContent.style.flexDirection = 'column';
+
+            // Header
+            const header = document.createElement('div');
+            header.className = 'px-6 py-4 border-b border-gray-200 flex justify-between items-center';
+            header.style.padding = '1rem 1.5rem';
+            header.style.borderBottom = '1px solid #e5e7eb';
+            header.style.display = 'flex';
+            header.style.justifyContent = 'space-between';
+            header.style.alignItems = 'center';
+            header.innerHTML = `
+                <h2 class="text-xl font-bold text-gray-800">Performance Report - ${player.name}${player.number ? ' (#' + player.number + ')' : ''}</h2>
+                <button onclick="this.closest('.fixed').remove()" class="text-gray-500 hover:text-gray-700 text-2xl leading-none">&times;</button>
+            `;
+
+            // Report content
+            const content = document.createElement('div');
+            content.className = 'px-6 py-4 overflow-y-auto flex-1';
+            content.style.padding = '1rem 1.5rem';
+            content.style.overflowY = 'auto';
+            content.style.flex = '1';
+            content.innerHTML = `<pre class="whitespace-pre-wrap font-mono text-sm text-gray-800" style="white-space: pre-wrap; font-family: monospace; font-size: 0.875rem;">${reportText}</pre>`;
+
+            // Footer with action buttons
+            const footer = document.createElement('div');
+            footer.className = 'px-6 py-4 border-t border-gray-200 flex gap-3 justify-end flex-wrap';
+            footer.style.padding = '1rem 1.5rem';
+            footer.style.borderTop = '1px solid #e5e7eb';
+            footer.style.display = 'flex';
+            footer.style.gap = '0.75rem';
+            footer.style.justifyContent = 'flex-end';
+            footer.style.flexWrap = 'wrap';
+            footer.innerHTML = `
+                <button
+                    onclick="copyReportToClipboard(${player.id})"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+                    style="padding: 0.5rem 1rem; background-color: #2563eb; color: white; border-radius: 0.5rem; display: flex; align-items: center; gap: 0.5rem; border: none; cursor: pointer;"
+                    onmouseover="this.style.backgroundColor='#1d4ed8'"
+                    onmouseout="this.style.backgroundColor='#2563eb'"
+                >
+                    📋 Copy to Clipboard
+                </button>
+                <button
+                    onclick="downloadReport(${player.id})"
+                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
+                    style="padding: 0.5rem 1rem; background-color: #16a34a; color: white; border-radius: 0.5rem; display: flex; align-items: center; gap: 0.5rem; border: none; cursor: pointer;"
+                    onmouseover="this.style.backgroundColor='#15803d'"
+                    onmouseout="this.style.backgroundColor='#16a34a'"
+                >
+                    💾 Download Report
+                </button>
+                <button
+                    onclick="this.closest('.fixed').remove()"
+                    class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+                    style="padding: 0.5rem 1rem; background-color: #e5e7eb; color: #374151; border-radius: 0.5rem; border: none; cursor: pointer;"
+                    onmouseover="this.style.backgroundColor='#d1d5db'"
+                    onmouseout="this.style.backgroundColor='#e5e7eb'"
+                >
+                    Close
+                </button>
+            `;
+
+            modalContent.appendChild(header);
+            modalContent.appendChild(content);
+            modalContent.appendChild(footer);
+            modal.appendChild(modalContent);
+
+            // Close on overlay click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+
+            // Store report text for copy/download functions
+            modal.dataset.playerId = player.id;
+            modal.dataset.reportText = reportText;
+            modal.dataset.playerName = player.name;
+            modal.dataset.playerNumber = player.number || '';
+
+            document.body.appendChild(modal);
+        }
+
+        function copyReportToClipboard(playerId) {
+            const modal = document.querySelector(`[data-player-id="${playerId}"]`);
+            if (!modal) return;
+
+            const reportText = modal.dataset.reportText;
+
+            // Try modern clipboard API first
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(reportText).then(() => {
+                    showSaveStatus('✓ Report copied to clipboard!');
+                }).catch(() => {
+                    // Fallback to legacy method
+                    fallbackCopyToClipboard(reportText);
+                });
+            } else {
+                fallbackCopyToClipboard(reportText);
+            }
+        }
+
+        function fallbackCopyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showSaveStatus('✓ Report copied to clipboard!');
+            } catch (err) {
+                showSaveStatus('✗ Failed to copy to clipboard');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function downloadReport(playerId) {
+            const modal = document.querySelector(`[data-player-id="${playerId}"]`);
+            if (!modal) return;
+
+            const reportText = modal.dataset.reportText;
+            const playerName = modal.dataset.playerName;
+            const playerNumber = modal.dataset.playerNumber;
+
+            // Create filename
+            const timestamp = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+            const filename = `Performance_Report_${playerName.replace(/\s+/g, '_')}${playerNumber ? '_' + playerNumber : ''}_${timestamp}.txt`;
+
+            // Create blob and download
+            const blob = new Blob([reportText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showSaveStatus('✓ Report downloaded!');
         }
 
         function updateHittingData(playerId, drill, attemptIndex, value) {
