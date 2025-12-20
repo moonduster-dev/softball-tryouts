@@ -226,48 +226,6 @@
                             ⚾ Fielding
                         </button>
                         <button
-                            onclick="selectStation('throwing')"
-                            id="station-throwing"
-                            class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-100 hover:text-blue-700 font-medium border-2 border-transparent transition"
-                        >
-                            🎯 Throwing
-                        </button>
-                        <button
-                            onclick="selectStation('attitude')"
-                            id="station-attitude"
-                            class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-100 hover:text-blue-700 font-medium border-2 border-transparent transition"
-                        >
-                            ⭐ Attitude
-                        </button>
-                        <button
-                            onclick="selectStation('runsonoff')"
-                            id="station-runsonoff"
-                            class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-100 hover:text-blue-700 font-medium border-2 border-transparent transition"
-                        >
-                            🏃 Runs on/off Field
-                        </button>
-                        <button
-                            onclick="selectStation('cheers')"
-                            id="station-cheers"
-                            class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-100 hover:text-blue-700 font-medium border-2 border-transparent transition"
-                        >
-                            📣 Cheers
-                        </button>
-                        <button
-                            onclick="selectStation('dives')"
-                            id="station-dives"
-                            class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-100 hover:text-blue-700 font-medium border-2 border-transparent transition"
-                        >
-                            🤸 Dives
-                        </button>
-                        <button
-                            onclick="selectStation('baserunning')"
-                            id="station-baserunning"
-                            class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-100 hover:text-blue-700 font-medium border-2 border-transparent transition"
-                        >
-                            ⚡ Baserunning
-                        </button>
-                        <button
                             onclick="selectStation('hitting')"
                             id="station-hitting"
                             class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-100 hover:text-blue-700 font-medium border-2 border-transparent transition"
@@ -293,7 +251,14 @@
                             id="station-pitching"
                             class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-100 hover:text-blue-700 font-medium border-2 border-transparent transition"
                         >
-                            ⚾ Pitching
+                            ⚾ Pitcher
+                        </button>
+                        <button
+                            onclick="selectStation('hustleenergy')"
+                            id="station-hustleenergy"
+                            class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-100 hover:text-blue-700 font-medium border-2 border-transparent transition"
+                        >
+                            🔥 Hustle & Energy
                         </button>
                     </div>
                 </div>
@@ -445,7 +410,7 @@
         // ============================================
         // IMPORTANT: Replace this URL with your Google Apps Script Web App URL
         // Instructions in google-apps-script.js file
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyBHrnFROHXG2Hg0sQ5l-v4eUHhqCrdKIjXNUbqVWHAQLR27I6PEQseD-heGi9QW7MFQA/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw0z9eFA7KtXtwAWQS_tCw-eWoUyFMUFxTzLPmBftdogi_nxtCvnODOtw1d_ZY4En5H6w/exec';
         // ============================================
 
         let players = [];
@@ -460,7 +425,6 @@
         const AUTO_UPLOAD_DELAY = 2000; // 2 seconds debounce
 
         const categories = [
-            { id: 'fielding', name: 'Fielding', max: 10 },
             { id: 'throwing', name: 'Throwing', max: 10 }
         ];
 
@@ -470,6 +434,12 @@
             { id: 'cheers', name: 'Cheers for Teammates', max: 5 },
             { id: 'dives', name: 'Dives for Balls', max: 5 },
             { id: 'baserunning', name: 'Aggressive Baserunning', max: 5 }
+        ];
+
+        const fieldingDrills = [
+            { id: 'flyball', name: 'Fly Ball Tracking', attempts: 8, type: 'count' },
+            { id: 'throwspeed', name: 'Throwing Speed (SS-1B or LF-2B)', attempts: 3, type: 'number' },
+            { id: 'throwaccuracy', name: 'Throwing Accuracy (INF-1B or OF-2B)', attempts: 3, type: 'accuracy' }
         ];
 
         const hittingDrills = [
@@ -802,6 +772,11 @@
                         h2b: [null, null, null],
                         hh: [null, null, null]
                     },
+                    fieldingData: {
+                        flyball: 0,  // Count of balls caught out of 8
+                        throwspeed: [null, null, null],
+                        throwaccuracy: [null, null, null]
+                    },
                     catcherData: {
                         poptime: [null, null, null],
                         throwaccuracy: [null, null, null],
@@ -1034,6 +1009,84 @@
             return h1bScore + h2bScore + hhScore;
         }
 
+        function updateFieldingData(playerId, drill, attemptIndex, value) {
+            const player = players.find(p => p.id === playerId);
+            if (player) {
+                if (!player.fieldingData) {
+                    player.fieldingData = {
+                        flyball: 0,
+                        throwspeed: [null, null, null],
+                        throwaccuracy: [null, null, null]
+                    };
+                }
+
+                if (drill === 'flyball') {
+                    // Just store the count directly
+                    const numValue = value === '' ? 0 : parseInt(value);
+                    player.fieldingData.flyball = Math.max(0, Math.min(8, numValue));
+                } else if (drill === 'throwaccuracy') {
+                    // Accuracy values: 0, 1, or 2
+                    if (!player.fieldingData.throwaccuracy) {
+                        player.fieldingData.throwaccuracy = [null, null, null];
+                    }
+                    const numValue = value === '' ? null : parseInt(value);
+                    player.fieldingData.throwaccuracy[attemptIndex] = numValue;
+                } else if (drill === 'throwspeed') {
+                    // Number type
+                    if (!player.fieldingData[drill]) {
+                        player.fieldingData[drill] = [null, null, null];
+                    }
+                    const numValue = value === '' ? null : parseFloat(value);
+                    player.fieldingData.throwspeed[attemptIndex] = numValue;
+                }
+
+                saveData();
+                updateScoresOnly(playerId);
+            }
+        }
+
+        function calculateFieldingScore(drill, values) {
+            if (drill === 'flyball') {
+                // flyball is just a count, return it as the score
+                return values !== null && values !== undefined ? values : 0;
+            }
+
+            if (drill === 'throwaccuracy') {
+                // Sum of accuracy scores (0, 1, or 2 per attempt)
+                if (!values || !Array.isArray(values)) return 0;
+                const validValues = values.filter(v => v !== null && v !== undefined && v !== '');
+                if (validValues.length === 0) return 0;
+                return validValues.reduce((sum, v) => sum + parseInt(v), 0);
+            }
+
+            if (drill === 'throwspeed') {
+                // Calculate average and score
+                if (!values || !Array.isArray(values)) return 0;
+                const validValues = values.filter(v => v !== null && !isNaN(v));
+                if (validValues.length === 0) return 0;
+
+                const avgValue = validValues.reduce((sum, v) => sum + v, 0) / validValues.length;
+
+                // Throwing Speed scoring
+                if (avgValue >= 2.71) return 1;
+                if (avgValue >= 2.1) return 2;
+                if (avgValue >= 1.53) return 3;
+                if (avgValue >= 1.41) return 4;
+                if (avgValue <= 1.4) return 5;
+                return 4; // 1.4-1.41
+            }
+
+            return 0;
+        }
+
+        function getFieldingScore(player) {
+            if (!player.fieldingData) return 0;
+            const flyballScore = calculateFieldingScore('flyball', player.fieldingData.flyball);
+            const throwspeedScore = calculateFieldingScore('throwspeed', player.fieldingData.throwspeed);
+            const throwaccuracyScore = calculateFieldingScore('throwaccuracy', player.fieldingData.throwaccuracy);
+            return flyballScore + throwspeedScore + throwaccuracyScore;
+        }
+
         function updateCatcherData(playerId, drill, attemptIndex, value) {
             const player = players.find(p => p.id === playerId);
             if (player) {
@@ -1202,9 +1255,10 @@
             const regularScore = Object.values(player.scores).reduce((sum, score) => sum + score, 0);
             const hittingScore = getHittingScore(player);
             const speedScore = getSpeedScore(player);
+            const fieldingScore = getFieldingScore(player);
             const catcherScore = getCatcherScore(player);
             // Note: Pitching score is NOT included in total - kept separate since not all players are pitchers
-            return regularScore + hittingScore + speedScore + catcherScore;
+            return regularScore + hittingScore + speedScore + fieldingScore + catcherScore;
         }
 
         function previousPlayer() {
@@ -1282,7 +1336,7 @@
                     <option value="">-- Select a player --</option>
                     ${players.map(p => `
                         <option value="${p.id}" ${p.id === selectedStationPlayer ? 'selected' : ''}>
-                            ${p.name}${p.number ? ' (#' + p.number + ')' : ''} - Score: ${getTotalScore(p)}/118
+                            ${p.name}${p.number ? ' (#' + p.number + ')' : ''} - Score: ${getTotalScore(p)}/127
                         </option>
                     `).join('')}
                 `;
@@ -1325,53 +1379,145 @@
             // Render station-specific content
             let stationHTML = '';
 
-            if (selectedStation === 'fielding' || selectedStation === 'throwing') {
-                const category = categories.find(c => c.id === selectedStation);
+            if (selectedStation === 'fielding') {
+                // Initialize fieldingData if needed
+                if (!player.fieldingData) {
+                    player.fieldingData = {
+                        flyball: 0,
+                        throwspeed: [null, null, null],
+                        throwaccuracy: [null, null, null]
+                    };
+                }
+
                 stationHTML = `
-                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-8">
-                        <div class="max-w-md mx-auto">
-                            <h3 class="text-2xl font-bold text-gray-800 mb-2">${category.name}</h3>
-                            <p class="text-gray-600 mb-6">Scoring for: <span class="font-semibold text-blue-700">${player.name}${player.number ? ' (#' + player.number + ')' : ''}</span></p>
-                            <div class="bg-white rounded-lg p-6 shadow-md">
-                                <label class="block text-lg font-medium text-gray-700 mb-3">Score (0-${category.max}):</label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    max="${category.max}"
-                                    value="${player.scores[category.id]}"
-                                    onchange="updateScore(${player.id}, '${category.id}', this.value); renderStationContent();"
-                                    class="w-full px-6 py-4 text-3xl font-bold text-center border-4 border-blue-300 rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-500 focus:border-blue-500"
-                                    autofocus
-                                />
-                                <div class="mt-4 text-center">
-                                    <span class="text-2xl font-bold text-blue-600" id="stationScoreDisplay">${player.scores[category.id]}/${category.max}</span>
-                                </div>
-                            </div>
+                    <div class="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-lg p-8">
+                        <div class="max-w-4xl mx-auto">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-2">Fielding Drills</h3>
+                            <p class="text-gray-600 mb-6">Scoring for: <span class="font-semibold text-teal-700">${player.name}${player.number ? ' (#' + player.number + ')' : ''}</span></p>
+
+                            <!-- Fly Ball Tracking -->
+                            ${(() => {
+                                const value = player.fieldingData.flyball || 0;
+                                const score = calculateFieldingScore('flyball', value);
+
+                                return `
+                                    <div class="bg-white p-6 rounded-lg mb-4 shadow-md">
+                                        <div class="flex justify-between items-center mb-3">
+                                            <label class="text-lg font-semibold text-gray-800">Fly Ball Tracking</label>
+                                            <span class="text-lg font-bold text-teal-600">Score: ${score}/8</span>
+                                        </div>
+                                        <div class="text-sm text-gray-600 mb-3">Enter number of balls caught (out of 8 attempts)</div>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            max="8"
+                                            placeholder="0"
+                                            value="${value}"
+                                            onchange="updateFieldingData(${player.id}, 'flyball', 0, this.value); renderStationContent();"
+                                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-center text-lg"
+                                        />
+                                    </div>
+                                `;
+                            })()}
+
+                            <!-- Throwing Speed -->
+                            ${(() => {
+                                const values = player.fieldingData.throwspeed || [null, null, null];
+                                const score = calculateFieldingScore('throwspeed', values);
+                                const validVals = values.filter(v => v !== null && !isNaN(v));
+                                const avgValue = validVals.length > 0
+                                    ? (validVals.reduce((sum, v) => sum + v, 0) / validVals.length).toFixed(2)
+                                    : 'N/A';
+
+                                return `
+                                    <div class="bg-white p-6 rounded-lg mb-4 shadow-md">
+                                        <div class="flex justify-between items-center mb-3">
+                                            <label class="text-lg font-semibold text-gray-800">Throwing Speed (SS-1B or LF-2B)</label>
+                                            <div class="text-right">
+                                                <span class="text-sm text-gray-500">Avg: ${avgValue}s</span>
+                                                <span class="ml-3 text-lg font-bold text-teal-600">Score: ${score}/5</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="grid grid-cols-3 gap-3">
+                                            ${values.map((val, idx) => `
+                                                <div>
+                                                    <label class="block text-sm text-gray-600 mb-1">Attempt ${idx + 1}</label>
+                                                    <input
+                                                        type="number"
+                                                        step="0.01"
+                                                        min="0"
+                                                        placeholder="0.00"
+                                                        value="${val !== null ? val : ''}"
+                                                        onchange="updateFieldingData(${player.id}, 'throwspeed', ${idx}, this.value); renderStationContent();"
+                                                        class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-center"
+                                                    />
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                `;
+                            })()}
+
+                            <!-- Throwing Accuracy -->
+                            ${(() => {
+                                const values = player.fieldingData.throwaccuracy || [null, null, null];
+                                const score = calculateFieldingScore('throwaccuracy', values);
+
+                                return `
+                                    <div class="bg-white p-6 rounded-lg mb-4 shadow-md">
+                                        <div class="flex justify-between items-center mb-3">
+                                            <label class="text-lg font-semibold text-gray-800">Throwing Accuracy (INF-1B or OF-2B)</label>
+                                            <span class="text-lg font-bold text-teal-600">Score: ${score}/6</span>
+                                        </div>
+                                        <div class="grid grid-cols-3 gap-3">
+                                            ${values.map((val, idx) => `
+                                                <div>
+                                                    <label class="block text-sm text-gray-600 mb-1">Attempt ${idx + 1}</label>
+                                                    <select
+                                                        onchange="updateFieldingData(${player.id}, 'throwaccuracy', ${idx}, this.value); renderStationContent();"
+                                                        class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-center"
+                                                    >
+                                                        <option value="">-</option>
+                                                        <option value="0" ${val === 0 ? 'selected' : ''}>Missed (0)</option>
+                                                        <option value="1" ${val === 1 ? 'selected' : ''}>1 Hop (1)</option>
+                                                        <option value="2" ${val === 2 ? 'selected' : ''}>On Mark (2)</option>
+                                                    </select>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                `;
+                            })()}
                         </div>
                     </div>
                 `;
-            } else if (selectedStation === 'attitude' || selectedStation === 'runsonoff' || selectedStation === 'cheers' || selectedStation === 'dives' || selectedStation === 'baserunning') {
-                const category = hustleEnergyCategories.find(c => c.id === selectedStation);
+            } else if (selectedStation === 'hustleenergy') {
                 stationHTML = `
-                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-8">
-                        <div class="max-w-md mx-auto">
-                            <h3 class="text-2xl font-bold text-gray-800 mb-2">${category.name}</h3>
-                            <p class="text-gray-600 mb-6">Scoring for: <span class="font-semibold text-blue-700">${player.name}${player.number ? ' (#' + player.number + ')' : ''}</span></p>
-                            <div class="bg-white rounded-lg p-6 shadow-md">
-                                <label class="block text-lg font-medium text-gray-700 mb-3">Score (0-${category.max}):</label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    max="${category.max}"
-                                    value="${player.scores[category.id]}"
-                                    onchange="updateScore(${player.id}, '${category.id}', this.value); renderStationContent();"
-                                    class="w-full px-6 py-4 text-3xl font-bold text-center border-4 border-blue-300 rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-500 focus:border-blue-500"
-                                    autofocus
-                                />
-                                <div class="mt-4 text-center">
-                                    <span class="text-2xl font-bold text-blue-600" id="stationScoreDisplay">${player.scores[category.id]}/${category.max}</span>
-                                </div>
-                            </div>
+                    <div class="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-lg p-8">
+                        <div class="max-w-4xl mx-auto">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-2">Hustle & Energy</h3>
+                            <p class="text-gray-600 mb-6">Scoring for: <span class="font-semibold text-amber-700">${player.name}${player.number ? ' (#' + player.number + ')' : ''}</span></p>
+                            ${hustleEnergyCategories.map(category => {
+                                const value = player.scores[category.id] || 0;
+
+                                return `
+                                    <div class="bg-white p-6 rounded-lg mb-4 shadow-md">
+                                        <div class="flex justify-between items-center mb-3">
+                                            <label class="text-lg font-semibold text-gray-800">${category.name}</label>
+                                            <span class="text-lg font-bold text-amber-600">Score: ${value}/5</span>
+                                        </div>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            max="5"
+                                            value="${value}"
+                                            onchange="updateScore(${player.id}, '${category.id}', this.value); renderStationContent();"
+                                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-center text-lg"
+                                        />
+                                    </div>
+                                `;
+                            }).join('')}
                         </div>
                     </div>
                 `;
@@ -1911,8 +2057,8 @@
                         <div class="flex items-center gap-3">
                             <div class="text-right">
                                 <div class="text-sm text-gray-500">Total Score</div>
-                                <div class="text-3xl font-bold text-green-600" data-total-score>${getTotalScore(player)}/118</div>
-                                <div class="text-xs text-gray-400" data-subscore>Hitting: ${hittingScore}/23 | Speed: ${speedScore}/15 | Catcher: ${catcherScore}/35 | Pitching: ${getPitchingScore(player)}/21</div>
+                                <div class="text-3xl font-bold text-green-600" data-total-score>${getTotalScore(player)}/127</div>
+                                <div class="text-xs text-gray-400" data-subscore>Hitting: ${hittingScore}/23 | Speed: ${speedScore}/15 | Fielding: ${getFieldingScore(player)}/19 | Catcher: ${catcherScore}/35 | Pitching: ${getPitchingScore(player)}/21</div>
                             </div>
                             ${showDelete ? `
                             <button
@@ -2050,6 +2196,109 @@
                                 />
                             </div>
                         `).join('')}
+                    </div>
+
+                    <div class="mb-4">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">Fielding Drills</h4>
+                        ${(() => {
+                            if (!player.fieldingData) {
+                                player.fieldingData = {
+                                    flyball: 0,
+                                    throwspeed: [null, null, null],
+                                    throwaccuracy: [null, null, null]
+                                };
+                            }
+
+                            return fieldingDrills.map(drill => {
+                                if (drill.type === 'count') {
+                                    const value = player.fieldingData[drill.id] || 0;
+                                    const score = calculateFieldingScore(drill.id, value);
+
+                                    return `
+                                        <div class="bg-gray-50 p-4 rounded-lg mb-3">
+                                            <div class="flex justify-between items-center mb-2">
+                                                <label class="text-sm font-medium text-gray-700">${drill.name}</label>
+                                                <span class="text-sm font-bold text-green-600">Score: ${score}/8</span>
+                                            </div>
+                                            <div class="text-xs text-gray-600 mb-2">Enter number of balls caught (out of 8 attempts)</div>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                max="8"
+                                                placeholder="0"
+                                                value="${value}"
+                                                onchange="updateFieldingData(${player.id}, '${drill.id}', 0, this.value)"
+                                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                    `;
+                                } else if (drill.type === 'number') {
+                                    const values = player.fieldingData[drill.id] || [null, null, null];
+                                    const score = calculateFieldingScore(drill.id, values);
+                                    const validVals = values.filter(v => v !== null && !isNaN(v));
+                                    const avgValue = validVals.length > 0
+                                        ? (validVals.reduce((sum, v) => sum + v, 0) / validVals.length).toFixed(2)
+                                        : 'N/A';
+
+                                    return `
+                                        <div class="bg-gray-50 p-4 rounded-lg mb-3">
+                                            <div class="flex justify-between items-center mb-2">
+                                                <label class="text-sm font-medium text-gray-700">${drill.name}</label>
+                                                <div class="text-right">
+                                                    <span class="text-xs text-gray-500">Avg: ${avgValue}s</span>
+                                                    <span class="ml-3 text-sm font-bold text-green-600">Score: ${score}/5</span>
+                                                </div>
+                                            </div>
+                                            <div class="text-xs text-gray-600 mb-2">≥2.71=1 | 2.1-2.71=2 | 1.53-2.1=3 | 1.41-1.53=4 | ≤1.4=5</div>
+                                            <div class="grid grid-cols-3 gap-2">
+                                                ${values.map((val, idx) => `
+                                                    <div>
+                                                        <label class="block text-xs text-gray-600 mb-1">Attempt ${idx + 1}</label>
+                                                        <input
+                                                            type="number"
+                                                            step="0.01"
+                                                            min="0"
+                                                            placeholder="0.00"
+                                                            value="${val !== null ? val : ''}"
+                                                            onchange="updateFieldingData(${player.id}, '${drill.id}', ${idx}, this.value)"
+                                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                        />
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                    `;
+                                } else if (drill.type === 'accuracy') {
+                                    const values = player.fieldingData[drill.id] || [null, null, null];
+                                    const score = calculateFieldingScore(drill.id, values);
+
+                                    return `
+                                        <div class="bg-gray-50 p-4 rounded-lg mb-3">
+                                            <div class="flex justify-between items-center mb-2">
+                                                <label class="text-sm font-medium text-gray-700">${drill.name}</label>
+                                                <span class="text-sm font-bold text-green-600">Score: ${score}/6</span>
+                                            </div>
+                                            <div class="grid grid-cols-3 gap-2">
+                                                ${values.map((val, idx) => `
+                                                    <div>
+                                                        <label class="block text-xs text-gray-600 mb-1">Attempt ${idx + 1}</label>
+                                                        <select
+                                                            onchange="updateFieldingData(${player.id}, '${drill.id}', ${idx}, this.value)"
+                                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                        >
+                                                            <option value="">-</option>
+                                                            <option value="0" ${val === 0 ? 'selected' : ''}>Missed (0)</option>
+                                                            <option value="1" ${val === 1 ? 'selected' : ''}>1 Hop (1)</option>
+                                                            <option value="2" ${val === 2 ? 'selected' : ''}>On Mark (2)</option>
+                                                        </select>
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                    `;
+                                }
+                            }).join('');
+                        })()}
                     </div>
 
                     <div class="mb-4">
@@ -2420,19 +2669,20 @@
             // Update total score
             const hittingScore = getHittingScore(player);
             const speedScore = getSpeedScore(player);
+            const fieldingScore = getFieldingScore(player);
             const catcherScore = getCatcherScore(player);
             const regularScore = Object.values(player.scores).reduce((sum, score) => sum + score, 0);
             const totalScore = getTotalScore(player);
 
             const totalScoreEl = document.querySelector('[data-total-score]');
             if (totalScoreEl) {
-                totalScoreEl.textContent = `${totalScore}/118`;
+                totalScoreEl.textContent = `${totalScore}/127`;
             }
 
             const pitchingScore = getPitchingScore(player);
             const subscoreEl = document.querySelector('[data-subscore]');
             if (subscoreEl) {
-                subscoreEl.textContent = `Hitting: ${hittingScore}/23 | Speed: ${speedScore}/15 | Catcher: ${catcherScore}/35 | Pitching: ${pitchingScore}/21`;
+                subscoreEl.textContent = `Hitting: ${hittingScore}/23 | Speed: ${speedScore}/15 | Fielding: ${fieldingScore}/19 | Catcher: ${catcherScore}/35 | Pitching: ${pitchingScore}/21`;
             }
 
             // Update dropdown
@@ -2440,7 +2690,7 @@
             if (dropdown && viewMode === 'single') {
                 const option = dropdown.querySelector(`option[value="${currentPlayerIndex}"]`);
                 if (option) {
-                    option.textContent = `${player.name}${player.number ? ' (#' + player.number + ')' : ''} - Score: ${totalScore}/118`;
+                    option.textContent = `${player.name}${player.number ? ' (#' + player.number + ')' : ''} - Score: ${totalScore}/127`;
                 }
             }
         }
@@ -2526,7 +2776,7 @@
                         <option value="">-- Select a player --</option>
                         ${players.map(p => `
                             <option value="${p.id}" ${p.id === selectedStationPlayer ? 'selected' : ''}>
-                                ${p.name}${p.number ? ' (#' + p.number + ')' : ''} - Score: ${getTotalScore(p)}/118
+                                ${p.name}${p.number ? ' (#' + p.number + ')' : ''} - Score: ${getTotalScore(p)}/127
                             </option>
                         `).join('')}
                     `;
@@ -2555,11 +2805,11 @@
                                     <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b">Rank</th>
                                     <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b">Name</th>
                                     <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b">Jersey #</th>
-                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b">Fielding</th>
                                     <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b">Throwing</th>
-                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b">Attitude</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b">Hustle & Energy</th>
                                     <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b">Hitting</th>
                                     <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b">Speed</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b">Fielding</th>
                                     <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b bg-green-50">Total Score</th>
                                 </tr>
                             </thead>
@@ -2567,6 +2817,8 @@
                                 ${sortedPlayers.map((player, index) => {
                                     const hittingScore = getHittingScore(player);
                                     const speedScore = getSpeedScore(player);
+                                    const fieldingScore = getFieldingScore(player);
+                                    const hustleEnergyScore = hustleEnergyCategories.reduce((sum, cat) => sum + (player.scores[cat.id] || 0), 0);
                                     const totalScore = getTotalScore(player);
 
                                     return `
@@ -2578,13 +2830,13 @@
                                             </td>
                                             <td class="px-4 py-3 border-b font-medium text-gray-800">${player.name}</td>
                                             <td class="px-4 py-3 text-center border-b text-gray-600">${player.number || '-'}</td>
-                                            <td class="px-4 py-3 text-center border-b text-gray-700">${player.scores.fielding}/10</td>
-                                            <td class="px-4 py-3 text-center border-b text-gray-700">${player.scores.throwing}/10</td>
-                                            <td class="px-4 py-3 text-center border-b text-gray-700">${player.scores.attitude}/10</td>
+                                            <td class="px-4 py-3 text-center border-b text-gray-700">${player.scores.throwing || 0}/10</td>
+                                            <td class="px-4 py-3 text-center border-b text-gray-700">${hustleEnergyScore}/25</td>
                                             <td class="px-4 py-3 text-center border-b text-gray-700">${hittingScore}/23</td>
                                             <td class="px-4 py-3 text-center border-b text-gray-700">${speedScore}/15</td>
+                                            <td class="px-4 py-3 text-center border-b text-gray-700">${fieldingScore}/19</td>
                                             <td class="px-4 py-3 text-center border-b bg-green-50">
-                                                <span class="text-lg font-bold text-green-600">${totalScore}/118</span>
+                                                <span class="text-lg font-bold text-green-600">${totalScore}/127</span>
                                             </td>
                                         </tr>
                                     `;
