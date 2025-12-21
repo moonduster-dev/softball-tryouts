@@ -499,6 +499,38 @@
                 const saved = localStorage.getItem(STORAGE_KEY);
                 if (saved) {
                     players = JSON.parse(saved);
+
+                    // Migrate old player data to ensure all score fields exist
+                    players.forEach(player => {
+                        // Initialize scores object if missing
+                        if (!player.scores) {
+                            player.scores = {};
+                        }
+
+                        // Ensure all category scores exist
+                        categories.forEach(cat => {
+                            if (player.scores[cat.id] === undefined) {
+                                player.scores[cat.id] = 0;
+                            }
+                        });
+
+                        // Ensure all Hustle & Energy scores exist
+                        hustleEnergyCategories.forEach(cat => {
+                            if (player.scores[cat.id] === undefined) {
+                                player.scores[cat.id] = 0;
+                            }
+                        });
+
+                        // Ensure fieldingData exists
+                        if (!player.fieldingData) {
+                            player.fieldingData = {
+                                flyball: 0,
+                                throwspeed: [null, null, null],
+                                throwaccuracy: [null, null, null]
+                            };
+                        }
+                    });
+
                     showSaveStatus('✓ Data loaded from browser');
                 }
             } catch (error) {
