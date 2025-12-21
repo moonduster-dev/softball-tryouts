@@ -2563,7 +2563,7 @@
                                         <div class="bg-gray-50 p-4 rounded-lg mb-3">
                                             <div class="flex justify-between items-center mb-2">
                                                 <label class="text-sm font-medium text-gray-700">${drill.name}</label>
-                                                <span class="text-sm font-bold text-green-600">Score: ${score}/8</span>
+                                                <span class="text-sm font-bold text-green-600" data-fielding-score="${drill.id}">Score: ${score}/8</span>
                                             </div>
                                             <div class="text-xs text-gray-600 mb-2">Enter number of balls caught (out of 8 attempts)</div>
                                             <input
@@ -2590,11 +2590,10 @@
                                             <div class="flex justify-between items-center mb-2">
                                                 <label class="text-sm font-medium text-gray-700">${drill.name}</label>
                                                 <div class="text-right">
-                                                    <span class="text-xs text-gray-500">Avg: ${avgValue}s</span>
-                                                    <span class="ml-3 text-sm font-bold text-green-600">Score: ${score}/5</span>
+                                                    <span class="text-xs text-gray-500" data-fielding-avg="${drill.id}">Avg: ${avgValue}s</span>
+                                                    <span class="ml-3 text-sm font-bold text-green-600" data-fielding-score="${drill.id}">Score: ${score}/5</span>
                                                 </div>
                                             </div>
-                                            <div class="text-xs text-gray-600 mb-2">≥2.71=1 | 2.1-2.71=2 | 1.53-2.1=3 | 1.41-1.53=4 | ≤1.4=5</div>
                                             <div class="grid grid-cols-3 gap-2">
                                                 ${values.map((val, idx) => `
                                                     <div>
@@ -2621,7 +2620,7 @@
                                         <div class="bg-gray-50 p-4 rounded-lg mb-3">
                                             <div class="flex justify-between items-center mb-2">
                                                 <label class="text-sm font-medium text-gray-700">${drill.name}</label>
-                                                <span class="text-sm font-bold text-green-600">Score: ${score}/6</span>
+                                                <span class="text-sm font-bold text-green-600" data-fielding-score="${drill.id}">Score: ${score}/6</span>
                                             </div>
                                             <div class="grid grid-cols-3 gap-2">
                                                 ${values.map((val, idx) => `
@@ -3007,6 +3006,37 @@
                             ? (validTimes.reduce((sum, t) => sum + t, 0) / validTimes.length).toFixed(2)
                             : 'N/A';
                         avgEl.textContent = `Avg: ${avgTime}s`;
+                    }
+                }
+            });
+
+            // Update fielding drill averages and scores
+            fieldingDrills.forEach(drill => {
+                const scoreEl = document.querySelector(`[data-fielding-score="${drill.id}"]`);
+
+                if (scoreEl && player.fieldingData) {
+                    if (drill.type === 'count') {
+                        const value = player.fieldingData[drill.id] || 0;
+                        const score = calculateFieldingScore(drill.id, value);
+                        scoreEl.textContent = `Score: ${score}/8`;
+                    } else if (drill.type === 'number') {
+                        const avgEl = document.querySelector(`[data-fielding-avg="${drill.id}"]`);
+                        const values = player.fieldingData[drill.id] || [null, null, null];
+                        const validVals = values.filter(v => v !== null && !isNaN(v));
+                        const avgValue = validVals.length > 0
+                            ? (validVals.reduce((sum, v) => sum + v, 0) / validVals.length).toFixed(2)
+                            : 'N/A';
+
+                        if (avgEl) {
+                            avgEl.textContent = `Avg: ${avgValue}s`;
+                        }
+
+                        const score = calculateFieldingScore(drill.id, values);
+                        scoreEl.textContent = `Score: ${score}/5`;
+                    } else if (drill.type === 'accuracy') {
+                        const values = player.fieldingData[drill.id] || [null, null, null];
+                        const score = calculateFieldingScore(drill.id, values);
+                        scoreEl.textContent = `Score: ${score}/6`;
                     }
                 }
             });
