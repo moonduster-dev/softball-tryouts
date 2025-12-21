@@ -435,9 +435,7 @@
         const STORAGE_KEY = 'softball_tryout_data';
         const AUTO_UPLOAD_DELAY = 2000; // 2 seconds debounce
 
-        const categories = [
-            { id: 'throwing', name: 'Throwing', max: 10 }
-        ];
+        const categories = [];
 
         const hustleEnergyCategories = [
             { id: 'attitude', name: 'Attitude', max: 5 },
@@ -924,7 +922,6 @@
 
             // Calculate all scores
             const scores = {
-                throwing: { score: player.scores?.throwing || 0, max: 10, category: 'Throwing' },
                 hustleEnergy: {
                     score: hustleEnergyCategories.reduce((sum, cat) => sum + (player.scores[cat.id] || 0), 0),
                     max: 25,
@@ -971,7 +968,7 @@
             let report = `📊 PERFORMANCE REPORT\n`;
             report += `${'='.repeat(50)}\n\n`;
             report += `Player: ${player.name}${player.number ? ' (#' + player.number + ')' : ''}\n`;
-            report += `Total Score: ${getTotalScore(player)}/127\n\n`;
+            report += `Total Score: ${getTotalScore(player)}/117\n\n`;
 
             report += `✨ STRENGTHS (Top Areas)\n`;
             report += `${'-'.repeat(50)}\n`;
@@ -1017,8 +1014,6 @@
                         report += `• Incorporate speed/agility drills into training routine\n`;
                     } else if (key === 'fielding') {
                         report += `• Practice fly ball tracking and throwing accuracy drills\n`;
-                    } else if (key === 'throwing') {
-                        report += `• Work on arm strength and throwing mechanics\n`;
                     } else if (key === 'hustleEnergy') {
                         report += `• Show more energy on and off the field - cheer for teammates!\n`;
                     } else if (key === 'catcher') {
@@ -1673,7 +1668,7 @@
                     <option value="">-- Select a player --</option>
                     ${players.map(p => `
                         <option value="${p.id}" ${p.id === selectedStationPlayer ? 'selected' : ''}>
-                            ${p.name}${p.number ? ' (#' + p.number + ')' : ''} - Score: ${getTotalScore(p)}/127
+                            ${p.name}${p.number ? ' (#' + p.number + ')' : ''} - Score: ${getTotalScore(p)}/117
                         </option>
                     `).join('')}
                 `;
@@ -2394,7 +2389,7 @@
                         <div class="flex items-center gap-3">
                             <div class="text-right">
                                 <div class="text-sm text-gray-500">Total Score</div>
-                                <div class="text-3xl font-bold text-green-600" data-total-score>${getTotalScore(player)}/127</div>
+                                <div class="text-3xl font-bold text-green-600" data-total-score>${getTotalScore(player)}/117</div>
                                 <div class="text-xs text-gray-400" data-subscore>Hitting: ${hittingScore}/23 | Speed: ${speedScore}/15 | Fielding: ${getFieldingScore(player)}/19 | Catcher: ${catcherScore}/35 | Pitching: ${getPitchingScore(player)}/21</div>
                             </div>
                             <button
@@ -3051,7 +3046,7 @@
 
             const totalScoreEl = document.querySelector('[data-total-score]');
             if (totalScoreEl) {
-                totalScoreEl.textContent = `${totalScore}/127`;
+                totalScoreEl.textContent = `${totalScore}/117`;
             }
 
             const pitchingScore = getPitchingScore(player);
@@ -3065,7 +3060,7 @@
             if (dropdown && viewMode === 'single') {
                 const option = dropdown.querySelector(`option[value="${currentPlayerIndex}"]`);
                 if (option) {
-                    option.textContent = `${player.name}${player.number ? ' (#' + player.number + ')' : ''} - Score: ${totalScore}/127`;
+                    option.textContent = `${player.name}${player.number ? ' (#' + player.number + ')' : ''} - Score: ${totalScore}/117`;
                 }
             }
         }
@@ -3151,7 +3146,7 @@
                         <option value="">-- Select a player --</option>
                         ${players.map(p => `
                             <option value="${p.id}" ${p.id === selectedStationPlayer ? 'selected' : ''}>
-                                ${p.name}${p.number ? ' (#' + p.number + ')' : ''} - Score: ${getTotalScore(p)}/127
+                                ${p.name}${p.number ? ' (#' + p.number + ')' : ''} - Score: ${getTotalScore(p)}/117
                             </option>
                         `).join('')}
                     `;
@@ -3180,7 +3175,6 @@
                                     <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b">Rank</th>
                                     <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b">Name</th>
                                     <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b">Jersey #</th>
-                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b">Throwing</th>
                                     <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b">Hustle & Energy</th>
                                     <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b">Hitting</th>
                                     <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b">Speed</th>
@@ -3205,13 +3199,12 @@
                                             </td>
                                             <td class="px-4 py-3 border-b font-medium text-gray-800">${player.name}</td>
                                             <td class="px-4 py-3 text-center border-b text-gray-600">${player.number || '-'}</td>
-                                            <td class="px-4 py-3 text-center border-b text-gray-700">${player.scores.throwing || 0}/10</td>
                                             <td class="px-4 py-3 text-center border-b text-gray-700">${hustleEnergyScore}/25</td>
                                             <td class="px-4 py-3 text-center border-b text-gray-700">${hittingScore}/23</td>
                                             <td class="px-4 py-3 text-center border-b text-gray-700">${speedScore}/15</td>
                                             <td class="px-4 py-3 text-center border-b text-gray-700">${fieldingScore}/19</td>
                                             <td class="px-4 py-3 text-center border-b bg-green-50">
-                                                <span class="text-lg font-bold text-green-600">${totalScore}/127</span>
+                                                <span class="text-lg font-bold text-green-600">${totalScore}/117</span>
                                             </td>
                                         </tr>
                                     `;
