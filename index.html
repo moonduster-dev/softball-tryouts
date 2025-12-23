@@ -232,16 +232,18 @@
                         <button
                             onclick="selectStation('fielding')"
                             id="station-fielding"
-                            class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-100 hover:text-blue-700 font-medium border-2 border-transparent transition"
+                            class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-100 hover:text-blue-700 font-medium border-2 border-transparent transition flex items-center justify-center gap-2"
                         >
-                            🥎 Fielding
+                            <img src="softball fielding.JPG" alt="Fielding" class="w-6 h-6 object-contain">
+                            Fielding
                         </button>
                         <button
                             onclick="selectStation('hitting')"
                             id="station-hitting"
-                            class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-100 hover:text-blue-700 font-medium border-2 border-transparent transition"
+                            class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-100 hover:text-blue-700 font-medium border-2 border-transparent transition flex items-center justify-center gap-2"
                         >
-                            💥 Hitting
+                            <img src="softball bat.png" alt="Bat" class="w-6 h-6 object-contain" style="transform: rotate(45deg);">
+                            Hitting
                         </button>
                         <button
                             onclick="selectStation('speed')"
@@ -253,9 +255,10 @@
                         <button
                             onclick="selectStation('catcher')"
                             id="station-catcher"
-                            class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-100 hover:text-blue-700 font-medium border-2 border-transparent transition"
+                            class="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-100 hover:text-blue-700 font-medium border-2 border-transparent transition flex items-center justify-center gap-2"
                         >
-                            🧤 Catcher
+                            <img src="catcher.jpg" alt="Catcher" class="w-6 h-6 object-contain">
+                            Catcher
                         </button>
                         <button
                             onclick="selectStation('pitching')"
@@ -1857,7 +1860,10 @@
                 stationHTML = `
                     <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-8">
                         <div class="max-w-4xl mx-auto">
-                            <h3 class="text-2xl font-bold text-gray-800 mb-2">Hitting Drills</h3>
+                            <div class="flex items-center gap-3 mb-2">
+                                <img src="softball bat.png" alt="Softball Bat" class="w-12 h-12 object-contain">
+                                <h3 class="text-2xl font-bold text-gray-800">Hitting Drills</h3>
+                            </div>
                             <p class="text-gray-600 mb-6">Scoring for: <span class="font-semibold text-green-700">${player.name}${player.number ? ' (#' + player.number + ')' : ''}</span></p>
                             ${hittingDrills.map(drill => {
                                 const values = player.hittingData[drill.id] || Array(drill.attempts).fill(null);
