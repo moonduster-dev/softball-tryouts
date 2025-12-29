@@ -424,7 +424,7 @@
         // ============================================
         // IMPORTANT: Replace this URL with your Google Apps Script Web App URL
         // Instructions in google-apps-script.js file
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzLE33gTyorvF2IDYuDQn4borrPW3sPcwYWvkVvqRSduv3XqfHXQaPHWa1d1Po9T2KZxg/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz178jxTCpHkCcC4204wb5lIxBZ5iFb8H42faOd3nd-fUjsijTG27lodfGPHu5AJsgpMQ/exec';
         // ============================================
 
         let players = [];
@@ -467,7 +467,8 @@
         const speedDrills = [
             { id: 'h1b', name: 'H→1B', attempts: 3 },
             { id: 'h2b', name: 'H→2B', attempts: 3 },
-            { id: 'hh', name: 'H→H', attempts: 3 }
+            { id: 'hh', name: 'H→H', attempts: 3 },
+            { id: 'broadjump', name: 'Broad Jump (ft)', attempts: 3 }
         ];
 
         const catcherDrills = [
@@ -529,6 +530,21 @@
                                 throwspeed: [null, null, null],
                                 throwaccuracy: [null, null, null]
                             };
+                        }
+
+                        // Ensure speedTimes exists and has all drills
+                        if (!player.speedTimes) {
+                            player.speedTimes = {
+                                h1b: [null, null, null],
+                                h2b: [null, null, null],
+                                hh: [null, null, null],
+                                broadjump: [null, null, null]
+                            };
+                        } else {
+                            // Add broadjump if missing (for existing players)
+                            if (!player.speedTimes.broadjump) {
+                                player.speedTimes.broadjump = [null, null, null];
+                            }
                         }
                     });
 
@@ -814,7 +830,8 @@
                     speedTimes: {
                         h1b: [null, null, null],
                         h2b: [null, null, null],
-                        hh: [null, null, null]
+                        hh: [null, null, null],
+                        broadjump: [null, null, null]
                     },
                     fieldingData: {
                         flyball: 0,  // Count of balls caught out of 8
@@ -936,7 +953,7 @@
                     }))
                 },
                 hitting: { score: getHittingScore(player), max: 23, category: 'Hitting' },
-                speed: { score: getSpeedScore(player), max: 15, category: 'Speed' },
+                speed: { score: getSpeedScore(player), max: 20, category: 'Speed' },
                 fielding: { score: getFieldingScore(player), max: 19, category: 'Fielding' },
                 catcher: { score: getCatcherScore(player), max: 35, category: 'Catcher' },
                 pitching: { score: getPitchingScore(player), max: 21, category: 'Pitching' }
@@ -1255,6 +1272,34 @@
             }
         }
 
+        function updateBroadJump(playerId, attemptIndex) {
+            const player = players.find(p => p.id === playerId);
+            if (player) {
+                if (!player.speedTimes) {
+                    player.speedTimes = {};
+                }
+                if (!player.speedTimes.broadjump) {
+                    player.speedTimes.broadjump = [null, null, null];
+                }
+
+                const feetInput = document.getElementById(`bj-ft-${playerId}-${attemptIndex}`);
+                const inchesInput = document.getElementById(`bj-in-${playerId}-${attemptIndex}`);
+
+                const feet = feetInput.value === '' ? 0 : parseInt(feetInput.value);
+                const inches = inchesInput.value === '' ? 0 : parseInt(inchesInput.value);
+
+                // Convert to decimal feet (e.g., 5 feet 6 inches = 5.5 feet)
+                const totalFeet = feet + (inches / 12);
+
+                // Store null if both are empty, otherwise store the value
+                player.speedTimes.broadjump[attemptIndex] = (feetInput.value === '' && inchesInput.value === '') ? null : totalFeet;
+
+                saveData();
+                updateScoresOnly(playerId);
+                renderStationContent();
+            }
+        }
+
         function calculateHittingScore(drill, values) {
             if (!values) return 0;
             const validValues = values.filter(v => v !== null && v !== undefined && v !== '');
@@ -1308,6 +1353,7 @@
         }
 
         function calculateSpeedScore(drill, times) {
+            if (!times || !Array.isArray(times)) return 0;
             const validTimes = times.filter(t => t !== null && !isNaN(t));
             if (validTimes.length === 0) return 0;
             
@@ -1332,6 +1378,13 @@
                 if (avgTime < 15.0) return 3;
                 if (avgTime < 17.0) return 2;
                 return 1;
+            } else if (drill === 'broadjump') {
+                // Broad Jump scoring (in feet)
+                if (avgTime < 4) return 1;
+                if (avgTime < 5) return 2;
+                if (avgTime < 6) return 3;
+                if (avgTime < 7) return 4;
+                return 5;
             }
             return 0;
         }
@@ -1341,7 +1394,8 @@
             const h1bScore = calculateSpeedScore('h1b', player.speedTimes.h1b);
             const h2bScore = calculateSpeedScore('h2b', player.speedTimes.h2b);
             const hhScore = calculateSpeedScore('hh', player.speedTimes.hh);
-            return h1bScore + h2bScore + hhScore;
+            const broadjumpScore = calculateSpeedScore('broadjump', player.speedTimes.broadjump || [null, null, null]);
+            return h1bScore + h2bScore + hhScore + broadjumpScore;
         }
 
         function updateFieldingData(playerId, drill, attemptIndex, value) {
@@ -1966,10 +2020,11 @@
                             <h3 class="text-2xl font-bold text-gray-800 mb-2">Speed Drills</h3>
                             <p class="text-gray-600 mb-6">Scoring for: <span class="font-semibold text-orange-700">${player.name}${player.number ? ' (#' + player.number + ')' : ''}</span></p>
                             ${speedDrills.map(drill => {
-                                const times = player.speedTimes[drill.id];
+                                const times = player.speedTimes[drill.id] || [null, null, null];
                                 const score = calculateSpeedScore(drill.id, times);
-                                const avgTime = times.filter(t => t !== null && !isNaN(t)).length > 0
-                                    ? (times.filter(t => t !== null && !isNaN(t)).reduce((sum, t) => sum + t, 0) / times.filter(t => t !== null && !isNaN(t)).length).toFixed(2)
+                                const validTimes = times.filter(t => t !== null && !isNaN(t));
+                                const avgTime = validTimes.length > 0
+                                    ? (validTimes.reduce((sum, t) => sum + t, 0) / validTimes.length).toFixed(2)
                                     : 'N/A';
 
                                 return `
@@ -1977,25 +2032,65 @@
                                         <div class="flex justify-between items-center mb-3">
                                             <label class="text-lg font-semibold text-gray-800">${drill.name}</label>
                                             <div class="text-right">
-                                                <span class="text-sm text-gray-500">Avg: ${avgTime}s</span>
+                                                <span class="text-sm text-gray-500">Avg: ${avgTime}${drill.id === 'broadjump' ? 'ft' : 's'}</span>
                                                 <span class="ml-3 text-lg font-bold text-orange-600">Score: ${score}/5</span>
                                             </div>
                                         </div>
                                         <div class="grid grid-cols-3 gap-3">
-                                            ${times.map((time, idx) => `
-                                                <div>
-                                                    <label class="block text-sm text-gray-600 mb-1">Attempt ${idx + 1}</label>
-                                                    <input
-                                                        type="number"
-                                                        step="0.01"
-                                                        min="0"
-                                                        placeholder="0.00"
-                                                        value="${time !== null ? time : ''}"
-                                                        onchange="updateSpeedTime(${player.id}, '${drill.id}', ${idx}, this.value); renderStationContent();"
-                                                        class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-center"
-                                                    />
-                                                </div>
-                                            `).join('')}
+                                            ${times.map((time, idx) => {
+                                                if (drill.id === 'broadjump') {
+                                                    const feet = time !== null ? Math.floor(time) : '';
+                                                    const inches = time !== null ? Math.round((time - Math.floor(time)) * 12) : '';
+                                                    return `
+                                                        <div>
+                                                            <label class="block text-sm text-gray-600 mb-1">Attempt ${idx + 1}</label>
+                                                            <div class="flex gap-1">
+                                                                <div class="flex-1">
+                                                                    <input
+                                                                        type="number"
+                                                                        min="0"
+                                                                        max="20"
+                                                                        placeholder="ft"
+                                                                        value="${feet}"
+                                                                        id="bj-ft-${player.id}-${idx}"
+                                                                        onchange="updateBroadJump(${player.id}, ${idx});"
+                                                                        class="w-full px-2 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-center text-sm"
+                                                                    />
+                                                                    <span class="text-xs text-gray-500">ft</span>
+                                                                </div>
+                                                                <div class="flex-1">
+                                                                    <input
+                                                                        type="number"
+                                                                        min="0"
+                                                                        max="11"
+                                                                        placeholder="in"
+                                                                        value="${inches}"
+                                                                        id="bj-in-${player.id}-${idx}"
+                                                                        onchange="updateBroadJump(${player.id}, ${idx});"
+                                                                        class="w-full px-2 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-center text-sm"
+                                                                    />
+                                                                    <span class="text-xs text-gray-500">in</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    `;
+                                                } else {
+                                                    return `
+                                                        <div>
+                                                            <label class="block text-sm text-gray-600 mb-1">Attempt ${idx + 1}</label>
+                                                            <input
+                                                                type="number"
+                                                                step="0.01"
+                                                                min="0"
+                                                                placeholder="0.00"
+                                                                value="${time !== null ? time : ''}"
+                                                                onchange="updateSpeedTime(${player.id}, '${drill.id}', ${idx}, this.value); renderStationContent();"
+                                                                class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-center"
+                                                            />
+                                                        </div>
+                                                    `;
+                                                }
+                                            }).join('')}
                                         </div>
                                     </div>
                                 `;
@@ -2666,38 +2761,79 @@
                     </div>
 
                     <div class="mb-4">
-                        <h4 class="text-lg font-semibold text-gray-800 mb-3">Speed Drills (enter times in seconds)</h4>
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">Speed Drills</h4>
                         ${speedDrills.map(drill => {
-                            const times = player.speedTimes[drill.id];
+                            const times = player.speedTimes[drill.id] || [null, null, null];
                             const score = calculateSpeedScore(drill.id, times);
-                            const avgTime = times.filter(t => t !== null && !isNaN(t)).length > 0
-                                ? (times.filter(t => t !== null && !isNaN(t)).reduce((sum, t) => sum + t, 0) / times.filter(t => t !== null && !isNaN(t)).length).toFixed(2)
+                            const validTimes = times.filter(t => t !== null && !isNaN(t));
+                            const avgTime = validTimes.length > 0
+                                ? (validTimes.reduce((sum, t) => sum + t, 0) / validTimes.length).toFixed(2)
                                 : 'N/A';
-                            
+
                             return `
                                 <div class="bg-gray-50 p-4 rounded-lg mb-3">
                                     <div class="flex justify-between items-center mb-2">
                                         <label class="text-sm font-medium text-gray-700">${drill.name}</label>
                                         <div class="text-right">
-                                            <span class="text-xs text-gray-500" data-avg-display="${drill.id}">Avg: ${avgTime}s</span>
+                                            <span class="text-xs text-gray-500" data-avg-display="${drill.id}">Avg: ${avgTime}${drill.id === 'broadjump' ? 'ft' : 's'}</span>
                                             <span class="ml-3 text-sm font-bold text-green-600" data-score-display data-drill-id="${drill.id}" data-drill-type="speed">Score: ${score}/5</span>
                                         </div>
                                     </div>
                                     <div class="grid grid-cols-3 gap-2">
-                                        ${times.map((time, idx) => `
-                                            <div>
-                                                <label class="block text-xs text-gray-600 mb-1">Attempt ${idx + 1}</label>
-                                                <input
-                                                    type="number"
-                                                    step="0.01"
-                                                    min="0"
-                                                    placeholder="0.00"
-                                                    value="${time !== null ? time : ''}"
-                                                    onchange="updateSpeedTime(${player.id}, '${drill.id}', ${idx}, this.value)"
-                                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                />
-                                            </div>
-                                        `).join('')}
+                                        ${times.map((time, idx) => {
+                                            if (drill.id === 'broadjump') {
+                                                const feet = time !== null ? Math.floor(time) : '';
+                                                const inches = time !== null ? Math.round((time - Math.floor(time)) * 12) : '';
+                                                return `
+                                                    <div>
+                                                        <label class="block text-xs text-gray-600 mb-1">Attempt ${idx + 1}</label>
+                                                        <div class="flex gap-1">
+                                                            <div class="flex-1">
+                                                                <input
+                                                                    type="number"
+                                                                    min="0"
+                                                                    max="20"
+                                                                    placeholder="ft"
+                                                                    value="${feet}"
+                                                                    id="bj-ft-${player.id}-${idx}"
+                                                                    onchange="updateBroadJump(${player.id}, ${idx});"
+                                                                    class="w-full px-1 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-center text-xs"
+                                                                />
+                                                                <span class="text-xs text-gray-500 block text-center">ft</span>
+                                                            </div>
+                                                            <div class="flex-1">
+                                                                <input
+                                                                    type="number"
+                                                                    min="0"
+                                                                    max="11"
+                                                                    placeholder="in"
+                                                                    value="${inches}"
+                                                                    id="bj-in-${player.id}-${idx}"
+                                                                    onchange="updateBroadJump(${player.id}, ${idx});"
+                                                                    class="w-full px-1 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-center text-xs"
+                                                                />
+                                                                <span class="text-xs text-gray-500 block text-center">in</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                `;
+                                            } else {
+                                                return `
+                                                    <div>
+                                                        <label class="block text-xs text-gray-600 mb-1">Attempt ${idx + 1}</label>
+                                                        <input
+                                                            type="number"
+                                                            step="0.01"
+                                                            min="0"
+                                                            placeholder="0.00"
+                                                            value="${time !== null ? time : ''}"
+                                                            onchange="updateSpeedTime(${player.id}, '${drill.id}', ${idx}, this.value)"
+                                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                        />
+                                                    </div>
+                                                `;
+                                            }
+                                        }).join('')}
                                     </div>
                                 </div>
                             `;
@@ -2995,7 +3131,7 @@
                         }
                     }
                 } else if (drillType === 'speed') {
-                    const score = calculateSpeedScore(drillId, player.speedTimes[drillId]);
+                    const score = calculateSpeedScore(drillId, player.speedTimes[drillId] || [null, null, null]);
                     el.textContent = `Score: ${score}/5`;
 
                     // Update average
@@ -3006,7 +3142,8 @@
                         const avgTime = validTimes.length > 0
                             ? (validTimes.reduce((sum, t) => sum + t, 0) / validTimes.length).toFixed(2)
                             : 'N/A';
-                        avgEl.textContent = `Avg: ${avgTime}s`;
+                        const unit = drillId === 'broadjump' ? 'ft' : 's';
+                        avgEl.textContent = `Avg: ${avgTime}${unit}`;
                     }
                 }
             });
