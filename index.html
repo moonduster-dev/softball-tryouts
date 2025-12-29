@@ -70,6 +70,12 @@
                     >
                         ⚙️ Advanced Options
                     </button>
+                    <button
+                        onclick="document.getElementById('scoringConfig').classList.toggle('hidden')"
+                        class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center gap-2"
+                    >
+                        📊 Scoring Configuration
+                    </button>
                 </div>
 
                 <!-- Advanced Options (Hidden by default) -->
@@ -132,6 +138,417 @@
                         </button>
                     </div>
                 </div>
+
+                <!-- Scoring Configuration (Hidden by default) -->
+                <div id="scoringConfig" class="hidden mt-4 pt-4 border-t border-gray-200">
+                    <h3 class="text-lg font-semibold mb-3">📊 Scoring Configuration</h3>
+                    <p class="text-sm text-gray-600 mb-4">Customize scoring thresholds for all drills involving ft, mph, or seconds</p>
+
+                    <!-- Speed Drills Configuration -->
+                    <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-semibold text-md mb-3">⚡ Speed Drills</h4>
+
+                        <div class="space-y-3">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <!-- H→1B -->
+                                <div class="bg-white p-3 rounded border">
+                                    <label class="text-sm font-medium mb-2 block">H→1B (seconds)</label>
+                                    <div class="grid grid-cols-5 gap-2 text-xs">
+                                        <div>
+                                            <div class="text-center font-semibold text-green-600 mb-1">5 pts</div>
+                                            <input type="number" step="0.1" id="h1b_t5" class="px-2 py-1 border rounded w-full" placeholder="< sec" title="5 points if less than this value">
+                                            <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">< this time</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-center font-semibold text-blue-600 mb-1">4 pts</div>
+                                            <input type="number" step="0.1" id="h1b_t4" class="px-2 py-1 border rounded w-full" placeholder="< sec" title="4 points if less than this value">
+                                            <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-center font-semibold text-yellow-600 mb-1">3 pts</div>
+                                            <input type="number" step="0.1" id="h1b_t3" class="px-2 py-1 border rounded w-full" placeholder="< sec" title="3 points if less than this value">
+                                            <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-center font-semibold text-orange-600 mb-1">2 pts</div>
+                                            <input type="number" step="0.1" id="h1b_t2" class="px-2 py-1 border rounded w-full" placeholder="< sec" title="2 points if less than this value">
+                                            <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-center font-semibold text-red-600 mb-1">1 pt</div>
+                                            <div class="px-2 py-1 border rounded w-full bg-gray-50 text-center">≥ <span id="h1b_t2_display"></span></div>
+                                            <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≥ this time</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- H→2B -->
+                                <div class="bg-white p-3 rounded border">
+                                    <label class="text-sm font-medium mb-2 block">H→2B (seconds)</label>
+                                    <div class="grid grid-cols-5 gap-2 text-xs">
+                                        <div>
+                                            <div class="text-center font-semibold text-green-600 mb-1">5 pts</div>
+                                            <input type="number" step="0.1" id="h2b_t5" class="px-2 py-1 border rounded w-full" placeholder="< sec">
+                                            <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">< this time</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-center font-semibold text-blue-600 mb-1">4 pts</div>
+                                            <input type="number" step="0.1" id="h2b_t4" class="px-2 py-1 border rounded w-full" placeholder="< sec">
+                                            <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-center font-semibold text-yellow-600 mb-1">3 pts</div>
+                                            <input type="number" step="0.1" id="h2b_t3" class="px-2 py-1 border rounded w-full" placeholder="< sec">
+                                            <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-center font-semibold text-orange-600 mb-1">2 pts</div>
+                                            <input type="number" step="0.1" id="h2b_t2" class="px-2 py-1 border rounded w-full" placeholder="< sec">
+                                            <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-center font-semibold text-red-600 mb-1">1 pt</div>
+                                            <div class="px-2 py-1 border rounded w-full bg-gray-50 text-center">≥ <span id="h2b_t2_display"></span></div>
+                                            <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≥ this time</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- H→H -->
+                                <div class="bg-white p-3 rounded border">
+                                    <label class="text-sm font-medium mb-2 block">H→H (seconds)</label>
+                                    <div class="grid grid-cols-5 gap-2 text-xs">
+                                        <div>
+                                            <div class="text-center font-semibold text-green-600 mb-1">5 pts</div>
+                                            <input type="number" step="0.1" id="hh_t5" class="px-2 py-1 border rounded w-full" placeholder="< sec">
+                                            <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">< this time</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-center font-semibold text-blue-600 mb-1">4 pts</div>
+                                            <input type="number" step="0.1" id="hh_t4" class="px-2 py-1 border rounded w-full" placeholder="< sec">
+                                            <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-center font-semibold text-yellow-600 mb-1">3 pts</div>
+                                            <input type="number" step="0.1" id="hh_t3" class="px-2 py-1 border rounded w-full" placeholder="< sec">
+                                            <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-center font-semibold text-orange-600 mb-1">2 pts</div>
+                                            <input type="number" step="0.1" id="hh_t2" class="px-2 py-1 border rounded w-full" placeholder="< sec">
+                                            <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-center font-semibold text-red-600 mb-1">1 pt</div>
+                                            <div class="px-2 py-1 border rounded w-full bg-gray-50 text-center">≥ <span id="hh_t2_display"></span></div>
+                                            <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≥ this time</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Broad Jump -->
+                                <div class="bg-white p-3 rounded border">
+                                    <label class="text-sm font-medium mb-2 block">Broad Jump (feet)</label>
+                                    <div class="grid grid-cols-5 gap-2 text-xs">
+                                        <div>
+                                            <div class="text-center font-semibold text-red-600 mb-1">1 pt</div>
+                                            <input type="number" step="0.5" id="broadjump_t1" class="px-2 py-1 border rounded w-full" placeholder="< ft" title="1 point if less than this value">
+                                            <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">< this dist</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-center font-semibold text-orange-600 mb-1">2 pts</div>
+                                            <input type="number" step="0.5" id="broadjump_t2" class="px-2 py-1 border rounded w-full" placeholder="< ft">
+                                            <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-center font-semibold text-yellow-600 mb-1">3 pts</div>
+                                            <input type="number" step="0.5" id="broadjump_t3" class="px-2 py-1 border rounded w-full" placeholder="< ft">
+                                            <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-center font-semibold text-blue-600 mb-1">4 pts</div>
+                                            <input type="number" step="0.5" id="broadjump_t4" class="px-2 py-1 border rounded w-full" placeholder="< ft">
+                                            <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-center font-semibold text-green-600 mb-1">5 pts</div>
+                                            <div class="px-2 py-1 border rounded w-full bg-gray-50 text-center">≥ <span id="broadjump_t4_display"></span></div>
+                                            <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≥ this dist</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hitting Drills Configuration -->
+                    <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-semibold text-md mb-3 flex items-center gap-2">
+                            <img src="softball bat.png" alt="Bat" class="w-5 h-5 object-contain" style="transform: rotate(45deg);">
+                            Hitting Drills
+                        </h4>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <!-- Bat Speed -->
+                            <div class="bg-white p-3 rounded border">
+                                <label class="text-sm font-medium mb-2 block">Bat Speed (mph)</label>
+                                <div class="grid grid-cols-6 gap-2 text-xs">
+                                    <div>
+                                        <div class="text-center font-semibold text-gray-400 mb-1">0 pts</div>
+                                        <input type="number" step="1" id="batspeed_t0" class="px-2 py-1 border rounded w-full" placeholder="≤ mph" title="0 points if less than or equal to this value">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≤ this spd</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-red-600 mb-1">1 pt</div>
+                                        <input type="number" step="1" id="batspeed_t1" class="px-2 py-1 border rounded w-full" placeholder="≤ mph">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-orange-600 mb-1">2 pts</div>
+                                        <input type="number" step="1" id="batspeed_t2" class="px-2 py-1 border rounded w-full" placeholder="≤ mph">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-yellow-600 mb-1">3 pts</div>
+                                        <input type="number" step="1" id="batspeed_t3" class="px-2 py-1 border rounded w-full" placeholder="≤ mph">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-blue-600 mb-1">4 pts</div>
+                                        <input type="number" step="1" id="batspeed_t4" class="px-2 py-1 border rounded w-full" placeholder="≤ mph">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-green-600 mb-1">5 pts</div>
+                                        <div class="px-2 py-1 border rounded w-full bg-gray-50 text-center">> <span id="batspeed_t4_display"></span></div>
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">> this spd</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Exit Velocity -->
+                            <div class="bg-white p-3 rounded border">
+                                <label class="text-sm font-medium mb-2 block">Exit Velocity (mph)</label>
+                                <div class="grid grid-cols-6 gap-2 text-xs">
+                                    <div>
+                                        <div class="text-center font-semibold text-gray-400 mb-1">0 pts</div>
+                                        <input type="number" step="1" id="exitvel_t0" class="px-2 py-1 border rounded w-full" placeholder="≤ mph">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≤ this spd</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-red-600 mb-1">1 pt</div>
+                                        <input type="number" step="1" id="exitvel_t1" class="px-2 py-1 border rounded w-full" placeholder="≤ mph">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-orange-600 mb-1">2 pts</div>
+                                        <input type="number" step="1" id="exitvel_t2" class="px-2 py-1 border rounded w-full" placeholder="≤ mph">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-yellow-600 mb-1">3 pts</div>
+                                        <input type="number" step="1" id="exitvel_t3" class="px-2 py-1 border rounded w-full" placeholder="≤ mph">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-blue-600 mb-1">4 pts</div>
+                                        <input type="number" step="1" id="exitvel_t4" class="px-2 py-1 border rounded w-full" placeholder="≤ mph">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-green-600 mb-1">5 pts</div>
+                                        <div class="px-2 py-1 border rounded w-full bg-gray-50 text-center">> <span id="exitvel_t4_display"></span></div>
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">> this spd</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fielding Drills Configuration -->
+                    <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-semibold text-md mb-3 flex items-center gap-2">
+                            <img src="softball fielding.JPG" alt="Fielding" class="w-5 h-5 object-contain">
+                            Fielding Drills
+                        </h4>
+
+                        <div class="bg-white p-3 rounded border">
+                            <label class="text-sm font-medium mb-2 block">Throwing Speed (seconds)</label>
+                            <div class="grid grid-cols-6 gap-2 text-xs">
+                                <div>
+                                    <div class="text-center font-semibold text-gray-400 mb-1">0 pts</div>
+                                    <div class="px-2 py-1 border rounded w-full bg-gray-50 text-center">> <span id="throwspeed_t1_display"></span></div>
+                                    <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">> this time</div>
+                                </div>
+                                <div>
+                                    <div class="text-center font-semibold text-red-600 mb-1">1 pt</div>
+                                    <input type="number" step="0.01" id="throwspeed_t1" class="px-2 py-1 border rounded w-full" placeholder="≥ sec" title="1 point if greater than or equal to this value">
+                                    <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                </div>
+                                <div>
+                                    <div class="text-center font-semibold text-orange-600 mb-1">2 pts</div>
+                                    <input type="number" step="0.01" id="throwspeed_t2" class="px-2 py-1 border rounded w-full" placeholder="≥ sec">
+                                    <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                </div>
+                                <div>
+                                    <div class="text-center font-semibold text-yellow-600 mb-1">3 pts</div>
+                                    <input type="number" step="0.01" id="throwspeed_t3" class="px-2 py-1 border rounded w-full" placeholder="≥ sec">
+                                    <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                </div>
+                                <div>
+                                    <div class="text-center font-semibold text-blue-600 mb-1">4 pts</div>
+                                    <input type="number" step="0.01" id="throwspeed_t4" class="px-2 py-1 border rounded w-full" placeholder="≥ sec">
+                                    <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                </div>
+                                <div>
+                                    <div class="text-center font-semibold text-green-600 mb-1">5 pts</div>
+                                    <input type="number" step="0.01" id="throwspeed_t5" class="px-2 py-1 border rounded w-full" placeholder="≤ sec">
+                                    <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≤ this time</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Catcher Drills Configuration -->
+                    <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-semibold text-md mb-3 flex items-center gap-2">
+                            <img src="catcher.jpg" alt="Catcher" class="w-6 h-6 object-contain">
+                            Catcher Drills
+                        </h4>
+
+                        <div class="space-y-3">
+                            <!-- Pop Time -->
+                            <div class="bg-white p-3 rounded border">
+                                <label class="text-sm font-medium mb-2 block">Pop Time (seconds)</label>
+                                <div class="grid grid-cols-6 gap-2 text-xs">
+                                    <div>
+                                        <div class="text-center font-semibold text-gray-400 mb-1">0 pts</div>
+                                        <div class="px-2 py-1 border rounded w-full bg-gray-50 text-center">> <span id="poptime_t1_display"></span></div>
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">> this time</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-red-600 mb-1">1 pt</div>
+                                        <input type="number" step="0.01" id="poptime_t1" class="px-2 py-1 border rounded w-full" placeholder="> sec" title="1 point if greater than this value">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-orange-600 mb-1">2 pts</div>
+                                        <input type="number" step="0.01" id="poptime_t2" class="px-2 py-1 border rounded w-full" placeholder="≥ sec">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-yellow-600 mb-1">3 pts</div>
+                                        <input type="number" step="0.01" id="poptime_t3" class="px-2 py-1 border rounded w-full" placeholder="≥ sec">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-blue-600 mb-1">4 pts</div>
+                                        <input type="number" step="0.01" id="poptime_t4" class="px-2 py-1 border rounded w-full" placeholder="≥ sec">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-green-600 mb-1">5 pts</div>
+                                        <div class="px-2 py-1 border rounded w-full bg-gray-50 text-center">< <span id="poptime_t4_display"></span></div>
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">< this time</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Catcher Throw Speed -->
+                            <div class="bg-white p-3 rounded border">
+                                <label class="text-sm font-medium mb-2 block">Catcher Throw Speed (mph)</label>
+                                <div class="grid grid-cols-6 gap-2 text-xs">
+                                    <div>
+                                        <div class="text-center font-semibold text-gray-400 mb-1">0 pts</div>
+                                        <div class="px-2 py-1 border rounded w-full bg-gray-50 text-center">< <span id="catcherthrowspeed_t1_display"></span></div>
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">< this spd</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-red-600 mb-1">1 pt</div>
+                                        <input type="number" step="1" id="catcherthrowspeed_t1" class="px-2 py-1 border rounded w-full" placeholder="< mph">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-orange-600 mb-1">2 pts</div>
+                                        <input type="number" step="1" id="catcherthrowspeed_t2" class="px-2 py-1 border rounded w-full" placeholder="< mph">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-yellow-600 mb-1">3 pts</div>
+                                        <input type="number" step="1" id="catcherthrowspeed_t3" class="px-2 py-1 border rounded w-full" placeholder="< mph">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-blue-600 mb-1">4 pts</div>
+                                        <input type="number" step="1" id="catcherthrowspeed_t4" class="px-2 py-1 border rounded w-full" placeholder="≤ mph">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-green-600 mb-1">5 pts</div>
+                                        <div class="px-2 py-1 border rounded w-full bg-gray-50 text-center">> <span id="catcherthrowspeed_t4_display"></span></div>
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">> this spd</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pitching Drills Configuration -->
+                    <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-semibold text-md mb-3">🥎 Pitching Drills</h4>
+
+                        <div class="bg-white p-3 rounded border">
+                            <label class="text-sm font-medium mb-2 block">Fastball Speed (mph)</label>
+                            <div class="grid grid-cols-6 gap-2 text-xs">
+                                <div>
+                                    <div class="text-center font-semibold text-gray-400 mb-1">0 pts</div>
+                                    <div class="px-2 py-1 border rounded w-full bg-gray-50 text-center">< <span id="fastballspeed_t1_display"></span></div>
+                                    <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">< this spd</div>
+                                </div>
+                                <div>
+                                    <div class="text-center font-semibold text-red-600 mb-1">1 pt</div>
+                                    <input type="number" step="1" id="fastballspeed_t1" class="px-2 py-1 border rounded w-full" placeholder="≤ mph">
+                                    <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                </div>
+                                <div>
+                                    <div class="text-center font-semibold text-orange-600 mb-1">2 pts</div>
+                                    <input type="number" step="1" id="fastballspeed_t2" class="px-2 py-1 border rounded w-full" placeholder="< mph">
+                                    <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                </div>
+                                <div>
+                                    <div class="text-center font-semibold text-yellow-600 mb-1">3 pts</div>
+                                    <input type="number" step="1" id="fastballspeed_t3" class="px-2 py-1 border rounded w-full" placeholder="< mph">
+                                    <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                </div>
+                                <div>
+                                    <div class="text-center font-semibold text-blue-600 mb-1">4 pts</div>
+                                    <input type="number" step="1" id="fastballspeed_t4" class="px-2 py-1 border rounded w-full" placeholder="< mph">
+                                    <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">between</div>
+                                </div>
+                                <div>
+                                    <div class="text-center font-semibold text-green-600 mb-1">5 pts</div>
+                                    <input type="number" step="1" id="fastballspeed_t5" class="px-2 py-1 border rounded w-full" placeholder="≥ mph">
+                                    <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≥ this spd</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2 justify-center">
+                        <button
+                            onclick="loadScoringDefaults()"
+                            class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                        >
+                            Reset to Defaults
+                        </button>
+                        <button
+                            onclick="saveScoringConfig()"
+                            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                        >
+                            💾 Save Scoring Config
+                        </button>
+                    </div>
+                </div>
             </div>
             <div class="mt-3 text-sm text-green-600 flex items-center gap-2" id="saveStatus">
                 🔄 Auto-syncing with Google Sheets
@@ -165,7 +582,8 @@
                     onclick="showCatcherScores()"
                     class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center gap-2"
                 >
-                    🧤 Catcher Scores
+                    <img src="catcher.jpg" alt="Catcher" class="w-5 h-5 object-contain">
+                    Catcher Scores
                 </button>
                 <button
                     onclick="showPitcherScores()"
@@ -326,7 +744,10 @@
         <div id="catcherScoresView" class="hidden">
             <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-semibold">🧤 Catcher Scores - Ranked by Catcher Total</h2>
+                    <h2 class="text-xl font-semibold flex items-center gap-2">
+                        <img src="catcher.jpg" alt="Catcher" class="w-6 h-6 object-contain">
+                        Catcher Scores - Ranked by Catcher Total
+                    </h2>
                     <button
                         onclick="showAllPlayers()"
                         class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
@@ -387,8 +808,11 @@
         function unlockApp() {
             document.getElementById('passwordScreen').style.display = 'none';
             document.getElementById('appContent').style.display = 'block';
+            // Load scoring configuration
+            loadScoringConfig();
             // Initialize the app
             autoDownloadFromSheets().then(() => {
+                populateScoringInputs();
                 render();
             });
         }
@@ -424,7 +848,7 @@
         // ============================================
         // IMPORTANT: Replace this URL with your Google Apps Script Web App URL
         // Instructions in google-apps-script.js file
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz178jxTCpHkCcC4204wb5lIxBZ5iFb8H42faOd3nd-fUjsijTG27lodfGPHu5AJsgpMQ/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyX0w9uFLnosYwSKYXDHPp0JNtrgUFBP8PpablDMZHfsiPPVhAI7df9S7bb1drtglCE8w/exec';
         // ============================================
 
         let players = [];
@@ -437,8 +861,32 @@
 
         const STORAGE_KEY = 'softball_tryout_data';
         const AUTO_UPLOAD_DELAY = 2000; // 2 seconds debounce
+        const SCORING_CONFIG_KEY = 'softball_scoring_config';
 
         const categories = [];
+
+        // Default scoring thresholds - can be configured in Advanced Options
+        let scoringConfig = {
+            // Speed drills (in seconds, except broadjump in feet)
+            h1b: { t5: 3.1, t4: 3.8, t3: 4.6, t2: 5.2 }, // < t5=5pts, < t4=4pts, < t3=3pts, < t2=2pts, >= t2=1pt
+            h2b: { t5: 5.75, t4: 6.25, t3: 7, t2: 8 },
+            hh: { t5: 11.8, t4: 13.3, t3: 15.0, t2: 17.0 },
+            broadjump: { t1: 4, t2: 5, t3: 6, t4: 7 }, // < t1=1pt, < t2=2pts, < t3=3pts, < t4=4pts, >= t4=5pts
+
+            // Hitting drills (in mph)
+            batspeed: { t0: 40, t1: 50, t2: 55, t3: 60, t4: 65 }, // <= t0=0pts, <= t1=1pt, <= t2=2pts, <= t3=3pts, <= t4=4pts, > t4=5pts
+            exitvel: { t0: 50, t1: 55, t2: 60, t3: 65, t4: 70 },
+
+            // Fielding drills
+            throwspeed: { t1: 2.71, t2: 2.1, t3: 1.53, t4: 1.41, t5: 1.4 }, // >= t1=1pt, >= t2=2pts, >= t3=3pts, >= t4=4pts, <= t5=5pts
+
+            // Catcher drills
+            poptime: { t1: 4, t2: 3.15, t3: 2.51, t4: 2.31 }, // > t1=1pt, >= t2=2pts, >= t3=3pts, >= t4=4pts, < t4=5pts
+            catcherthrowspeed: { t1: 40, t2: 45, t3: 52, t4: 65 }, // < t1=1pt, < t2=2pts, < t3=3pts, <= t4=4pts, > t4=5pts
+
+            // Pitching drills (in mph)
+            fastballspeed: { t1: 42, t2: 47, t3: 52, t4: 57, t5: 60 } // <= t1=1pt, < t2=2pts, < t3=3pts, < t4=4pts, >= t5=5pts (57-59=4pts)
+        };
 
         const hustleEnergyCategories = [
             { id: 'attitude', name: 'Attitude', max: 5 },
@@ -571,6 +1019,215 @@
             } catch (error) {
                 console.error('Error saving data:', error);
                 showSaveStatus('⚠️ Save failed');
+            }
+        }
+
+        // Scoring Configuration Functions
+        function loadScoringConfig() {
+            try {
+                const saved = localStorage.getItem(SCORING_CONFIG_KEY);
+                if (saved) {
+                    scoringConfig = JSON.parse(saved);
+                    populateScoringInputs();
+                }
+            } catch (error) {
+                console.error('Error loading scoring config:', error);
+            }
+        }
+
+        function saveScoringConfig() {
+            try {
+                // Read all values from inputs
+                const drills = ['h1b', 'h2b', 'hh', 'broadjump', 'batspeed', 'exitvel',
+                               'throwspeed', 'poptime', 'catcherthrowspeed', 'fastballspeed'];
+
+                drills.forEach(drill => {
+                    const cfg = scoringConfig[drill];
+                    Object.keys(cfg).forEach(threshold => {
+                        const inputId = `${drill}_${threshold}`;
+                        const input = document.getElementById(inputId);
+                        if (input && input.value !== '') {
+                            cfg[threshold] = parseFloat(input.value);
+                        }
+                    });
+                });
+
+                localStorage.setItem(SCORING_CONFIG_KEY, JSON.stringify(scoringConfig));
+                showSaveStatus('✓ Scoring configuration saved');
+
+                // Update display spans for edge case thresholds
+                ['h1b', 'h2b', 'hh'].forEach(drill => {
+                    const displaySpan = document.getElementById(`${drill}_t2_display`);
+                    if (displaySpan && scoringConfig[drill].t2) {
+                        displaySpan.textContent = scoringConfig[drill].t2;
+                    }
+                });
+
+                // Update broad jump 5 pts display (≥ t4)
+                const broadjumpDisplay = document.getElementById('broadjump_t4_display');
+                if (broadjumpDisplay && scoringConfig.broadjump.t4) {
+                    broadjumpDisplay.textContent = scoringConfig.broadjump.t4;
+                }
+
+                // Update bat speed 5 pts display (> t4)
+                const batspeedDisplay = document.getElementById('batspeed_t4_display');
+                if (batspeedDisplay && scoringConfig.batspeed.t4) {
+                    batspeedDisplay.textContent = scoringConfig.batspeed.t4;
+                }
+
+                // Update exit velocity 5 pts display (> t4)
+                const exitvelDisplay = document.getElementById('exitvel_t4_display');
+                if (exitvelDisplay && scoringConfig.exitvel.t4) {
+                    exitvelDisplay.textContent = scoringConfig.exitvel.t4;
+                }
+
+                // Update pop time 5 pts display (< t4)
+                const poptimeDisplay = document.getElementById('poptime_t4_display');
+                if (poptimeDisplay && scoringConfig.poptime.t4) {
+                    poptimeDisplay.textContent = scoringConfig.poptime.t4;
+                }
+
+                // Update catcher throw speed 5 pts display (> t4)
+                const catcherthrowDisplay = document.getElementById('catcherthrowspeed_t4_display');
+                if (catcherthrowDisplay && scoringConfig.catcherthrowspeed.t4) {
+                    catcherthrowDisplay.textContent = scoringConfig.catcherthrowspeed.t4;
+                }
+
+                // Update throwing speed 0 pts display (> t1)
+                const throwspeedDisplay = document.getElementById('throwspeed_t1_display');
+                if (throwspeedDisplay && scoringConfig.throwspeed.t1) {
+                    throwspeedDisplay.textContent = scoringConfig.throwspeed.t1;
+                }
+
+                // Update pop time 0 pts display (> t1)
+                const poptime0Display = document.getElementById('poptime_t1_display');
+                if (poptime0Display && scoringConfig.poptime.t1) {
+                    poptime0Display.textContent = scoringConfig.poptime.t1;
+                }
+
+                // Update catcher throw speed 0 pts display (< t1)
+                const catcherthrow0Display = document.getElementById('catcherthrowspeed_t1_display');
+                if (catcherthrow0Display && scoringConfig.catcherthrowspeed.t1) {
+                    catcherthrow0Display.textContent = scoringConfig.catcherthrowspeed.t1;
+                }
+
+                // Update fastball speed 0 pts display (< t1)
+                const fastball0Display = document.getElementById('fastballspeed_t1_display');
+                if (fastball0Display && scoringConfig.fastballspeed.t1) {
+                    fastball0Display.textContent = scoringConfig.fastballspeed.t1;
+                }
+
+                // Recalculate all scores with new thresholds
+                players.forEach(player => {
+                    updateScoresOnly(player.id);
+                });
+
+                // Refresh the current view
+                if (viewMode === 'players') {
+                    renderPlayerView();
+                } else if (viewMode === 'stations') {
+                    renderStationContent();
+                } else if (viewMode === 'all') {
+                    showAllPlayers();
+                }
+            } catch (error) {
+                console.error('Error saving scoring config:', error);
+                showSaveStatus('⚠️ Failed to save scoring config');
+            }
+        }
+
+        function loadScoringDefaults() {
+            // Reset to default values
+            scoringConfig = {
+                h1b: { t5: 3.1, t4: 3.8, t3: 4.6, t2: 5.2 },
+                h2b: { t5: 5.75, t4: 6.25, t3: 7, t2: 8 },
+                hh: { t5: 11.8, t4: 13.3, t3: 15.0, t2: 17.0 },
+                broadjump: { t1: 4, t2: 5, t3: 6, t4: 7 },
+                batspeed: { t0: 40, t1: 50, t2: 55, t3: 60, t4: 65 },
+                exitvel: { t0: 50, t1: 55, t2: 60, t3: 65, t4: 70 },
+                throwspeed: { t1: 2.71, t2: 2.1, t3: 1.53, t4: 1.41, t5: 1.4 },
+                poptime: { t1: 4, t2: 3.15, t3: 2.51, t4: 2.31 },
+                catcherthrowspeed: { t1: 40, t2: 45, t3: 52, t4: 65 },
+                fastballspeed: { t1: 42, t2: 47, t3: 52, t4: 57, t5: 60 }
+            };
+
+            populateScoringInputs();
+            saveScoringConfig();
+        }
+
+        function populateScoringInputs() {
+            // Fill in all the input fields with current config values
+            Object.keys(scoringConfig).forEach(drill => {
+                const cfg = scoringConfig[drill];
+                Object.keys(cfg).forEach(threshold => {
+                    const inputId = `${drill}_${threshold}`;
+                    const input = document.getElementById(inputId);
+                    if (input) {
+                        input.value = cfg[threshold];
+                    }
+                });
+            });
+
+            // Update display spans for edge case thresholds
+            ['h1b', 'h2b', 'hh'].forEach(drill => {
+                const displaySpan = document.getElementById(`${drill}_t2_display`);
+                if (displaySpan && scoringConfig[drill].t2) {
+                    displaySpan.textContent = scoringConfig[drill].t2;
+                }
+            });
+
+            // Update broad jump 5 pts display (≥ t4)
+            const broadjumpDisplay = document.getElementById('broadjump_t4_display');
+            if (broadjumpDisplay && scoringConfig.broadjump.t4) {
+                broadjumpDisplay.textContent = scoringConfig.broadjump.t4;
+            }
+
+            // Update bat speed 5 pts display (> t4)
+            const batspeedDisplay = document.getElementById('batspeed_t4_display');
+            if (batspeedDisplay && scoringConfig.batspeed.t4) {
+                batspeedDisplay.textContent = scoringConfig.batspeed.t4;
+            }
+
+            // Update exit velocity 5 pts display (> t4)
+            const exitvelDisplay = document.getElementById('exitvel_t4_display');
+            if (exitvelDisplay && scoringConfig.exitvel.t4) {
+                exitvelDisplay.textContent = scoringConfig.exitvel.t4;
+            }
+
+            // Update pop time 5 pts display (< t4)
+            const poptimeDisplay = document.getElementById('poptime_t4_display');
+            if (poptimeDisplay && scoringConfig.poptime.t4) {
+                poptimeDisplay.textContent = scoringConfig.poptime.t4;
+            }
+
+            // Update catcher throw speed 5 pts display (> t4)
+            const catcherthrowDisplay = document.getElementById('catcherthrowspeed_t4_display');
+            if (catcherthrowDisplay && scoringConfig.catcherthrowspeed.t4) {
+                catcherthrowDisplay.textContent = scoringConfig.catcherthrowspeed.t4;
+            }
+
+            // Update throwing speed 0 pts display (> t1)
+            const throwspeedDisplay = document.getElementById('throwspeed_t1_display');
+            if (throwspeedDisplay && scoringConfig.throwspeed.t1) {
+                throwspeedDisplay.textContent = scoringConfig.throwspeed.t1;
+            }
+
+            // Update pop time 0 pts display (> t1)
+            const poptime0Display = document.getElementById('poptime_t1_display');
+            if (poptime0Display && scoringConfig.poptime.t1) {
+                poptime0Display.textContent = scoringConfig.poptime.t1;
+            }
+
+            // Update catcher throw speed 0 pts display (< t1)
+            const catcherthrow0Display = document.getElementById('catcherthrowspeed_t1_display');
+            if (catcherthrow0Display && scoringConfig.catcherthrowspeed.t1) {
+                catcherthrow0Display.textContent = scoringConfig.catcherthrowspeed.t1;
+            }
+
+            // Update fastball speed 0 pts display (< t1)
+            const fastball0Display = document.getElementById('fastballspeed_t1_display');
+            if (fastball0Display && scoringConfig.fastballspeed.t1) {
+                fastball0Display.textContent = scoringConfig.fastballspeed.t1;
             }
         }
 
@@ -1321,20 +1978,22 @@
             if (numericValues.length === 0) return 0;
             
             const avgValue = numericValues.reduce((sum, v) => sum + v, 0) / numericValues.length;
-            
+
             if (drill === 'batspeed') {
-                if (avgValue <= 40) return 0;
-                if (avgValue <= 50) return 1;
-                if (avgValue <= 55) return 2;
-                if (avgValue <= 60) return 3;
-                if (avgValue <= 65) return 4;
+                const cfg = scoringConfig.batspeed;
+                if (avgValue <= cfg.t0) return 0;
+                if (avgValue <= cfg.t1) return 1;
+                if (avgValue <= cfg.t2) return 2;
+                if (avgValue <= cfg.t3) return 3;
+                if (avgValue <= cfg.t4) return 4;
                 return 5;
             } else if (drill === 'exitvel') {
-                if (avgValue <= 50) return 0;
-                if (avgValue <= 55) return 1;
-                if (avgValue <= 60) return 2;
-                if (avgValue <= 65) return 3;
-                if (avgValue <= 70) return 4;
+                const cfg = scoringConfig.exitvel;
+                if (avgValue <= cfg.t0) return 0;
+                if (avgValue <= cfg.t1) return 1;
+                if (avgValue <= cfg.t2) return 2;
+                if (avgValue <= cfg.t3) return 3;
+                if (avgValue <= cfg.t4) return 4;
                 return 5;
             }
             return 0;
@@ -1356,34 +2015,36 @@
             if (!times || !Array.isArray(times)) return 0;
             const validTimes = times.filter(t => t !== null && !isNaN(t));
             if (validTimes.length === 0) return 0;
-            
+
             const avgTime = validTimes.reduce((sum, t) => sum + t, 0) / validTimes.length;
-            
+
             if (drill === 'h1b') {
-                if (avgTime >= 5.2) return 1;
-                if (avgTime >= 4.6) return 2;
-                if (avgTime >= 3.8) return 3;
-                if (avgTime >= 3.1) return 4;
+                const cfg = scoringConfig.h1b;
+                if (avgTime >= cfg.t2) return 1;
+                if (avgTime >= cfg.t3) return 2;
+                if (avgTime >= cfg.t4) return 3;
+                if (avgTime >= cfg.t5) return 4;
                 return 5;
             } else if (drill === 'h2b') {
-                if (avgTime >= 8) return 1;
-                if (avgTime >= 7) return 2;
-                if (avgTime >= 6.25) return 3;
-                if (avgTime >= 5.75) return 4;
+                const cfg = scoringConfig.h2b;
+                if (avgTime >= cfg.t2) return 1;
+                if (avgTime >= cfg.t3) return 2;
+                if (avgTime >= cfg.t4) return 3;
+                if (avgTime >= cfg.t5) return 4;
                 return 5;
             } else if (drill === 'hh') {
-                // H→H scoring
-                if (avgTime < 11.8) return 5;
-                if (avgTime < 13.3) return 4;
-                if (avgTime < 15.0) return 3;
-                if (avgTime < 17.0) return 2;
+                const cfg = scoringConfig.hh;
+                if (avgTime < cfg.t5) return 5;
+                if (avgTime < cfg.t4) return 4;
+                if (avgTime < cfg.t3) return 3;
+                if (avgTime < cfg.t2) return 2;
                 return 1;
             } else if (drill === 'broadjump') {
-                // Broad Jump scoring (in feet)
-                if (avgTime < 4) return 1;
-                if (avgTime < 5) return 2;
-                if (avgTime < 6) return 3;
-                if (avgTime < 7) return 4;
+                const cfg = scoringConfig.broadjump;
+                if (avgTime < cfg.t1) return 1;
+                if (avgTime < cfg.t2) return 2;
+                if (avgTime < cfg.t3) return 3;
+                if (avgTime < cfg.t4) return 4;
                 return 5;
             }
             return 0;
@@ -1457,12 +2118,13 @@
                 const avgValue = validValues.reduce((sum, v) => sum + v, 0) / validValues.length;
 
                 // Throwing Speed scoring
-                if (avgValue >= 2.71) return 1;
-                if (avgValue >= 2.1) return 2;
-                if (avgValue >= 1.53) return 3;
-                if (avgValue >= 1.41) return 4;
-                if (avgValue <= 1.4) return 5;
-                return 4; // 1.4-1.41
+                const cfg = scoringConfig.throwspeed;
+                if (avgValue >= cfg.t1) return 1;
+                if (avgValue >= cfg.t2) return 2;
+                if (avgValue >= cfg.t3) return 3;
+                if (avgValue >= cfg.t4) return 4;
+                if (avgValue <= cfg.t5) return 5;
+                return 4; // Between t4 and t5
             }
 
             return 0;
@@ -1484,6 +2146,7 @@
                         poptime: [null, null, null],
                         throwaccuracy: [null, null, null],
                         throwspeed: [null, null, null],
+                        popfly: [null, null, null],
                         blocking: null,
                         buntfielding: null
                     };
@@ -1544,16 +2207,18 @@
             const avgValue = numericValues.reduce((sum, v) => sum + v, 0) / numericValues.length;
 
             if (drill === 'poptime') {
-                if (avgValue > 4) return 1;
-                if (avgValue >= 3.15) return 2;
-                if (avgValue >= 2.51) return 3;
-                if (avgValue >= 2.31) return 4;
+                const cfg = scoringConfig.poptime;
+                if (avgValue > cfg.t1) return 1;
+                if (avgValue >= cfg.t2) return 2;
+                if (avgValue >= cfg.t3) return 3;
+                if (avgValue >= cfg.t4) return 4;
                 return 5;
             } else if (drill === 'throwspeed') {
-                if (avgValue < 40) return 1;
-                if (avgValue < 45) return 2;
-                if (avgValue < 52) return 3;
-                if (avgValue <= 65) return 4;
+                const cfg = scoringConfig.catcherthrowspeed;
+                if (avgValue < cfg.t1) return 1;
+                if (avgValue < cfg.t2) return 2;
+                if (avgValue < cfg.t3) return 3;
+                if (avgValue <= cfg.t4) return 4;
                 return 5;
             }
 
@@ -1582,9 +2247,18 @@
                 }
 
                 if (drill === 'fastballspeed') {
+                    if (!player.pitchingData.fastballspeed) {
+                        player.pitchingData.fastballspeed = [null, null, null];
+                    }
                     const numValue = value === '' ? null : parseFloat(value);
                     player.pitchingData.fastballspeed[attemptIndex] = numValue;
                 } else if (drill === 'spinlocation') {
+                    if (!player.pitchingData.spinlocation) {
+                        player.pitchingData.spinlocation = Array(8).fill(null).map(() => ({ pitchType: '', spin: null, location: null }));
+                    }
+                    if (!player.pitchingData.spinlocation[attemptIndex]) {
+                        player.pitchingData.spinlocation[attemptIndex] = { pitchType: '', spin: null, location: null };
+                    }
                     if (field === 'pitchType') {
                         player.pitchingData.spinlocation[attemptIndex].pitchType = value;
                     } else if (field === 'spin') {
@@ -1607,13 +2281,14 @@
 
                 const avgValue = validValues.reduce((sum, v) => sum + v, 0) / validValues.length;
 
-                if (avgValue <= 42) return 1;
-                if (avgValue < 47) return 2;
-                if (avgValue < 52) return 3;
-                if (avgValue < 57) return 4;
-                if (avgValue >= 60) return 5;
-                return 4; // 57-59
-            } else if (drill === 'spinlocation') {
+                const cfg = scoringConfig.fastballspeed;
+                if (avgValue <= cfg.t1) return 1;
+                if (avgValue < cfg.t2) return 2;
+                if (avgValue < cfg.t3) return 3;
+                if (avgValue < cfg.t4) return 4;
+                if (avgValue >= cfg.t5) return 5;
+                return 4; // Between t4 and t5
+1            } else if (drill === 'spinlocation') {
                 if (!values || !Array.isArray(values)) return 0;
                 let totalScore = 0;
                 values.forEach(attempt => {
@@ -1641,7 +2316,7 @@
         }
 
         function getTotalScore(player) {
-            const regularScore = Object.values(player.scores).reduce((sum, score) => sum + score, 0);
+            const regularScore = player.scores ? Object.values(player.scores).reduce((sum, score) => sum + score, 0) : 0;
             const hittingScore = getHittingScore(player);
             const speedScore = getSpeedScore(player);
             const fieldingScore = getFieldingScore(player);

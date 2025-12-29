@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload 34 Sample Players - Softball Tryouts</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8">
+        <h1 class="text-3xl font-bold mb-4">Upload 34 Sample Players</h1>
+        <p class="text-gray-600 mb-6">Click the button below to load 34 sample players into your softball tryouts app.</p>
+        <p class="text-sm text-gray-600 mb-4">Includes: 5 Pitchers and 5 Catchers with complete drill scores</p>
+
+        <button
+            onclick="loadSampleData()"
+            class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold mb-4"
+        >
+            Load 34 Sample Players
+        </button>
+
+        <div id="status" class="mb-4"></div>
+
+        <div class="p-4 bg-gray-50 rounded border">
+            <h3 class="font-semibold mb-2">Player Roster</h3>
+            <div class="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                    <p class="font-semibold text-purple-600">⚾ Pitchers (5):</p>
+                    <ul class="text-gray-700">
+                        <li>Emma Wilson</li>
+                        <li>Sophia Martinez</li>
+                        <li>Mia Thompson</li>
+                        <li>Isabella Garcia</li>
+                        <li>Charlotte Anderson</li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="font-semibold text-orange-600">🧤 Catchers (5):</p>
+                    <ul class="text-gray-700">
+                        <li>Olivia Rodriguez</li>
+                        <li>Ava Davis</li>
+                        <li>Emily Brown</li>
+                        <li>Amelia Miller</li>
+                        <li>Harper Taylor</li>
+                    </ul>
+                </div>
+            </div>
+            <p class="text-xs text-gray-500 mt-4">Plus 24 additional field players with varied skill levels</p>
+        </div>
+    </div>
+
+    <script>
+        function generatePlayer(id, name, number, skillLevel, position = null) {
+            // skillLevel: 1-5 (1=beginner, 5=elite)
+            const variance = () => (Math.random() - 0.5) * 0.4;
+
+            // Base values adjusted by skill level
+            const baseAttitude = Math.min(5, Math.max(1, Math.round(3 + skillLevel * 0.4 + variance())));
+            const baseHustle = Math.min(5, Math.max(1, Math.round(3 + skillLevel * 0.4 + variance())));
+
+            // Speed times (lower is better)
+            const h1bBase = 3.8 - (skillLevel - 3) * 0.3;
+            const h2bBase = 6.3 - (skillLevel - 3) * 0.3;
+            const hhBase = 13.0 - (skillLevel - 3) * 0.6;
+            const broadjumpBase = 6.0 + (skillLevel - 3) * 0.4;
+
+            // Hitting (higher is better)
+            const batspeedBase = 55 + (skillLevel - 3) * 4;
+            const exitvelBase = 62 + (skillLevel - 3) * 4;
+
+            // Fielding times (lower is better)
+            const throwspeedBase = 2.0 - (skillLevel - 3) * 0.15;
+
+            // Catcher pop time (lower is better) - better for catchers
+            const poptimeBase = position === 'catcher' ? 2.5 - (skillLevel - 3) * 0.2 : 2.7 - (skillLevel - 3) * 0.15;
+            const catcherThrowBase = position === 'catcher' ? 56 + (skillLevel - 3) * 5 : 52 + (skillLevel - 3) * 4;
+
+            // Pitching - better for pitchers
+            const fastballBase = position === 'pitcher' ? 56 + (skillLevel - 3) * 4 : 52 + (skillLevel - 3) * 3;
+
+            return {
+                id: id,
+                name: name,
+                number: number.toString(),
+                scores: {},
+                hustleEnergy: {
+                    attitude: baseAttitude,
+                    runsonoff: Math.min(5, Math.max(1, baseHustle + Math.round(variance() * 2))),
+                    cheers: Math.min(5, Math.max(1, baseAttitude + Math.round(variance() * 2))),
+                    dives: Math.min(5, Math.max(1, baseHustle + Math.round(variance() * 2))),
+                    baserunning: Math.min(5, Math.max(1, baseHustle + Math.round(variance() * 2)))
+                },
+                fieldingData: {
+                    flyball: Math.min(8, Math.max(3, Math.round(5 + skillLevel * 0.6 + variance() * 2))),
+                    throwspeed: [
+                        +(throwspeedBase + variance() * 0.2).toFixed(2),
+                        +(throwspeedBase + variance() * 0.2).toFixed(2),
+                        +(throwspeedBase + variance() * 0.2).toFixed(2)
+                    ],
+                    throwaccuracy: [
+                        skillLevel >= 3 ? 1 : Math.round(Math.random()),
+                        skillLevel >= 4 ? 1 : Math.round(Math.random()),
+                        skillLevel >= 3 ? 1 : Math.round(Math.random())
+                    ]
+                },
+                hittingData: {
+                    batspeed: [
+                        Math.round(batspeedBase + variance() * 3),
+                        Math.round(batspeedBase + variance() * 3),
+                        Math.round(batspeedBase + variance() * 3)
+                    ],
+                    exitvelocity: [
+                        Math.round(exitvelBase + variance() * 3),
+                        Math.round(exitvelBase + variance() * 3),
+                        Math.round(exitvelBase + variance() * 3)
+                    ],
+                    bunt1b: [
+                        skillLevel >= 3 ? 1 : Math.round(Math.random()),
+                        skillLevel >= 4 ? 1 : Math.round(Math.random()),
+                        skillLevel >= 3 ? 1 : Math.round(Math.random())
+                    ],
+                    buntp: [
+                        skillLevel >= 3 ? 1 : Math.round(Math.random()),
+                        skillLevel >= 4 ? 1 : Math.round(Math.random()),
+                        skillLevel >= 2 ? 1 : Math.round(Math.random())
+                    ],
+                    bunt3b: [
+                        skillLevel >= 4 ? 1 : Math.round(Math.random()),
+                        skillLevel >= 3 ? 1 : Math.round(Math.random()),
+                        skillLevel >= 3 ? 1 : Math.round(Math.random())
+                    ],
+                    pitchrecog: [
+                        skillLevel >= 3 ? 1 : Math.round(Math.random()),
+                        skillLevel >= 4 ? 1 : Math.round(Math.random()),
+                        skillLevel >= 3 ? 1 : Math.round(Math.random()),
+                        skillLevel >= 4 ? 1 : Math.round(Math.random()),
+                        skillLevel >= 5 ? 1 : Math.round(Math.random())
+                    ],
+                    strikerecog: [
+                        skillLevel >= 3 ? 1 : Math.round(Math.random()),
+                        skillLevel >= 4 ? 1 : Math.round(Math.random()),
+                        skillLevel >= 3 ? 1 : Math.round(Math.random()),
+                        skillLevel >= 4 ? 1 : Math.round(Math.random()),
+                        skillLevel >= 5 ? 1 : Math.round(Math.random())
+                    ]
+                },
+                speedTimes: {
+                    h1b: [
+                        +(h1bBase + variance() * 0.2).toFixed(2),
+                        +(h1bBase + variance() * 0.2).toFixed(2),
+                        +(h1bBase + variance() * 0.2).toFixed(2)
+                    ],
+                    h2b: [
+                        +(h2bBase + variance() * 0.3).toFixed(2),
+                        +(h2bBase + variance() * 0.3).toFixed(2),
+                        +(h2bBase + variance() * 0.3).toFixed(2)
+                    ],
+                    hh: [
+                        +(hhBase + variance() * 0.5).toFixed(2),
+                        +(hhBase + variance() * 0.5).toFixed(2),
+                        +(hhBase + variance() * 0.5).toFixed(2)
+                    ],
+                    broadjump: [
+                        +(broadjumpBase + variance() * 0.3).toFixed(1),
+                        +(broadjumpBase + variance() * 0.3).toFixed(1),
+                        +(broadjumpBase + variance() * 0.3).toFixed(1)
+                    ]
+                },
+                ...(position === 'catcher' ? {
+                    catcherData: {
+                        poptime: [
+                            +(poptimeBase + variance() * 0.1).toFixed(2),
+                            +(poptimeBase + variance() * 0.1).toFixed(2),
+                            +(poptimeBase + variance() * 0.1).toFixed(2)
+                        ],
+                        throwaccuracy: [1, 1, 1],
+                        throwspeed: [
+                            Math.round(catcherThrowBase + variance() * 3),
+                            Math.round(catcherThrowBase + variance() * 3),
+                            Math.round(catcherThrowBase + variance() * 3)
+                        ],
+                        popfly: [1, 1, 1],
+                        blocking: Math.min(5, Math.max(1, Math.round(3 + skillLevel * 0.6))),
+                        buntfielding: Math.min(5, Math.max(1, Math.round(3 + skillLevel * 0.6)))
+                    }
+                } : {}),
+                ...(position === 'pitcher' ? {
+                    pitchingData: {
+                        fastballspeed: [
+                            Math.round(fastballBase + variance() * 3),
+                            Math.round(fastballBase + variance() * 3),
+                            Math.round(fastballBase + variance() * 3)
+                        ],
+                        accuracy: Math.min(5, Math.max(1, Math.round(3 + skillLevel * 0.6))),
+                        movement: Math.min(5, Math.max(1, Math.round(3 + skillLevel * 0.6))),
+                        mechanics: Math.min(5, Math.max(1, Math.round(3 + skillLevel * 0.6)))
+                    }
+                } : {})
+            };
+        }
+
+        function loadSampleData() {
+            const players = [];
+
+            // Player roster with names, jersey numbers, skill levels, and positions
+            const roster = [
+                // Pitchers (5)
+                { name: "Emma Wilson", number: 1, skill: 5, position: 'pitcher' },
+                { name: "Sophia Martinez", number: 7, skill: 4, position: 'pitcher' },
+                { name: "Mia Thompson", number: 13, skill: 5, position: 'pitcher' },
+                { name: "Isabella Garcia", number: 19, skill: 4, position: 'pitcher' },
+                { name: "Charlotte Anderson", number: 25, skill: 5, position: 'pitcher' },
+
+                // Catchers (5)
+                { name: "Olivia Rodriguez", number: 2, skill: 5, position: 'catcher' },
+                { name: "Ava Davis", number: 8, skill: 4, position: 'catcher' },
+                { name: "Emily Brown", number: 14, skill: 5, position: 'catcher' },
+                { name: "Amelia Miller", number: 20, skill: 4, position: 'catcher' },
+                { name: "Harper Taylor", number: 26, skill: 5, position: 'catcher' },
+
+                // Field players (24)
+                { name: "Madison Johnson", number: 3, skill: 4 },
+                { name: "Ella Moore", number: 4, skill: 3 },
+                { name: "Avery White", number: 5, skill: 5 },
+                { name: "Scarlett Harris", number: 6, skill: 3 },
+                { name: "Luna Clark", number: 9, skill: 4 },
+                { name: "Chloe Lewis", number: 10, skill: 3 },
+                { name: "Grace Lee", number: 11, skill: 5 },
+                { name: "Zoey Walker", number: 12, skill: 2 },
+                { name: "Lily Hall", number: 15, skill: 4 },
+                { name: "Hannah Young", number: 16, skill: 3 },
+                { name: "Aria King", number: 17, skill: 4 },
+                { name: "Layla Wright", number: 18, skill: 3 },
+                { name: "Ellie Scott", number: 21, skill: 5 },
+                { name: "Nora Green", number: 22, skill: 3 },
+                { name: "Riley Adams", number: 23, skill: 4 },
+                { name: "Hazel Baker", number: 24, skill: 2 },
+                { name: "Violet Nelson", number: 27, skill: 4 },
+                { name: "Aurora Carter", number: 28, skill: 3 },
+                { name: "Savannah Mitchell", number: 29, skill: 5 },
+                { name: "Brooklyn Perez", number: 30, skill: 3 },
+                { name: "Bella Roberts", number: 31, skill: 4 },
+                { name: "Claire Turner", number: 32, skill: 3 },
+                { name: "Skylar Phillips", number: 33, skill: 4 },
+                { name: "Evelyn Campbell", number: 34, skill: 3 }
+            ];
+
+            for (let i = 0; i < roster.length; i++) {
+                const player = roster[i];
+                players.push(generatePlayer(
+                    i + 1,
+                    player.name,
+                    player.number,
+                    player.skill,
+                    player.position || null
+                ));
+            }
+
+            try {
+                localStorage.setItem('softball_tryout_data', JSON.stringify(players));
+                document.getElementById('status').innerHTML = `
+                    <div class="p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+                        ✓ Successfully loaded 34 players!<br>
+                        • 5 Pitchers with enhanced pitching stats<br>
+                        • 5 Catchers with enhanced catching stats<br>
+                        • 24 Field players with varied abilities<br><br>
+                        Go to your softball tryouts page and refresh to see all players.
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('status').innerHTML = `
+                    <div class="p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                        ✗ Error loading data: ${error.message}
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

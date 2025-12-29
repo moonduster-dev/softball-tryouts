@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Upload to Google Sheets</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8">
+        <h1 class="text-3xl font-bold mb-4">Test Google Sheets Upload</h1>
+        <p class="text-gray-600 mb-6">This page will help you test if your Google Sheets integration is working.</p>
+
+        <div class="space-y-4">
+            <div>
+                <h3 class="font-semibold mb-2">Step 1: Check Local Data</h3>
+                <button onclick="checkLocalData()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                    Check LocalStorage
+                </button>
+                <div id="localDataStatus" class="mt-2"></div>
+            </div>
+
+            <div>
+                <h3 class="font-semibold mb-2">Step 2: Load Sample Data</h3>
+                <button onclick="loadSampleData()" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                    Load 3 Test Players
+                </button>
+                <div id="loadStatus" class="mt-2"></div>
+            </div>
+
+            <div>
+                <h3 class="font-semibold mb-2">Step 3: Upload to Google Sheets</h3>
+                <input type="text" id="scriptUrl" placeholder="Paste your Google Apps Script URL here" class="w-full px-4 py-2 border rounded mb-2">
+                <button onclick="uploadToSheets()" class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">
+                    Upload to Sheets
+                </button>
+                <div id="uploadStatus" class="mt-2"></div>
+            </div>
+        </div>
+
+        <div class="mt-8 p-4 bg-yellow-50 border border-yellow-400 rounded">
+            <h3 class="font-semibold mb-2">📋 Instructions:</h3>
+            <ol class="list-decimal list-inside space-y-1 text-sm">
+                <li>First, click "Check LocalStorage" to see if data exists</li>
+                <li>If no data, click "Load 3 Test Players" to create sample data</li>
+                <li>Paste your Google Apps Script URL (from Apps Script deployment)</li>
+                <li>Click "Upload to Sheets" and watch for any errors</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function checkLocalData() {
+            const data = localStorage.getItem('softball_tryout_data');
+            const statusDiv = document.getElementById('localDataStatus');
+
+            if (data) {
+                const players = JSON.parse(data);
+                statusDiv.innerHTML = `
+                    <div class="p-3 bg-green-100 border border-green-400 text-green-800 rounded">
+                        ✓ Found ${players.length} players in localStorage<br>
+                        <details class="mt-2">
+                            <summary class="cursor-pointer font-semibold">View player names</summary>
+                            <ul class="mt-2 text-sm">
+                                ${players.map(p => `<li>${p.name} (#${p.number})</li>`).join('')}
+                            </ul>
+                        </details>
+                    </div>
+                `;
+            } else {
+                statusDiv.innerHTML = `
+                    <div class="p-3 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded">
+                        ⚠️ No data found in localStorage. Click "Load Sample Data" below.
+                    </div>
+                `;
+            }
+        }
+
+        function loadSampleData() {
+            const players = [
+                {
+                    id: 1,
+                    name: "Test Player A",
+                    number: "1",
+                    hustleEnergy: { attitude: 5, runsonoff: 5, cheers: 4, dives: 5, baserunning: 4 },
+                    fieldingData: { flyball: 7, throwspeed: [1.85, 1.92, 1.88], throwaccuracy: [1, 1, 1] },
+                    hittingData: {
+                        batspeed: [62, 64, 61],
+                        exitvelocity: [68, 72, 70],
+                        bunt1b: [1, 1, 1],
+                        buntp: [1, 1, 0],
+                        bunt3b: [1, 1, 1],
+                        pitchrecog: [1, 1, 1, 1, 0],
+                        strikerecog: [1, 1, 1, 1, 1]
+                    },
+                    speedTimes: {
+                        h1b: [3.2, 3.1, 3.3],
+                        h2b: [5.8, 6.0, 5.9],
+                        hh: [12.1, 12.3, 11.9],
+                        broadjump: [6.8, 7.1, 6.9]
+                    },
+                    catcherData: {
+                        poptime: [2.45, 2.38, 2.42],
+                        throwaccuracy: [1, 1, 0],
+                        throwspeed: [58, 60, 59],
+                        popfly: [1, 1, 1],
+                        blocking: 4,
+                        buntfielding: 5
+                    },
+                    pitchingData: {
+                        fastballspeed: [55, 58, 56],
+                        accuracy: 4,
+                        movement: 4,
+                        mechanics: 5
+                    }
+                },
+                {
+                    id: 2,
+                    name: "Test Player B",
+                    number: "2",
+                    hustleEnergy: { attitude: 4, runsonoff: 4, cheers: 5, dives: 4, baserunning: 5 },
+                    fieldingData: { flyball: 6, throwspeed: [2.05, 1.98, 2.10], throwaccuracy: [1, 1, 0] },
+                    hittingData: {
+                        batspeed: [58, 60, 59],
+                        exitvelocity: [64, 66, 65],
+                        bunt1b: [1, 1, 0],
+                        buntp: [1, 0, 1],
+                        bunt3b: [1, 1, 1],
+                        pitchrecog: [1, 1, 0, 1, 1],
+                        strikerecog: [1, 1, 1, 0, 1]
+                    },
+                    speedTimes: {
+                        h1b: [3.5, 3.4, 3.6],
+                        h2b: [6.1, 6.3, 6.2],
+                        hh: [12.8, 13.0, 12.7],
+                        broadjump: [6.2, 6.5, 6.3]
+                    },
+                    catcherData: {
+                        poptime: [2.65, 2.58, 2.62],
+                        throwaccuracy: [1, 0, 1],
+                        throwspeed: [52, 54, 53],
+                        popfly: [1, 1, 0],
+                        blocking: 3,
+                        buntfielding: 4
+                    },
+                    pitchingData: {
+                        fastballspeed: [51, 53, 52],
+                        accuracy: 3,
+                        movement: 3,
+                        mechanics: 4
+                    }
+                },
+                {
+                    id: 3,
+                    name: "Test Player C",
+                    number: "3",
+                    hustleEnergy: { attitude: 5, runsonoff: 5, cheers: 5, dives: 5, baserunning: 5 },
+                    fieldingData: { flyball: 8, throwspeed: [1.65, 1.70, 1.68], throwaccuracy: [1, 1, 1] },
+                    hittingData: {
+                        batspeed: [66, 68, 67],
+                        exitvelocity: [71, 74, 72],
+                        bunt1b: [1, 1, 1],
+                        buntp: [1, 1, 1],
+                        bunt3b: [1, 0, 1],
+                        pitchrecog: [1, 1, 1, 1, 1],
+                        strikerecog: [1, 1, 1, 1, 0]
+                    },
+                    speedTimes: {
+                        h1b: [2.9, 3.0, 2.8],
+                        h2b: [5.6, 5.7, 5.5],
+                        hh: [11.5, 11.7, 11.4],
+                        broadjump: [7.3, 7.5, 7.4]
+                    },
+                    catcherData: {
+                        poptime: [2.28, 2.25, 2.30],
+                        throwaccuracy: [1, 1, 1],
+                        throwspeed: [66, 68, 67],
+                        popfly: [1, 1, 1],
+                        blocking: 5,
+                        buntfielding: 5
+                    },
+                    pitchingData: {
+                        fastballspeed: [60, 62, 61],
+                        accuracy: 5,
+                        movement: 4,
+                        mechanics: 5
+                    }
+                }
+            ];
+
+            localStorage.setItem('softball_tryout_data', JSON.stringify(players));
+            document.getElementById('loadStatus').innerHTML = `
+                <div class="p-3 bg-green-100 border border-green-400 text-green-800 rounded">
+                    ✓ Loaded 3 test players to localStorage
+                </div>
+            `;
+        }
+
+        async function uploadToSheets() {
+            const scriptUrl = document.getElementById('scriptUrl').value.trim();
+            const statusDiv = document.getElementById('uploadStatus');
+
+            if (!scriptUrl) {
+                statusDiv.innerHTML = `
+                    <div class="p-3 bg-red-100 border border-red-400 text-red-800 rounded">
+                        ✗ Please paste your Google Apps Script URL first
+                    </div>
+                `;
+                return;
+            }
+
+            const data = localStorage.getItem('softball_tryout_data');
+            if (!data) {
+                statusDiv.innerHTML = `
+                    <div class="p-3 bg-red-100 border border-red-400 text-red-800 rounded">
+                        ✗ No data to upload. Click "Load Sample Data" first.
+                    </div>
+                `;
+                return;
+            }
+
+            const players = JSON.parse(data);
+            statusDiv.innerHTML = `<div class="p-3 bg-blue-100 border border-blue-400 text-blue-800 rounded">⏳ Uploading ${players.length} players...</div>`;
+
+            try {
+                const formData = new FormData();
+                formData.append('data', JSON.stringify(players));
+
+                const response = await fetch(scriptUrl, {
+                    method: 'POST',
+                    body: formData,
+                    mode: 'no-cors'
+                });
+
+                // With no-cors, we can't read the response, but we can check if it didn't error
+                statusDiv.innerHTML = `
+                    <div class="p-3 bg-green-100 border border-green-400 text-green-800 rounded">
+                        ✓ Upload request sent!<br>
+                        <span class="text-sm">Check your Google Sheet to verify the data appeared.</span><br>
+                        <span class="text-xs text-gray-600 mt-2 block">
+                            If data didn't appear, there may be a 403 error. Check the troubleshooting guide.
+                        </span>
+                    </div>
+                `;
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <div class="p-3 bg-red-100 border border-red-400 text-red-800 rounded">
+                        ✗ Upload error: ${error.message}<br>
+                        <details class="mt-2">
+                            <summary class="cursor-pointer text-sm">View full error</summary>
+                            <pre class="mt-2 text-xs overflow-auto">${JSON.stringify(error, null, 2)}</pre>
+                        </details>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
