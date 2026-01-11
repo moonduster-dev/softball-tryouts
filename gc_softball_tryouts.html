@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GC Softball Tryouts 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .score-btn { transition: all 0.2s; }
+        .score-btn:hover { transform: scale(1.05); }
+        .score-btn.selected { ring: 2px; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-50 to-blue-50 min-h-screen p-4">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="fixed inset-0 bg-gray-900 bg-opacity-95 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-2xl p-8 max-w-md w-full mx-4">
+            <div class="text-center mb-6">
+                <img src="GClogo.jpg" alt="Logo" class="h-20 w-20 object-contain mx-auto mb-4" />
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">Softball Tryout Scorer</h1>
+                <p class="text-gray-600">Select your account and enter password</p>
+            </div>
+            <div class="space-y-4">
+                <select id="userSelect" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-lg">
+                    <option value="">-- Select Coach --</option>
+                    <option value="nick">Nick</option>
+                    <option value="bob">Bob</option>
+                    <option value="sophia">Sophia</option>
+                    <option value="amy">Amy</option>
+                    <option value="bill">Bill</option>
+                    <option value="gabby">Gabby</option>
+                    <option value="guest">Guest</option>
+                </select>
+                <input
+                    type="password"
+                    id="passwordInput"
+                    placeholder="Enter password"
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-lg"
+                    onkeypress="if(event.key === 'Enter') checkLogin()"
+                />
+                <button onclick="checkLogin()" class="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold text-lg">
+                    Login
+                </button>
+                <div id="loginError" class="text-red-600 text-center text-sm hidden">
+                    Incorrect password or no coach selected.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Content -->
+    <div class="max-w-5xl mx-auto hidden" id="appContent">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="flex flex-col gap-4">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <img src="GClogo.jpg" alt="Logo" class="h-16 w-16 object-contain" />
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-800">GC Softball Tryouts 2026</h1>
+                            <p class="text-gray-600">Logged in as: <span id="currentUserDisplay" class="font-semibold text-green-600"></span></p>
+                        </div>
+                    </div>
+                    <button onclick="logout()" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                        Logout
+                    </button>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="flex gap-2 flex-wrap justify-center border-t pt-4">
+                    <button onclick="toggleSection('advancedOptions')" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+                        ⚙️ Options
+                    </button>
+                    <button onclick="uploadToSheets()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                        ⬆️ Sync to Sheets
+                    </button>
+                    <button onclick="downloadFromSheets()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        ⬇️ Download from Sheets
+                    </button>
+                </div>
+
+                <!-- Advanced Options -->
+                <div id="advancedOptions" class="hidden mt-4 pt-4 border-t border-gray-200">
+                    <h3 class="text-lg font-semibold mb-4">Add Player</h3>
+                    <div class="flex gap-3 flex-wrap mb-4">
+                        <input type="text" id="playerName" placeholder="Player Name" class="flex-1 min-w-[200px] px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" />
+                        <input type="text" id="playerNumber" placeholder="Jersey #" class="w-32 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" />
+                        <button onclick="addPlayer()" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                            ➕ Add Player
+                        </button>
+                    </div>
+                    <div class="flex gap-2 flex-wrap">
+                        <button onclick="exportData()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            ⬇️ Export CSV
+                        </button>
+                        <button onclick="clearAllData()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                            🗑️ Clear All Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-3 text-sm text-green-600" id="saveStatus">🔄 Auto-syncing with Google Sheets</div>
+        </div>
+
+        <!-- Category Navigation -->
+        <div class="bg-white rounded-lg shadow-lg p-4 mb-6">
+            <div class="flex gap-2 flex-wrap justify-center">
+                <button onclick="selectCategory('catching')" id="cat-catching" class="category-btn px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 font-medium">
+                    🧤 Catching
+                </button>
+                <button onclick="selectCategory('baserunning')" id="cat-baserunning" class="category-btn px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 font-medium">
+                    🏃 Baserunning
+                </button>
+                <button onclick="selectCategory('intangibles')" id="cat-intangibles" class="category-btn px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 font-medium">
+                    ⭐ Intangibles
+                </button>
+                <button onclick="selectCategory('pitching')" id="cat-pitching" class="category-btn px-4 py-2 bg-gray-100 text-gray-500 rounded-lg font-medium" disabled title="Coming soon">
+                    ⚾ Pitching (Soon)
+                </button>
+                <button onclick="selectCategory('fielding')" id="cat-fielding" class="category-btn px-4 py-2 bg-gray-100 text-gray-500 rounded-lg font-medium" disabled title="Coming soon">
+                    🥎 Fielding (Soon)
+                </button>
+                <button onclick="selectCategory('throwing')" id="cat-throwing" class="category-btn px-4 py-2 bg-gray-100 text-gray-500 rounded-lg font-medium" disabled title="Coming soon">
+                    💪 Throwing (Soon)
+                </button>
+                <button onclick="selectCategory('hitting')" id="cat-hitting" class="category-btn px-4 py-2 bg-gray-100 text-gray-500 rounded-lg font-medium" disabled title="Coming soon">
+                    🏏 Hitting (Soon)
+                </button>
+            </div>
+        </div>
+
+        <!-- Player Selection -->
+        <div class="bg-white rounded-lg shadow-lg p-4 mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Select Player</label>
+            <select id="playerSelect" onchange="selectPlayer(this.value)" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg">
+                <option value="">-- Select a player --</option>
+            </select>
+        </div>
+
+        <!-- Scoring Area -->
+        <div id="scoringArea" class="hidden">
+            <!-- Dynamic content based on category -->
+        </div>
+
+        <!-- All Players View -->
+        <div id="allPlayersView" class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold mb-4">All Players</h2>
+            <div id="playersList"></div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURATION
+        // ============================================
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz_sZ8DH0DU6idcOSUdwxsQQDfSeIQU4xEIlYI7EhkLpsQrQuIu1sNn0ZOvkvtnsXBn/exec';
+        const STORAGE_KEY = 'gc_softball_tryouts_2026';
+        const APP_PASSWORD = 'nick2026';
+        const VALID_USERS = ['nick', 'bob', 'sophia', 'amy', 'bill', 'gabby', 'guest'];
+
+        // ============================================
+        // STATE
+        // ============================================
+        let currentUser = null;
+        let players = [];
+        let selectedPlayerId = null;
+        let selectedCategory = 'catching';
+        let isSyncing = false;
+        let autoUploadTimer = null;
+        const AUTO_UPLOAD_DELAY = 1000; // 1 second delay before auto-sync
+
+        // ============================================
+        // SCORING THRESHOLDS
+        // ============================================
+        const scoringConfig = {
+            // Speed metrics (lower is better)
+            h1b: { t5: 3.1, t4: 3.8, t3: 4.6, t2: 5.2 },
+            '2bh': { t5: 5.75, t4: 6.25, t3: 7, t2: 8 },  // 2B to Home
+            h3b: { t5: 8.6, t4: 9.4, t3: 10.5, t2: 12 },  // Scaled ~1.5x from h2b
+            hh: { t5: 11.8, t4: 13.3, t3: 15.0, t2: 17.0 },
+            // Pop time (lower is better)
+            poptime: { t5: 2.3, t4: 2.5, t3: 2.7, t2: 3.0 },
+            // Pro Agility (lower is better)
+            proagility: { t5: 4.3, t4: 4.6, t3: 5.0, t2: 5.5 },
+            // Broad jump (higher is better, in feet)
+            broadjump: { t1: 4, t2: 5, t3: 6, t4: 7 }
+        };
+
+        // ============================================
+        // LOGIN FUNCTIONS
+        // ============================================
+        function checkLogin() {
+            const user = document.getElementById('userSelect').value;
+            const password = document.getElementById('passwordInput').value;
+
+            if (!user || !VALID_USERS.includes(user)) {
+                showLoginError();
+                return;
+            }
+
+            if (password !== APP_PASSWORD) {
+                showLoginError();
+                return;
+            }
+
+            currentUser = user;
+            sessionStorage.setItem('gcSoftballUser', user);
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('appContent').classList.remove('hidden');
+            document.getElementById('currentUserDisplay').textContent = user.charAt(0).toUpperCase() + user.slice(1);
+
+            initApp();
+        }
+
+        function showLoginError() {
+            document.getElementById('loginError').classList.remove('hidden');
+            document.getElementById('passwordInput').value = '';
+        }
+
+        function logout() {
+            sessionStorage.removeItem('gcSoftballUser');
+            currentUser = null;
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('appContent').classList.add('hidden');
+            document.getElementById('loginError').classList.add('hidden');
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('userSelect').value = '';
+        }
+
+        function checkSession() {
+            const savedUser = sessionStorage.getItem('gcSoftballUser');
+            if (savedUser && VALID_USERS.includes(savedUser)) {
+                currentUser = savedUser;
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('appContent').classList.remove('hidden');
+                document.getElementById('currentUserDisplay').textContent = savedUser.charAt(0).toUpperCase() + savedUser.slice(1);
+                initApp();
+            }
+        }
+
+        // ============================================
+        // APP INITIALIZATION
+        // ============================================
+        function initApp() {
+            loadData();
+            autoDownloadFromSheets().then(() => {
+                renderPlayerSelect();
+                renderAllPlayers();
+            });
+        }
+
+        function loadData() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    players = JSON.parse(saved);
+                }
+            } catch (e) {
+                console.error('Error loading data:', e);
+                players = [];
+            }
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
+                showSaveStatus('✓ Saved locally');
+                scheduleAutoUpload();
+            } catch (e) {
+                console.error('Error saving data:', e);
+            }
+        }
+
+        function scheduleAutoUpload() {
+            if (autoUploadTimer) clearTimeout(autoUploadTimer);
+            autoUploadTimer = setTimeout(() => {
+                autoUploadToSheets();
+            }, AUTO_UPLOAD_DELAY);
+        }
+
+        // ============================================
+        // PLAYER MANAGEMENT
+        // ============================================
+        function addPlayer() {
+            const nameInput = document.getElementById('playerName');
+            const numberInput = document.getElementById('playerNumber');
+            const name = nameInput.value.trim();
+
+            if (!name) {
+                alert('Please enter a player name');
+                return;
+            }
+
+            const newPlayer = {
+                id: Date.now(),
+                name: name,
+                number: numberInput.value.trim(),
+                catching: createCatchingData(),
+                baserunning: createBaserunningData(),
+                intangibles: createIntangiblesData(),
+                notes: ''
+            };
+
+            players.push(newPlayer);
+            saveData();
+            renderPlayerSelect();
+            renderAllPlayers();
+
+            nameInput.value = '';
+            numberInput.value = '';
+
+            // Auto-select the new player
+            selectedPlayerId = newPlayer.id;
+            document.getElementById('playerSelect').value = newPlayer.id;
+            renderScoringArea();
+        }
+
+        function createCatchingData() {
+            return {
+                poptime: [null, null],
+                throwaccuracy: [null, null, null],
+                blocking: null,
+                footwork: null,
+                mobility: null,
+                explosiveness_throwing: null,
+                explosiveness_bunts: null
+            };
+        }
+
+        function createBaserunningData() {
+            return {
+                // Speed metrics
+                h1b: { times: [null, null], missed1b: [false, false] },
+                '2bh': { times: [null, null], missed3b: [false, false] },
+                h3b: { time: null, nostick: false },
+                hh: { time: null, missedbase: false },
+                // Explosiveness
+                proagility: [null, null],
+                broadjump: [null, null],
+                // Scrimmage scores (by coach)
+                scrimmage: {}
+            };
+        }
+
+        function createIntangiblesData() {
+            return {};  // Will store scores by coach: { nick: { awareness: 3, leadership: 4, enthusiasm: 5 }, ... }
+        }
+
+        function deletePlayer(id) {
+            if (!confirm('Are you sure you want to delete this player?')) return;
+            players = players.filter(p => p.id !== id);
+            if (selectedPlayerId === id) {
+                selectedPlayerId = null;
+                document.getElementById('playerSelect').value = '';
+            }
+            saveData();
+            renderPlayerSelect();
+            renderAllPlayers();
+            renderScoringArea();
+        }
+
+        // ============================================
+        // UI RENDERING
+        // ============================================
+        function renderPlayerSelect() {
+            const select = document.getElementById('playerSelect');
+            const currentValue = select.value;
+            select.innerHTML = '<option value="">-- Select a player --</option>';
+
+            const sortedPlayers = [...players].sort((a, b) => a.name.localeCompare(b.name));
+            sortedPlayers.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.textContent = p.number ? `${p.name} (#${p.number})` : p.name;
+                select.appendChild(opt);
+            });
+
+            if (currentValue) select.value = currentValue;
+        }
+
+        function selectPlayer(playerId) {
+            selectedPlayerId = playerId ? parseInt(playerId) : null;
+            renderScoringArea();
+        }
+
+        function selectCategory(category) {
+            selectedCategory = category;
+
+            // Update button styles
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-offset-2', 'ring-green-500');
+            });
+            const activeBtn = document.getElementById(`cat-${category}`);
+            if (activeBtn) {
+                activeBtn.classList.add('ring-2', 'ring-offset-2', 'ring-green-500');
+            }
+
+            renderScoringArea();
+        }
+
+        function renderScoringArea() {
+            const area = document.getElementById('scoringArea');
+
+            if (!selectedPlayerId) {
+                area.classList.add('hidden');
+                return;
+            }
+
+            const player = players.find(p => p.id === selectedPlayerId);
+            if (!player) {
+                area.classList.add('hidden');
+                return;
+            }
+
+            area.classList.remove('hidden');
+
+            // Initialize player data structures if missing
+            let needsSave = false;
+            if (!player.catching) { player.catching = createCatchingData(); needsSave = true; }
+            if (!player.baserunning) { player.baserunning = createBaserunningData(); needsSave = true; }
+            if (!player.intangibles) { player.intangibles = {}; needsSave = true; }
+            if (needsSave) saveData();
+
+            switch (selectedCategory) {
+                case 'catching':
+                    area.innerHTML = renderCatchingSection(player);
+                    break;
+                case 'baserunning':
+                    area.innerHTML = renderBaserunningSection(player);
+                    break;
+                case 'intangibles':
+                    area.innerHTML = renderIntangiblesSection(player);
+                    break;
+                default:
+                    area.innerHTML = '<div class="bg-white rounded-lg shadow-lg p-6 text-center text-gray-500">This category is coming soon!</div>';
+            }
+        }
+
+        // ============================================
+        // CATCHING SECTION
+        // ============================================
+        function renderCatchingSection(player) {
+            if (!player.catching) player.catching = createCatchingData();
+            const c = player.catching;
+
+            return `
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">🧤 Catching - ${player.name}</h2>
+
+                    <!-- Pop Time -->
+                    <div class="mb-6 p-4 bg-purple-50 rounded-lg">
+                        <h3 class="font-semibold mb-3">Pop Time (seconds)</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            ${[0, 1].map(i => `
+                                <div>
+                                    <label class="text-sm text-gray-600">Attempt ${i + 1}</label>
+                                    <input type="number" step="0.01" value="${c.poptime[i] || ''}"
+                                        onchange="updateCatching(${player.id}, 'poptime', ${i}, this.value)"
+                                        class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., 2.35">
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="mt-2 text-sm text-gray-600">
+                            Score: <span class="font-bold">${calculatePopTimeScore(c.poptime)}</span>/5
+                            (Best: ${getBestTime(c.poptime) || 'N/A'}s)
+                        </div>
+                    </div>
+
+                    <!-- Throwing Accuracy -->
+                    <div class="mb-6 p-4 bg-purple-50 rounded-lg">
+                        <h3 class="font-semibold mb-2">Throwing Accuracy</h3>
+                        <p class="text-xs text-gray-500 mb-3">3=On target (air/1-hop), 2=Right (air/1-hop), 1=Left (air/1-hop), 0=Off mark</p>
+                        <div class="grid grid-cols-3 gap-4">
+                            ${[0, 1, 2].map(i => `
+                                <div>
+                                    <label class="text-sm text-gray-600">Attempt ${i + 1}</label>
+                                    <select onchange="updateCatching(${player.id}, 'throwaccuracy', ${i}, this.value)"
+                                        class="w-full px-3 py-2 border rounded-lg">
+                                        <option value="">--</option>
+                                        ${[3, 2, 1, 0].map(v => `<option value="${v}" ${c.throwaccuracy[i] == v ? 'selected' : ''}>${v}</option>`).join('')}
+                                    </select>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="mt-2 text-sm text-gray-600">
+                            Total: <span class="font-bold">${sumScores(c.throwaccuracy)}</span>/9
+                        </div>
+                    </div>
+
+                    <!-- Other Catching Drills -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        ${renderCatchingDrill(player, 'blocking', 'Blocking', '3=Stays down, 2=Smothers ball, 1=Picks up quickly, 0=Doesn\'t block')}
+                        ${renderCatchingDrill(player, 'footwork', 'Footwork', '3=Limits steps before throwing')}
+                        ${renderCatchingDrill(player, 'mobility', 'Mobility', '3=Quick movement for plays')}
+                        ${renderCatchingDrill(player, 'explosiveness_throwing', 'Explosiveness (Throwing)', '3=Drives towards target when throwing')}
+                        ${renderCatchingDrill(player, 'explosiveness_bunts', 'Explosiveness (Bunts)', '3=Quick to retrieve bunts and throw to 1B')}
+                    </div>
+
+                    <div class="mt-4 p-3 bg-green-100 rounded-lg">
+                        <strong>Catching Total:</strong> ${calculateCatchingTotal(player)}/30
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCatchingDrill(player, field, label, description) {
+            if (!player.catching) player.catching = createCatchingData();
+            const value = player.catching[field];
+            return `
+                <div class="p-4 bg-purple-50 rounded-lg">
+                    <h3 class="font-semibold mb-1">${label}</h3>
+                    <p class="text-xs text-gray-500 mb-2">${description}</p>
+                    <div class="flex gap-2">
+                        ${[0, 1, 2, 3].map(v => `
+                            <button onclick="updateCatchingDrill(${player.id}, '${field}', ${v})"
+                                class="score-btn flex-1 py-2 rounded-lg ${value == v ? 'bg-purple-600 text-white' : 'bg-white border hover:bg-purple-100'}">
+                                ${v}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateCatching(playerId, field, index, value) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+            if (!player.catching) player.catching = createCatchingData();
+
+            const numVal = value === '' ? null : parseFloat(value);
+            player.catching[field][index] = numVal;
+            saveData();
+            renderScoringArea();
+        }
+
+        function updateCatchingDrill(playerId, field, value) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+            if (!player.catching) player.catching = createCatchingData();
+
+            player.catching[field] = value;
+            saveData();
+            renderScoringArea();
+        }
+
+        // ============================================
+        // BASERUNNING SECTION
+        // ============================================
+        function renderBaserunningSection(player) {
+            if (!player.baserunning) player.baserunning = createBaserunningData();
+            const b = player.baserunning;
+
+            return `
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">🏃 Baserunning - ${player.name}</h2>
+
+                    <!-- Speed Metrics -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold mb-3 text-blue-700">⚡ Speed Metrics</h3>
+
+                        <!-- H to 1B -->
+                        <div class="mb-4 p-4 bg-blue-50 rounded-lg">
+                            <h4 class="font-semibold mb-2">H → 1B (2 attempts)</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                ${[0, 1].map(i => `
+                                    <div>
+                                        <label class="text-sm text-gray-600">Attempt ${i + 1}</label>
+                                        <input type="number" step="0.01" value="${b.h1b.times[i] || ''}"
+                                            onchange="updateSpeedTime(${player.id}, 'h1b', ${i}, this.value)"
+                                            class="w-full px-3 py-2 border rounded-lg" placeholder="seconds">
+                                        <label class="flex items-center gap-2 mt-1 text-sm">
+                                            <input type="checkbox" ${b.h1b.missed1b[i] ? 'checked' : ''}
+                                                onchange="updateSpeedCheckbox(${player.id}, 'h1b', 'missed1b', ${i}, this.checked)">
+                                            Missed 1B (+0.5s)
+                                        </label>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="mt-2 text-sm">
+                                Adjusted Best: <strong>${getAdjustedBestH1B(b.h1b)}s</strong> |
+                                Score: <strong>${calculateSpeedScore('h1b', getAdjustedBestH1B(b.h1b))}</strong>/5
+                            </div>
+                        </div>
+
+                        <!-- 2B to Home -->
+                        <div class="mb-4 p-4 bg-blue-50 rounded-lg">
+                            <h4 class="font-semibold mb-2">2B → Home (2 attempts)</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                ${[0, 1].map(i => `
+                                    <div>
+                                        <label class="text-sm text-gray-600">Attempt ${i + 1}</label>
+                                        <input type="number" step="0.01" value="${b['2bh'].times[i] || ''}"
+                                            onchange="updateSpeedTime(${player.id}, '2bh', ${i}, this.value)"
+                                            class="w-full px-3 py-2 border rounded-lg" placeholder="seconds">
+                                        <label class="flex items-center gap-2 mt-1 text-sm">
+                                            <input type="checkbox" ${b['2bh'].missed3b[i] ? 'checked' : ''}
+                                                onchange="updateSpeedCheckbox(${player.id}, '2bh', 'missed3b', ${i}, this.checked)">
+                                            Missed 3B (+1s)
+                                        </label>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="mt-2 text-sm">
+                                Adjusted Best: <strong>${getAdjustedBest2BH(b['2bh'])}s</strong> |
+                                Score: <strong>${calculateSpeedScore('2bh', getAdjustedBest2BH(b['2bh']))}</strong>/5
+                            </div>
+                        </div>
+
+                        <!-- H to 3B -->
+                        <div class="mb-4 p-4 bg-blue-50 rounded-lg">
+                            <h4 class="font-semibold mb-2">H → 3B (1 attempt)</h4>
+                            <div class="flex gap-4 items-end">
+                                <div class="flex-1">
+                                    <label class="text-sm text-gray-600">Time</label>
+                                    <input type="number" step="0.01" value="${b.h3b.time || ''}"
+                                        onchange="updateH3B(${player.id}, 'time', this.value)"
+                                        class="w-full px-3 py-2 border rounded-lg" placeholder="seconds">
+                                </div>
+                                <label class="flex items-center gap-2 text-sm pb-2">
+                                    <input type="checkbox" ${b.h3b.nostick ? 'checked' : ''}
+                                        onchange="updateH3B(${player.id}, 'nostick', this.checked)">
+                                    No Stick (+1s)
+                                </label>
+                            </div>
+                            <div class="mt-2 text-sm">
+                                Adjusted: <strong>${getAdjustedH3B(b.h3b)}s</strong> |
+                                Score: <strong>${calculateSpeedScore('h3b', getAdjustedH3B(b.h3b))}</strong>/5
+                            </div>
+                        </div>
+
+                        <!-- H to H -->
+                        <div class="mb-4 p-4 bg-blue-50 rounded-lg">
+                            <h4 class="font-semibold mb-2">H → H (1 attempt)</h4>
+                            <div class="flex gap-4 items-end">
+                                <div class="flex-1">
+                                    <label class="text-sm text-gray-600">Time</label>
+                                    <input type="number" step="0.01" value="${b.hh.time || ''}"
+                                        onchange="updateHH(${player.id}, 'time', this.value)"
+                                        class="w-full px-3 py-2 border rounded-lg" placeholder="seconds">
+                                </div>
+                                <label class="flex items-center gap-2 text-sm pb-2">
+                                    <input type="checkbox" ${b.hh.missedbase ? 'checked' : ''}
+                                        onchange="updateHH(${player.id}, 'missedbase', this.checked)">
+                                    Any Base Missed (+1s)
+                                </label>
+                            </div>
+                            <div class="mt-2 text-sm">
+                                Adjusted: <strong>${getAdjustedHH(b.hh)}s</strong> |
+                                Score: <strong>${calculateSpeedScore('hh', getAdjustedHH(b.hh))}</strong>/5
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Explosiveness -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold mb-3 text-orange-700">💥 Explosiveness</h3>
+
+                        <!-- Pro Agility -->
+                        <div class="mb-4 p-4 bg-orange-50 rounded-lg">
+                            <h4 class="font-semibold mb-2">Pro Agility (2 attempts)</h4>
+                            <p class="text-xs text-gray-500 mb-2">5: &lt;4.3s | 4: 4.3-4.6s | 3: 4.7-5.0s | 2: 5.1-5.5s | 1: &gt;5.5s</p>
+                            <div class="grid grid-cols-2 gap-4">
+                                ${[0, 1].map(i => `
+                                    <div>
+                                        <label class="text-sm text-gray-600">Attempt ${i + 1}</label>
+                                        <input type="number" step="0.01" value="${b.proagility[i] || ''}"
+                                            onchange="updateExplosiveness(${player.id}, 'proagility', ${i}, this.value)"
+                                            class="w-full px-3 py-2 border rounded-lg" placeholder="seconds">
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="mt-2 text-sm">
+                                Best: <strong>${getBestTime(b.proagility) || 'N/A'}s</strong> |
+                                Score: <strong>${calculateProAgilityScore(b.proagility)}</strong>/5
+                            </div>
+                        </div>
+
+                        <!-- Broad Jump -->
+                        <div class="mb-4 p-4 bg-orange-50 rounded-lg">
+                            <h4 class="font-semibold mb-2">Broad Jump (2 attempts, in feet)</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                ${[0, 1].map(i => `
+                                    <div>
+                                        <label class="text-sm text-gray-600">Attempt ${i + 1}</label>
+                                        <input type="number" step="0.1" value="${b.broadjump[i] || ''}"
+                                            onchange="updateExplosiveness(${player.id}, 'broadjump', ${i}, this.value)"
+                                            class="w-full px-3 py-2 border rounded-lg" placeholder="feet">
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="mt-2 text-sm">
+                                Best: <strong>${getBestDistance(b.broadjump) || 'N/A'} ft</strong> |
+                                Score: <strong>${calculateBroadJumpScore(b.broadjump)}</strong>/5
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Scrimmage Scores -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold mb-3 text-green-700">📋 Scrimmage Scores (Your Evaluation)</h3>
+                        <p class="text-sm text-gray-500 mb-3">All coaches evaluate these - scores are averaged</p>
+
+                        ${renderScrimmageScores(player)}
+                    </div>
+
+                    <div class="mt-4 p-3 bg-green-100 rounded-lg">
+                        <strong>Baserunning Total:</strong> ${calculateBaserunningTotal(player)}/35
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderScrimmageScores(player) {
+            const scrimmage = player.baserunning?.scrimmage || {};
+            const myScores = scrimmage[currentUser] || {};
+
+            const drills = [
+                { id: 'chopstep', name: 'Chop Step Ability', max: 3 },
+                { id: 'rounding', name: 'Rounding Bases', max: 3 },
+                { id: 'sliding', name: 'Sliding', max: 3 },
+                { id: 'softballiq', name: 'General Softball IQ', max: 3 },
+                { id: 'aggressiveness', name: 'Aggressiveness', max: 3 }
+            ];
+
+            return `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    ${drills.map(drill => `
+                        <div class="p-3 bg-green-50 rounded-lg">
+                            <h4 class="font-medium mb-2">${drill.name}</h4>
+                            <div class="flex gap-2">
+                                ${[1, 2, 3].map(v => `
+                                    <button onclick="updateScrimmageScore(${player.id}, '${drill.id}', ${v})"
+                                        class="score-btn flex-1 py-2 rounded-lg ${myScores[drill.id] == v ? 'bg-green-600 text-white' : 'bg-white border hover:bg-green-100'}">
+                                        ${v}
+                                    </button>
+                                `).join('')}
+                            </div>
+                            <div class="text-xs text-gray-500 mt-1">
+                                Avg: ${calculateAverageScore(scrimmage, drill.id).toFixed(1)} (${countCoachScores(scrimmage, drill.id)} coaches)
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // ============================================
+        // INTANGIBLES SECTION
+        // ============================================
+        function renderIntangiblesSection(player) {
+            if (!player.intangibles) player.intangibles = {};
+            const intangibles = player.intangibles;
+            const myScores = intangibles[currentUser] || {};
+
+            const drills = [
+                { id: 'awareness', name: 'Game Situation Awareness', description: 'Knows what to do on the basepath for various situations', max: 5 },
+                { id: 'leadership', name: 'Leadership', description: 'Does the right things at the right time, keeps teammates on task, works hard during practice', max: 5 },
+                { id: 'enthusiasm', name: 'Enthusiasm', description: 'Cheers for teammates, calls out where to throw the ball, moves quickly from drill to drill', max: 5 }
+            ];
+
+            return `
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">⭐ Intangibles - ${player.name}</h2>
+                    <p class="text-sm text-gray-500 mb-4">All coaches evaluate these - scores are averaged</p>
+
+                    <div class="space-y-4">
+                        ${drills.map(drill => `
+                            <div class="p-4 bg-yellow-50 rounded-lg">
+                                <h3 class="font-semibold mb-1">${drill.name}</h3>
+                                <p class="text-xs text-gray-500 mb-3">${drill.description}</p>
+                                <div class="flex gap-2">
+                                    ${[1, 2, 3, 4, 5].map(v => `
+                                        <button onclick="updateIntangibleScore(${player.id}, '${drill.id}', ${v})"
+                                            class="score-btn flex-1 py-3 rounded-lg text-lg font-semibold ${myScores[drill.id] == v ? 'bg-yellow-500 text-white' : 'bg-white border hover:bg-yellow-100'}">
+                                            ${v}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                                <div class="text-sm text-gray-600 mt-2">
+                                    Your score: <strong>${myScores[drill.id] || 'Not set'}</strong> |
+                                    Average: <strong>${calculateAverageScore(intangibles, drill.id).toFixed(1)}</strong>
+                                    (${countCoachScores(intangibles, drill.id)} coaches)
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="mt-4 p-3 bg-green-100 rounded-lg">
+                        <strong>Intangibles Average Total:</strong> ${calculateIntangiblesTotal(player).toFixed(1)}/15
+                    </div>
+                </div>
+            `;
+        }
+
+        // ============================================
+        // UPDATE FUNCTIONS
+        // ============================================
+        function updateSpeedTime(playerId, drill, index, value) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+            if (!player.baserunning) player.baserunning = createBaserunningData();
+
+            player.baserunning[drill].times[index] = value === '' ? null : parseFloat(value);
+            saveData();
+            renderScoringArea();
+        }
+
+        function updateSpeedCheckbox(playerId, drill, field, index, checked) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+            if (!player.baserunning) player.baserunning = createBaserunningData();
+
+            player.baserunning[drill][field][index] = checked;
+            saveData();
+            renderScoringArea();
+        }
+
+        function updateH3B(playerId, field, value) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+            if (!player.baserunning) player.baserunning = createBaserunningData();
+
+            if (field === 'time') {
+                player.baserunning.h3b.time = value === '' ? null : parseFloat(value);
+            } else {
+                player.baserunning.h3b.nostick = value;
+            }
+            saveData();
+            renderScoringArea();
+        }
+
+        function updateHH(playerId, field, value) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+            if (!player.baserunning) player.baserunning = createBaserunningData();
+
+            if (field === 'time') {
+                player.baserunning.hh.time = value === '' ? null : parseFloat(value);
+            } else {
+                player.baserunning.hh.missedbase = value;
+            }
+            saveData();
+            renderScoringArea();
+        }
+
+        function updateExplosiveness(playerId, drill, index, value) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+            if (!player.baserunning) player.baserunning = createBaserunningData();
+
+            player.baserunning[drill][index] = value === '' ? null : parseFloat(value);
+            saveData();
+            renderScoringArea();
+        }
+
+        function updateScrimmageScore(playerId, drillId, value) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+            if (!player.baserunning) player.baserunning = createBaserunningData();
+            if (!player.baserunning.scrimmage) player.baserunning.scrimmage = {};
+            if (!player.baserunning.scrimmage[currentUser]) player.baserunning.scrimmage[currentUser] = {};
+
+            player.baserunning.scrimmage[currentUser][drillId] = value;
+            saveData();
+            renderScoringArea();
+        }
+
+        function updateIntangibleScore(playerId, drillId, value) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+            if (!player.intangibles) player.intangibles = {};
+            if (!player.intangibles[currentUser]) player.intangibles[currentUser] = {};
+
+            player.intangibles[currentUser][drillId] = value;
+            saveData();
+            renderScoringArea();
+        }
+
+        // ============================================
+        // CALCULATION FUNCTIONS
+        // ============================================
+        function getBestTime(times) {
+            const valid = times.filter(t => t !== null && !isNaN(t));
+            if (valid.length === 0) return null;
+            return Math.min(...valid).toFixed(2);
+        }
+
+        function getBestDistance(distances) {
+            const valid = distances.filter(d => d !== null && !isNaN(d));
+            if (valid.length === 0) return null;
+            return Math.max(...valid).toFixed(1);
+        }
+
+        function getAdjustedBestH1B(data) {
+            let best = null;
+            for (let i = 0; i < 2; i++) {
+                if (data.times[i] !== null) {
+                    let adjusted = data.times[i] + (data.missed1b[i] ? 0.5 : 0);
+                    if (best === null || adjusted < best) best = adjusted;
+                }
+            }
+            return best ? best.toFixed(2) : 'N/A';
+        }
+
+        function getAdjustedBest2BH(data) {
+            let best = null;
+            for (let i = 0; i < 2; i++) {
+                if (data.times[i] !== null) {
+                    let adjusted = data.times[i] + (data.missed3b[i] ? 1 : 0);
+                    if (best === null || adjusted < best) best = adjusted;
+                }
+            }
+            return best ? best.toFixed(2) : 'N/A';
+        }
+
+        function getAdjustedH3B(data) {
+            if (data.time === null) return 'N/A';
+            return (data.time + (data.nostick ? 1 : 0)).toFixed(2);
+        }
+
+        function getAdjustedHH(data) {
+            if (data.time === null) return 'N/A';
+            return (data.time + (data.missedbase ? 1 : 0)).toFixed(2);
+        }
+
+        function calculateSpeedScore(drill, time) {
+            if (time === 'N/A' || time === null) return 0;
+            const t = parseFloat(time);
+            const config = scoringConfig[drill];
+            if (!config) return 0;
+
+            if (t < config.t5) return 5;
+            if (t < config.t4) return 4;
+            if (t < config.t3) return 3;
+            if (t < config.t2) return 2;
+            return 1;
+        }
+
+        function calculatePopTimeScore(times) {
+            const best = getBestTime(times);
+            if (!best) return 0;
+            return calculateSpeedScore('poptime', best);
+        }
+
+        function calculateProAgilityScore(times) {
+            const best = getBestTime(times);
+            if (!best) return 0;
+            const t = parseFloat(best);
+            if (t < 4.3) return 5;
+            if (t <= 4.6) return 4;
+            if (t <= 5.0) return 3;
+            if (t <= 5.5) return 2;
+            return 1;
+        }
+
+        function calculateBroadJumpScore(distances) {
+            const best = getBestDistance(distances);
+            if (!best) return 0;
+            const d = parseFloat(best);
+            const config = scoringConfig.broadjump;
+            if (d < config.t1) return 1;
+            if (d < config.t2) return 2;
+            if (d < config.t3) return 3;
+            if (d < config.t4) return 4;
+            return 5;
+        }
+
+        function sumScores(arr) {
+            return arr.filter(v => v !== null && !isNaN(v)).reduce((sum, v) => sum + parseInt(v), 0);
+        }
+
+        function calculateAverageScore(coachScores, drillId) {
+            const scores = [];
+            Object.values(coachScores).forEach(coach => {
+                if (coach[drillId] !== undefined && coach[drillId] !== null) {
+                    scores.push(coach[drillId]);
+                }
+            });
+            if (scores.length === 0) return 0;
+            return scores.reduce((sum, s) => sum + s, 0) / scores.length;
+        }
+
+        function countCoachScores(coachScores, drillId) {
+            let count = 0;
+            Object.values(coachScores).forEach(coach => {
+                if (coach[drillId] !== undefined && coach[drillId] !== null) count++;
+            });
+            return count;
+        }
+
+        function calculateCatchingTotal(player) {
+            const c = player.catching || {};
+            let total = 0;
+            total += calculatePopTimeScore(c.poptime || []);
+            total += sumScores(c.throwaccuracy || []);
+            total += c.blocking || 0;
+            total += c.footwork || 0;
+            total += c.mobility || 0;
+            total += c.explosiveness_throwing || 0;
+            total += c.explosiveness_bunts || 0;
+            return total;
+        }
+
+        function calculateBaserunningTotal(player) {
+            const b = player.baserunning || {};
+            let total = 0;
+
+            // Speed metrics (20 points max)
+            total += calculateSpeedScore('h1b', getAdjustedBestH1B(b.h1b || { times: [null, null], missed1b: [false, false] }));
+            total += calculateSpeedScore('2bh', getAdjustedBest2BH(b['2bh'] || { times: [null, null], missed3b: [false, false] }));
+            total += calculateSpeedScore('h3b', getAdjustedH3B(b.h3b || { time: null, nostick: false }));
+            total += calculateSpeedScore('hh', getAdjustedHH(b.hh || { time: null, missedbase: false }));
+
+            // Explosiveness (10 points max)
+            total += calculateProAgilityScore(b.proagility || []);
+            total += calculateBroadJumpScore(b.broadjump || []);
+
+            // Scrimmage (15 points max averaged)
+            const scrimmage = b.scrimmage || {};
+            const scrimmgeDrills = ['chopstep', 'rounding', 'sliding', 'softballiq', 'aggressiveness'];
+            scrimmgeDrills.forEach(drill => {
+                total += calculateAverageScore(scrimmage, drill);
+            });
+
+            return Math.round(total * 10) / 10;
+        }
+
+        function calculateIntangiblesTotal(player) {
+            const intangibles = player.intangibles || {};
+            const drills = ['awareness', 'leadership', 'enthusiasm'];
+            let total = 0;
+            drills.forEach(drill => {
+                total += calculateAverageScore(intangibles, drill);
+            });
+            return total;
+        }
+
+        // ============================================
+        // ALL PLAYERS VIEW
+        // ============================================
+        function renderAllPlayers() {
+            const list = document.getElementById('playersList');
+
+            if (players.length === 0) {
+                list.innerHTML = '<p class="text-gray-500 text-center py-8">No players added yet. Use the Options menu to add players.</p>';
+                return;
+            }
+
+            const sortedPlayers = [...players].sort((a, b) => {
+                const totalA = calculateCatchingTotal(a) + calculateBaserunningTotal(a) + calculateIntangiblesTotal(a);
+                const totalB = calculateCatchingTotal(b) + calculateBaserunningTotal(b) + calculateIntangiblesTotal(b);
+                return totalB - totalA;
+            });
+
+            list.innerHTML = `
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-3 py-2 text-left">Rank</th>
+                                <th class="px-3 py-2 text-left">Name</th>
+                                <th class="px-3 py-2 text-center">#</th>
+                                <th class="px-3 py-2 text-center">Catching</th>
+                                <th class="px-3 py-2 text-center">Baserunning</th>
+                                <th class="px-3 py-2 text-center">Intangibles</th>
+                                <th class="px-3 py-2 text-center">Total</th>
+                                <th class="px-3 py-2 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${sortedPlayers.map((p, idx) => {
+                                const catching = calculateCatchingTotal(p);
+                                const baserunning = calculateBaserunningTotal(p);
+                                const intangibles = calculateIntangiblesTotal(p);
+                                const total = catching + baserunning + intangibles;
+                                return `
+                                    <tr class="border-b hover:bg-gray-50">
+                                        <td class="px-3 py-2 font-bold">${idx + 1}</td>
+                                        <td class="px-3 py-2">${p.name}</td>
+                                        <td class="px-3 py-2 text-center">${p.number || '-'}</td>
+                                        <td class="px-3 py-2 text-center">${catching}/30</td>
+                                        <td class="px-3 py-2 text-center">${baserunning}/35</td>
+                                        <td class="px-3 py-2 text-center">${intangibles.toFixed(1)}/15</td>
+                                        <td class="px-3 py-2 text-center font-bold">${total.toFixed(1)}/80</td>
+                                        <td class="px-3 py-2 text-center">
+                                            <button onclick="deletePlayer(${p.id})" class="text-red-600 hover:text-red-800">🗑️</button>
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        // ============================================
+        // GOOGLE SHEETS SYNC
+        // ============================================
+        async function uploadToSheets() {
+            if (GOOGLE_SCRIPT_URL.includes('YOUR_NEW')) {
+                alert('Please configure your Google Apps Script URL first.');
+                return;
+            }
+
+            if (isSyncing) return;
+            isSyncing = true;
+            showSaveStatus('⏳ Uploading to Google Sheets...');
+
+            try {
+                const formData = new FormData();
+                formData.append('data', JSON.stringify(players));
+
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    showSaveStatus('✓ Uploaded to Google Sheets!');
+                    alert(`Successfully uploaded ${players.length} player(s)!`);
+                } else {
+                    showSaveStatus('⚠️ Upload failed');
+                    alert('Upload failed: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                showSaveStatus('⚠️ Upload failed');
+                alert('Error uploading: ' + error.message);
+            } finally {
+                isSyncing = false;
+            }
+        }
+
+        async function autoUploadToSheets() {
+            if (GOOGLE_SCRIPT_URL.includes('YOUR_NEW') || isSyncing) return;
+
+            isSyncing = true;
+            showSaveStatus('⏳ Auto-syncing...');
+
+            try {
+                const formData = new FormData();
+                formData.append('data', JSON.stringify(players));
+
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                showSaveStatus(result.success ? '✓ Auto-synced' : '⚠️ Sync failed');
+            } catch (error) {
+                console.error('Auto-upload error:', error);
+                showSaveStatus('⚠️ Sync failed');
+            } finally {
+                isSyncing = false;
+            }
+        }
+
+        async function downloadFromSheets() {
+            if (GOOGLE_SCRIPT_URL.includes('YOUR_NEW')) {
+                alert('Please configure your Google Apps Script URL first.');
+                return;
+            }
+
+            if (isSyncing) return;
+            isSyncing = true;
+            showSaveStatus('⏳ Downloading...');
+
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL);
+                const data = await response.json();
+
+                if (Array.isArray(data) && data.length > 0) {
+                    if (confirm(`Found ${data.length} player(s). Replace local data?`)) {
+                        players = data;
+                        saveData();
+                        renderPlayerSelect();
+                        renderAllPlayers();
+                        renderScoringArea();
+                        showSaveStatus('✓ Downloaded!');
+                        alert(`Downloaded ${players.length} player(s)!`);
+                    }
+                } else {
+                    showSaveStatus('No data found');
+                    alert('No player data found in Google Sheets.');
+                }
+            } catch (error) {
+                console.error('Download error:', error);
+                showSaveStatus('⚠️ Download failed');
+                alert('Error downloading: ' + error.message);
+            } finally {
+                isSyncing = false;
+            }
+        }
+
+        async function autoDownloadFromSheets() {
+            if (GOOGLE_SCRIPT_URL.includes('YOUR_NEW')) {
+                loadData();
+                return;
+            }
+
+            try {
+                showSaveStatus('⏳ Loading from Sheets...');
+                const response = await fetch(GOOGLE_SCRIPT_URL);
+                const data = await response.json();
+
+                if (Array.isArray(data) && data.length > 0) {
+                    players = data;
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
+                    showSaveStatus('✓ Loaded from Sheets');
+                } else {
+                    loadData();
+                    showSaveStatus('Using local data');
+                }
+            } catch (error) {
+                console.error('Auto-download error:', error);
+                loadData();
+                showSaveStatus('⚠️ Using local data');
+            }
+        }
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        function showSaveStatus(message) {
+            const status = document.getElementById('saveStatus');
+            status.textContent = message;
+            setTimeout(() => {
+                status.textContent = '🔄 Auto-syncing with Google Sheets';
+            }, 3000);
+        }
+
+        function toggleSection(id) {
+            document.getElementById(id).classList.toggle('hidden');
+        }
+
+        function exportData() {
+            // Simple CSV export
+            let csv = 'Name,Number,Catching,Baserunning,Intangibles,Total\n';
+            players.forEach(p => {
+                const catching = calculateCatchingTotal(p);
+                const baserunning = calculateBaserunningTotal(p);
+                const intangibles = calculateIntangiblesTotal(p);
+                const total = catching + baserunning + intangibles;
+                csv += `"${p.name}","${p.number || ''}",${catching},${baserunning},${intangibles.toFixed(1)},${total.toFixed(1)}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'gc_softball_tryouts.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function clearAllData() {
+            if (confirm('Are you sure you want to delete ALL player data? This cannot be undone.')) {
+                players = [];
+                selectedPlayerId = null;
+                localStorage.removeItem(STORAGE_KEY);
+                renderPlayerSelect();
+                renderAllPlayers();
+                renderScoringArea();
+                showSaveStatus('Data cleared');
+            }
+        }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        window.addEventListener('DOMContentLoaded', () => {
+            checkSession();
+            selectCategory('catching');
+        });
+    </script>
+</body>
+</html>
