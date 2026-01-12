@@ -28,7 +28,7 @@ Click on any player's name to expand their scoring sections.
 
 | Metric | How to Score |
 |--------|--------------|
-| **Pop Time** | Enter the time in seconds for each of 2 attempts. The best time is automatically scored 1-5. |
+| **Pop Time** | Enter the time in seconds for each of 2 attempts. The **average** time is automatically scored 1-5. |
 | **Throw Accuracy** | Score each of 3 throws from 0-3 (0=miss, 3=perfect) |
 | **Blocking** | Score 0-3 |
 | **Footwork** | Score 0-3 |
@@ -38,19 +38,19 @@ Click on any player's name to expand their scoring sections.
 
 ### Baserunning (35 points max)
 
-**Timed Runs** (scored 1-5 based on time):
+**Timed Runs** (scored 1-5 based on **average** time):
 | Run | Attempts | Penalty Checkbox |
 |-----|----------|------------------|
-| **H→1B** | 2 | "Missed 1B" adds 0.5 seconds |
-| **2B→H** | 2 | "Missed 3B" adds 1 second |
+| **H→1B** | 2 | "Missed 1B" adds 0.5 seconds to that attempt |
+| **2B→H** | 2 | "Missed 3B" adds 1 second to that attempt |
 | **H→3B** | 1 | "No Stick" adds 1 second |
 | **H→H** | 1 | "Missed Base" adds 1 second |
 
 **Explosiveness:**
 | Metric | How to Enter |
 |--------|--------------|
-| **Pro Agility** | Enter time in seconds for 2 attempts |
-| **Broad Jump** | Enter feet and inches for 2 attempts |
+| **Pro Agility** | Enter time in seconds for 2 attempts (scored on **average**) |
+| **Broad Jump** | Enter feet and inches for 2 attempts (scored on **average**) |
 
 **Scrimmage Scores** (each coach enters their own 1-3 scores):
 - Chop Step
@@ -95,8 +95,8 @@ Each category (Catching, Baserunning, Intangibles) has a **Notes** section at th
 ## How Scoring Works
 
 ### Automatic Calculations
-- **Timed events** (Pop Time, runs, Pro Agility): The system takes the best time and converts it to a 1-5 score
-- **Broad Jump**: Best distance is converted to a 1-5 score
+- **Timed events** (Pop Time, runs, Pro Agility): The system **averages all attempts** and converts to a 1-5 score
+- **Broad Jump**: **Average** distance of attempts is converted to a 1-5 score
 - **Coach-averaged scores**: Scrimmage and Intangibles average all coaches' scores
 
 ### Score Thresholds

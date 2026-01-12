@@ -105,11 +105,11 @@ function updateReadableSheet(players) {
   const headers = [
     'Rank', 'Name', 'Jersey #',
     // Catching
-    'Pop Time Best', 'Pop Time Score', 'Throw Acc Total', 'Blocking', 'Footwork', 'Mobility', 'Expl-Throw', 'Expl-Bunt', 'Catching Total', 'Catching Notes',
+    'Pop Time Avg', 'Pop Time Score', 'Throw Acc Total', 'Blocking', 'Footwork', 'Mobility', 'Expl-Throw', 'Expl-Bunt', 'Catching Total', 'Catching Notes',
     // Baserunning Speed
-    'H→1B Best', 'H→1B Score', '2B→H Best', '2B→H Score', 'H→3B Adj', 'H→3B Score', 'H→H Adj', 'H→H Score',
+    'H→1B Avg', 'H→1B Score', '2B→H Avg', '2B→H Score', 'H→3B Adj', 'H→3B Score', 'H→H Adj', 'H→H Score',
     // Baserunning Explosiveness
-    'Pro Agility Best', 'Pro Agility Score', 'Broad Jump Best', 'Broad Jump Score',
+    'Pro Agility Avg', 'Pro Agility Score', 'Broad Jump Avg', 'Broad Jump Score',
     // Scrimmage (averaged)
     'Chop Step Avg', 'Rounding Avg', 'Sliding Avg', 'Softball IQ Avg', 'Aggressiveness Avg',
     'Baserunning Total', 'Baserunning Notes',
@@ -132,26 +132,26 @@ function updateReadableSheet(players) {
     const b = player.baserunning || {};
     const intang = player.intangibles || {};
 
-    // Catching calculations
-    const poptimeBest = getBestTime(c.poptime || []);
+    // Catching calculations - using averages
+    const poptimeAvg = getAverageTime(c.poptime || []);
     const poptimeScore = calculatePopTimeScore(c.poptime || []);
     const throwAccTotal = sumArray(c.throwaccuracy || []);
     const catchingTotal = poptimeScore + throwAccTotal + (c.blocking || 0) + (c.footwork || 0) + (c.mobility || 0) + (c.explosiveness_throwing || 0) + (c.explosiveness_bunts || 0);
 
-    // Baserunning speed calculations
-    const h1bBest = getAdjustedBestH1B(b.h1b || { times: [null, null], missed1b: [false, false] });
-    const h1bScore = calculateSpeedScore('h1b', h1bBest);
-    const tbhBest = getAdjustedBest2BH(b['2bh'] || { times: [null, null], missed3b: [false, false] });
-    const tbhScore = calculateSpeedScore('2bh', tbhBest);
+    // Baserunning speed calculations - using averages
+    const h1bAvg = getAdjustedAvgH1B(b.h1b || { times: [null, null], missed1b: [false, false] });
+    const h1bScore = calculateSpeedScore('h1b', h1bAvg);
+    const tbhAvg = getAdjustedAvg2BH(b['2bh'] || { times: [null, null], missed3b: [false, false] });
+    const tbhScore = calculateSpeedScore('2bh', tbhAvg);
     const h3bAdj = getAdjustedH3B(b.h3b || { time: null, nostick: false });
     const h3bScore = calculateSpeedScore('h3b', h3bAdj);
     const hhAdj = getAdjustedHH(b.hh || { time: null, missedbase: false });
     const hhScore = calculateSpeedScore('hh', hhAdj);
 
-    // Explosiveness
-    const proAgilityBest = getBestTime(b.proagility || []);
+    // Explosiveness - using averages
+    const proAgilityAvg = getAverageTime(b.proagility || []);
     const proAgilityScore = calculateProAgilityScore(b.proagility || []);
-    const broadJumpBest = getBestBroadJump(b.broadjump || []);
+    const broadJumpAvg = getAverageBroadJump(b.broadjump || []);
     const broadJumpScore = calculateBroadJumpScore(b.broadjump || []);
 
     // Scrimmage averages
@@ -181,7 +181,7 @@ function updateReadableSheet(players) {
       index + 1,
       player.name,
       player.number || '',
-      poptimeBest || '',
+      poptimeAvg || '',
       poptimeScore,
       throwAccTotal,
       c.blocking || '',
@@ -191,17 +191,17 @@ function updateReadableSheet(players) {
       c.explosiveness_bunts || '',
       catchingTotal,
       catchingNotes,
-      h1bBest || '',
+      h1bAvg || '',
       h1bScore,
-      tbhBest || '',
+      tbhAvg || '',
       tbhScore,
       h3bAdj || '',
       h3bScore,
       hhAdj || '',
       hhScore,
-      proAgilityBest || '',
+      proAgilityAvg || '',
       proAgilityScore,
-      broadJumpBest || '',
+      broadJumpAvg || '',
       broadJumpScore,
       chopstepAvg.toFixed(1),
       roundingAvg.toFixed(1),
@@ -244,6 +244,14 @@ function getBestTime(times) {
   const valid = times.filter(t => t !== null && !isNaN(t));
   if (valid.length === 0) return null;
   return Math.min(...valid).toFixed(2);
+}
+
+function getAverageTime(times) {
+  if (!times || !Array.isArray(times)) return null;
+  const valid = times.filter(t => t !== null && !isNaN(t));
+  if (valid.length === 0) return null;
+  const avg = valid.reduce((sum, t) => sum + t, 0) / valid.length;
+  return avg.toFixed(2);
 }
 
 function getBestDistance(distances) {
@@ -303,6 +311,30 @@ function getBroadJumpInFeet(jumps) {
   return best;
 }
 
+function getAverageBroadJumpInFeet(jumps) {
+  if (!jumps || !Array.isArray(jumps)) return null;
+  const valid = [];
+
+  jumps.forEach(function(jump) {
+    if (jump && typeof jump === 'object' && jump.feet !== null && jump.feet !== undefined) {
+      valid.push(jump.feet + ((jump.inches || 0) / 12));
+    } else if (typeof jump === 'number') {
+      valid.push(jump);
+    }
+  });
+
+  if (valid.length === 0) return null;
+  return valid.reduce((sum, v) => sum + v, 0) / valid.length;
+}
+
+function getAverageBroadJump(jumps) {
+  const avgFeet = getAverageBroadJumpInFeet(jumps);
+  if (avgFeet === null) return null;
+  const feet = Math.floor(avgFeet);
+  const inches = Math.round((avgFeet - feet) * 12);
+  return feet + "' " + inches + '"';
+}
+
 function sumArray(arr) {
   if (!arr || !Array.isArray(arr)) return 0;
   return arr.filter(v => v !== null && !isNaN(v)).reduce((sum, v) => sum + parseInt(v), 0);
@@ -320,6 +352,19 @@ function getAdjustedBestH1B(data) {
   return best ? best.toFixed(2) : null;
 }
 
+function getAdjustedAvgH1B(data) {
+  if (!data || !data.times) return null;
+  const adjusted = [];
+  for (let i = 0; i < 2; i++) {
+    if (data.times[i] !== null && data.times[i] !== undefined) {
+      adjusted.push(parseFloat(data.times[i]) + (data.missed1b && data.missed1b[i] ? 0.5 : 0));
+    }
+  }
+  if (adjusted.length === 0) return null;
+  const avg = adjusted.reduce((sum, t) => sum + t, 0) / adjusted.length;
+  return avg.toFixed(2);
+}
+
 function getAdjustedBest2BH(data) {
   if (!data || !data.times) return null;
   let best = null;
@@ -330,6 +375,19 @@ function getAdjustedBest2BH(data) {
     }
   }
   return best ? best.toFixed(2) : null;
+}
+
+function getAdjustedAvg2BH(data) {
+  if (!data || !data.times) return null;
+  const adjusted = [];
+  for (let i = 0; i < 2; i++) {
+    if (data.times[i] !== null && data.times[i] !== undefined) {
+      adjusted.push(parseFloat(data.times[i]) + (data.missed3b && data.missed3b[i] ? 1 : 0));
+    }
+  }
+  if (adjusted.length === 0) return null;
+  const avg = adjusted.reduce((sum, t) => sum + t, 0) / adjusted.length;
+  return avg.toFixed(2);
 }
 
 function getAdjustedH3B(data) {
@@ -365,15 +423,15 @@ function calculateSpeedScore(drill, time) {
 }
 
 function calculatePopTimeScore(times) {
-  const best = getBestTime(times);
-  if (!best) return 0;
-  return calculateSpeedScore('poptime', best);
+  const avg = getAverageTime(times);
+  if (!avg) return 0;
+  return calculateSpeedScore('poptime', avg);
 }
 
 function calculateProAgilityScore(times) {
-  const best = getBestTime(times);
-  if (!best) return 0;
-  const t = parseFloat(best);
+  const avg = getAverageTime(times);
+  if (!avg) return 0;
+  const t = parseFloat(avg);
   if (t < 4.3) return 5;
   if (t <= 4.6) return 4;
   if (t <= 5.0) return 3;
@@ -382,9 +440,9 @@ function calculateProAgilityScore(times) {
 }
 
 function calculateBroadJumpScore(jumps) {
-  const best = getBroadJumpInFeet(jumps);
-  if (!best) return 0;
-  const d = best;
+  const avg = getAverageBroadJumpInFeet(jumps);
+  if (!avg) return 0;
+  const d = avg;
   if (d < 4) return 1;
   if (d < 5) return 2;
   if (d < 6) return 3;
@@ -414,9 +472,9 @@ function getGrandTotal(player) {
   const throwAccTotal = sumArray(c.throwaccuracy || []);
   const catchingTotal = poptimeScore + throwAccTotal + (c.blocking || 0) + (c.footwork || 0) + (c.mobility || 0) + (c.explosiveness_throwing || 0) + (c.explosiveness_bunts || 0);
 
-  // Baserunning
-  const h1bScore = calculateSpeedScore('h1b', getAdjustedBestH1B(b.h1b || { times: [null, null], missed1b: [false, false] }));
-  const tbhScore = calculateSpeedScore('2bh', getAdjustedBest2BH(b['2bh'] || { times: [null, null], missed3b: [false, false] }));
+  // Baserunning - using averages for multi-attempt drills
+  const h1bScore = calculateSpeedScore('h1b', getAdjustedAvgH1B(b.h1b || { times: [null, null], missed1b: [false, false] }));
+  const tbhScore = calculateSpeedScore('2bh', getAdjustedAvg2BH(b['2bh'] || { times: [null, null], missed3b: [false, false] }));
   const h3bScore = calculateSpeedScore('h3b', getAdjustedH3B(b.h3b || { time: null, nostick: false }));
   const hhScore = calculateSpeedScore('hh', getAdjustedHH(b.hh || { time: null, missedbase: false }));
   const proAgilityScore = calculateProAgilityScore(b.proagility || []);

@@ -498,7 +498,7 @@
                         </div>
                         <div class="mt-2 text-sm text-gray-600">
                             Score: <span class="font-bold">${calculatePopTimeScore(c.poptime)}</span>/5
-                            (Best: ${getBestTime(c.poptime) || 'N/A'}s)
+                            (Avg: ${getAverageTime(c.poptime) || 'N/A'}s)
                         </div>
                     </div>
 
@@ -616,8 +616,8 @@
                                 `).join('')}
                             </div>
                             <div class="mt-2 text-sm">
-                                Adjusted Best: <strong>${getAdjustedBestH1B(b.h1b)}s</strong> |
-                                Score: <strong>${calculateSpeedScore('h1b', getAdjustedBestH1B(b.h1b))}</strong>/5
+                                Adjusted Avg: <strong>${getAdjustedAvgH1B(b.h1b)}s</strong> |
+                                Score: <strong>${calculateSpeedScore('h1b', getAdjustedAvgH1B(b.h1b))}</strong>/5
                             </div>
                         </div>
 
@@ -640,8 +640,8 @@
                                 `).join('')}
                             </div>
                             <div class="mt-2 text-sm">
-                                Adjusted Best: <strong>${getAdjustedBest2BH(b['2bh'])}s</strong> |
-                                Score: <strong>${calculateSpeedScore('2bh', getAdjustedBest2BH(b['2bh']))}</strong>/5
+                                Adjusted Avg: <strong>${getAdjustedAvg2BH(b['2bh'])}s</strong> |
+                                Score: <strong>${calculateSpeedScore('2bh', getAdjustedAvg2BH(b['2bh']))}</strong>/5
                             </div>
                         </div>
 
@@ -709,7 +709,7 @@
                                 `).join('')}
                             </div>
                             <div class="mt-2 text-sm">
-                                Best: <strong>${getBestTime(b.proagility) || 'N/A'}s</strong> |
+                                Avg: <strong>${getAverageTime(b.proagility) || 'N/A'}s</strong> |
                                 Score: <strong>${calculateProAgilityScore(b.proagility)}</strong>/5
                             </div>
                         </div>
@@ -735,7 +735,7 @@
                                 `}).join('')}
                             </div>
                             <div class="mt-2 text-sm">
-                                Best: <strong>${getBestBroadJump(b.broadjump) || 'N/A'}</strong> |
+                                Avg: <strong>${getAverageBroadJump(b.broadjump) || 'N/A'}</strong> |
                                 Score: <strong>${calculateBroadJumpScore(b.broadjump)}</strong>/5
                             </div>
                         </div>
@@ -1073,6 +1073,13 @@
             return Math.min(...valid).toFixed(2);
         }
 
+        function getAverageTime(times) {
+            const valid = times.filter(t => t !== null && !isNaN(t));
+            if (valid.length === 0) return null;
+            const avg = valid.reduce((sum, t) => sum + t, 0) / valid.length;
+            return avg.toFixed(2);
+        }
+
         function getBestDistance(distances) {
             const valid = distances.filter(d => d !== null && !isNaN(d));
             if (valid.length === 0) return null;
@@ -1090,6 +1097,18 @@
             return best ? best.toFixed(2) : 'N/A';
         }
 
+        function getAdjustedAvgH1B(data) {
+            const adjusted = [];
+            for (let i = 0; i < 2; i++) {
+                if (data.times[i] !== null) {
+                    adjusted.push(data.times[i] + (data.missed1b[i] ? 0.5 : 0));
+                }
+            }
+            if (adjusted.length === 0) return 'N/A';
+            const avg = adjusted.reduce((sum, t) => sum + t, 0) / adjusted.length;
+            return avg.toFixed(2);
+        }
+
         function getAdjustedBest2BH(data) {
             let best = null;
             for (let i = 0; i < 2; i++) {
@@ -1099,6 +1118,18 @@
                 }
             }
             return best ? best.toFixed(2) : 'N/A';
+        }
+
+        function getAdjustedAvg2BH(data) {
+            const adjusted = [];
+            for (let i = 0; i < 2; i++) {
+                if (data.times[i] !== null) {
+                    adjusted.push(data.times[i] + (data.missed3b[i] ? 1 : 0));
+                }
+            }
+            if (adjusted.length === 0) return 'N/A';
+            const avg = adjusted.reduce((sum, t) => sum + t, 0) / adjusted.length;
+            return avg.toFixed(2);
         }
 
         function getAdjustedH3B(data) {
@@ -1125,15 +1156,15 @@
         }
 
         function calculatePopTimeScore(times) {
-            const best = getBestTime(times);
-            if (!best) return 0;
-            return calculateSpeedScore('poptime', best);
+            const avg = getAverageTime(times);
+            if (!avg) return 0;
+            return calculateSpeedScore('poptime', avg);
         }
 
         function calculateProAgilityScore(times) {
-            const best = getBestTime(times);
-            if (!best) return 0;
-            const t = parseFloat(best);
+            const avg = getAverageTime(times);
+            if (!avg) return 0;
+            const t = parseFloat(avg);
             if (t < 4.3) return 5;
             if (t <= 4.6) return 4;
             if (t <= 5.0) return 3;
@@ -1191,10 +1222,34 @@
             return best;
         }
 
+        function getAverageBroadJumpInFeet(jumps) {
+            if (!jumps || !Array.isArray(jumps)) return null;
+            const valid = [];
+
+            jumps.forEach(jump => {
+                if (jump && typeof jump === 'object' && jump.feet !== null) {
+                    valid.push(jump.feet + ((jump.inches || 0) / 12));
+                } else if (typeof jump === 'number') {
+                    valid.push(jump);
+                }
+            });
+
+            if (valid.length === 0) return null;
+            return valid.reduce((sum, v) => sum + v, 0) / valid.length;
+        }
+
+        function getAverageBroadJump(jumps) {
+            const avgFeet = getAverageBroadJumpInFeet(jumps);
+            if (avgFeet === null) return null;
+            const feet = Math.floor(avgFeet);
+            const inches = Math.round((avgFeet - feet) * 12);
+            return `${feet}' ${inches}"`;
+        }
+
         function calculateBroadJumpScore(jumps) {
-            const best = getBroadJumpInFeet(jumps);
-            if (!best) return 0;
-            const d = best;
+            const avg = getAverageBroadJumpInFeet(jumps);
+            if (!avg) return 0;
+            const d = avg;
             const config = scoringConfig.broadjump;
             if (d < config.t1) return 1;
             if (d < config.t2) return 2;
@@ -1243,9 +1298,9 @@
             const b = player.baserunning || {};
             let total = 0;
 
-            // Speed metrics (20 points max)
-            total += calculateSpeedScore('h1b', getAdjustedBestH1B(b.h1b || { times: [null, null], missed1b: [false, false] }));
-            total += calculateSpeedScore('2bh', getAdjustedBest2BH(b['2bh'] || { times: [null, null], missed3b: [false, false] }));
+            // Speed metrics (20 points max) - using averages
+            total += calculateSpeedScore('h1b', getAdjustedAvgH1B(b.h1b || { times: [null, null], missed1b: [false, false] }));
+            total += calculateSpeedScore('2bh', getAdjustedAvg2BH(b['2bh'] || { times: [null, null], missed3b: [false, false] }));
             total += calculateSpeedScore('h3b', getAdjustedH3B(b.h3b || { time: null, nostick: false }));
             total += calculateSpeedScore('hh', getAdjustedHH(b.hh || { time: null, missedbase: false }));
 
@@ -1372,7 +1427,7 @@
                     <div class="mb-4">
                         <h4 class="font-semibold text-purple-700 border-b border-purple-200 pb-1 mb-2">Catching Details</h4>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-                            <div><span class="text-gray-500">Pop Time:</span> ${getBestTime(c.poptime || []) || 'N/A'}s (${calculatePopTimeScore(c.poptime || [])}/5)</div>
+                            <div><span class="text-gray-500">Pop Time (Avg):</span> ${getAverageTime(c.poptime || []) || 'N/A'}s (${calculatePopTimeScore(c.poptime || [])}/5)</div>
                             <div><span class="text-gray-500">Throw Accuracy:</span> ${sumScores(c.throwaccuracy || [])}/9</div>
                             <div><span class="text-gray-500">Blocking:</span> ${c.blocking ?? 'N/A'}/3</div>
                             <div><span class="text-gray-500">Footwork:</span> ${c.footwork ?? 'N/A'}/3</div>
@@ -1392,12 +1447,12 @@
                     <div class="mb-4">
                         <h4 class="font-semibold text-blue-700 border-b border-blue-200 pb-1 mb-2">Baserunning Details</h4>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-                            <div><span class="text-gray-500">H→1B:</span> ${getAdjustedBestH1B(b.h1b || { times: [null, null], missed1b: [false, false] }) || 'N/A'}s (${calculateSpeedScore('h1b', getAdjustedBestH1B(b.h1b || { times: [null, null], missed1b: [false, false] }))}/5)</div>
-                            <div><span class="text-gray-500">2B→H:</span> ${getAdjustedBest2BH(b['2bh'] || { times: [null, null], missed3b: [false, false] }) || 'N/A'}s (${calculateSpeedScore('2bh', getAdjustedBest2BH(b['2bh'] || { times: [null, null], missed3b: [false, false] }))}/5)</div>
+                            <div><span class="text-gray-500">H→1B (Avg):</span> ${getAdjustedAvgH1B(b.h1b || { times: [null, null], missed1b: [false, false] }) || 'N/A'}s (${calculateSpeedScore('h1b', getAdjustedAvgH1B(b.h1b || { times: [null, null], missed1b: [false, false] }))}/5)</div>
+                            <div><span class="text-gray-500">2B→H (Avg):</span> ${getAdjustedAvg2BH(b['2bh'] || { times: [null, null], missed3b: [false, false] }) || 'N/A'}s (${calculateSpeedScore('2bh', getAdjustedAvg2BH(b['2bh'] || { times: [null, null], missed3b: [false, false] }))}/5)</div>
                             <div><span class="text-gray-500">H→3B:</span> ${getAdjustedH3B(b.h3b || { time: null, nostick: false }) || 'N/A'}s (${calculateSpeedScore('h3b', getAdjustedH3B(b.h3b || { time: null, nostick: false }))}/5)</div>
                             <div><span class="text-gray-500">H→H:</span> ${getAdjustedHH(b.hh || { time: null, missedbase: false }) || 'N/A'}s (${calculateSpeedScore('hh', getAdjustedHH(b.hh || { time: null, missedbase: false }))}/5)</div>
-                            <div><span class="text-gray-500">Pro Agility:</span> ${getBestTime(b.proagility || []) || 'N/A'}s (${calculateProAgilityScore(b.proagility || [])}/5)</div>
-                            <div><span class="text-gray-500">Broad Jump:</span> ${getBestBroadJump(b.broadjump || []) || 'N/A'} (${calculateBroadJumpScore(b.broadjump || [])}/5)</div>
+                            <div><span class="text-gray-500">Pro Agility (Avg):</span> ${getAverageTime(b.proagility || []) || 'N/A'}s (${calculateProAgilityScore(b.proagility || [])}/5)</div>
+                            <div><span class="text-gray-500">Broad Jump (Avg):</span> ${getAverageBroadJump(b.broadjump || []) || 'N/A'} (${calculateBroadJumpScore(b.broadjump || [])}/5)</div>
                         </div>
                         <div class="mt-2 text-sm">
                             <span class="text-gray-500">Scrimmage Scores (Avg):</span>
