@@ -93,6 +93,9 @@
                         <button onclick="exportData()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                             ⬇️ Export CSV
                         </button>
+                        <button onclick="showReportModal()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                            📊 Generate Reports
+                        </button>
                         <button onclick="clearAllData()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
                             🗑️ Clear All Data
                         </button>
@@ -149,11 +152,40 @@
         </div>
     </div>
 
+    <!-- Report Modal -->
+    <div id="reportModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 overflow-y-auto">
+        <div class="min-h-screen px-4 py-8 flex items-start justify-center">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+                <div class="p-4 border-b flex justify-between items-center bg-indigo-600 text-white">
+                    <h2 class="text-xl font-semibold">📊 Player Summary Reports</h2>
+                    <button onclick="closeReportModal()" class="text-white hover:text-gray-200 text-2xl">&times;</button>
+                </div>
+                <div class="p-4 border-b bg-gray-50">
+                    <div class="flex gap-4 items-center flex-wrap">
+                        <label class="font-medium">Select Player:</label>
+                        <select id="reportPlayerSelect" onchange="generateReport()" class="px-4 py-2 border rounded-lg">
+                            <option value="">-- Choose a player --</option>
+                        </select>
+                        <button onclick="generateAllReports()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                            Generate All Players Report
+                        </button>
+                        <button onclick="exportCurrentReport()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            📥 Export Report
+                        </button>
+                    </div>
+                </div>
+                <div id="reportContent" class="p-6 overflow-y-auto flex-1">
+                    <p class="text-gray-500 text-center">Select a player to generate their summary report</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ============================================
         // CONFIGURATION
         // ============================================
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz_sZ8DH0DU6idcOSUdwxsQQDfSeIQU4xEIlYI7EhkLpsQrQuIu1sNn0ZOvkvtnsXBn/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby11FpK28EyjhpG5iVy1KNZ91Qj9xt1B_fu2njse1yyTtxS9tVIe9BDzURzCpBQMfg6/exec';
         const STORAGE_KEY = 'gc_softball_tryouts_2026';
         const APP_PASSWORD = 'nick2026';
         const VALID_USERS = ['nick', 'bob', 'sophia', 'amy', 'bill', 'gabby', 'guest'];
@@ -323,7 +355,8 @@
                 footwork: null,
                 mobility: null,
                 explosiveness_throwing: null,
-                explosiveness_bunts: null
+                explosiveness_bunts: null,
+                notes: []  // Array of { coach: string, text: string, timestamp: string }
             };
         }
 
@@ -338,12 +371,15 @@
                 proagility: [null, null],
                 broadjump: [{ feet: null, inches: null }, { feet: null, inches: null }],
                 // Scrimmage scores (by coach)
-                scrimmage: {}
+                scrimmage: {},
+                notes: []  // Array of { coach: string, text: string, timestamp: string }
             };
         }
 
         function createIntangiblesData() {
-            return {};  // Will store scores by coach: { nick: { awareness: 3, leadership: 4, enthusiasm: 5 }, ... }
+            return {
+                notes: []  // Array of { coach: string, text: string, timestamp: string }
+            };
         }
 
         function deletePlayer(id) {
@@ -499,6 +535,9 @@
                     <div class="mt-4 p-3 bg-green-100 rounded-lg">
                         <strong>Catching Total:</strong> ${calculateCatchingTotal(player)}/30
                     </div>
+
+                    <!-- Notes Section -->
+                    ${renderNotesSection(player, 'catching')}
                 </div>
             `;
         }
@@ -713,6 +752,9 @@
                     <div class="mt-4 p-3 bg-green-100 rounded-lg">
                         <strong>Baserunning Total:</strong> ${calculateBaserunningTotal(player)}/35
                     </div>
+
+                    <!-- Notes Section -->
+                    ${renderNotesSection(player, 'baserunning')}
                 </div>
             `;
         }
@@ -795,8 +837,129 @@
                     <div class="mt-4 p-3 bg-green-100 rounded-lg">
                         <strong>Intangibles Average Total:</strong> ${calculateIntangiblesTotal(player).toFixed(1)}/15
                     </div>
+
+                    <!-- Notes Section -->
+                    ${renderNotesSection(player, 'intangibles')}
                 </div>
             `;
+        }
+
+        // ============================================
+        // NOTES SECTION
+        // ============================================
+        function renderNotesSection(player, category) {
+            let notes = [];
+            if (category === 'catching' && player.catching) {
+                notes = player.catching.notes || [];
+            } else if (category === 'baserunning' && player.baserunning) {
+                notes = player.baserunning.notes || [];
+            } else if (category === 'intangibles') {
+                // For intangibles, notes are stored directly in the intangibles object
+                notes = player.intangibles?.notes || [];
+            }
+
+            const categoryColors = {
+                catching: 'purple',
+                baserunning: 'blue',
+                intangibles: 'yellow'
+            };
+            const color = categoryColors[category] || 'gray';
+
+            return `
+                <div class="mt-6 p-4 bg-${color}-50 rounded-lg border border-${color}-200">
+                    <h3 class="font-semibold mb-3 flex items-center gap-2">
+                        📝 Coach Notes
+                    </h3>
+
+                    <!-- Existing Notes -->
+                    <div class="space-y-2 mb-4 max-h-48 overflow-y-auto">
+                        ${notes.length === 0 ?
+                            '<p class="text-gray-500 text-sm italic">No notes yet</p>' :
+                            notes.map((note, idx) => `
+                                <div class="bg-white p-3 rounded-lg border text-sm">
+                                    <div class="flex justify-between items-start">
+                                        <div class="flex-1">
+                                            <span class="font-medium text-${color}-700">${note.coach}:</span>
+                                            <span class="text-gray-700">${note.text}</span>
+                                        </div>
+                                        ${note.coach === currentUser ? `
+                                            <button onclick="deleteNote(${player.id}, '${category}', ${idx})"
+                                                class="text-red-500 hover:text-red-700 ml-2 text-xs">✕</button>
+                                        ` : ''}
+                                    </div>
+                                    <div class="text-xs text-gray-400 mt-1">${note.timestamp}</div>
+                                </div>
+                            `).join('')
+                        }
+                    </div>
+
+                    <!-- Add Note Form -->
+                    <div class="flex gap-2">
+                        <input type="text" id="note-${category}-${player.id}"
+                            placeholder="Add a note..."
+                            class="flex-1 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-${color}-500"
+                            onkeypress="if(event.key==='Enter') addNote(${player.id}, '${category}')">
+                        <button onclick="addNote(${player.id}, '${category}')"
+                            class="px-4 py-2 bg-${color}-600 text-white rounded-lg hover:bg-${color}-700 text-sm">
+                            Add Note
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function addNote(playerId, category) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+
+            const input = document.getElementById(`note-${category}-${playerId}`);
+            const text = input.value.trim();
+            if (!text) return;
+
+            const note = {
+                coach: currentUser,
+                text: text,
+                timestamp: new Date().toLocaleString()
+            };
+
+            // Initialize data structures if needed
+            if (category === 'catching') {
+                if (!player.catching) player.catching = createCatchingData();
+                if (!player.catching.notes) player.catching.notes = [];
+                player.catching.notes.push(note);
+            } else if (category === 'baserunning') {
+                if (!player.baserunning) player.baserunning = createBaserunningData();
+                if (!player.baserunning.notes) player.baserunning.notes = [];
+                player.baserunning.notes.push(note);
+            } else if (category === 'intangibles') {
+                if (!player.intangibles) player.intangibles = createIntangiblesData();
+                if (!player.intangibles.notes) player.intangibles.notes = [];
+                player.intangibles.notes.push(note);
+            }
+
+            input.value = '';
+            saveData();
+            renderScoringArea();
+        }
+
+        function deleteNote(playerId, category, noteIndex) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+
+            let notes;
+            if (category === 'catching' && player.catching) {
+                notes = player.catching.notes;
+            } else if (category === 'baserunning' && player.baserunning) {
+                notes = player.baserunning.notes;
+            } else if (category === 'intangibles' && player.intangibles) {
+                notes = player.intangibles.notes;
+            }
+
+            if (notes && notes[noteIndex] && notes[noteIndex].coach === currentUser) {
+                notes.splice(noteIndex, 1);
+                saveData();
+                renderScoringArea();
+            }
         }
 
         // ============================================
@@ -1108,6 +1271,217 @@
                 total += calculateAverageScore(intangibles, drill);
             });
             return total;
+        }
+
+        // ============================================
+        // REPORT GENERATION
+        // ============================================
+        function showReportModal() {
+            const modal = document.getElementById('reportModal');
+            const select = document.getElementById('reportPlayerSelect');
+
+            // Populate player dropdown
+            select.innerHTML = '<option value="">-- Choose a player --</option>' +
+                players.map(p => `<option value="${p.id}">${p.name} (#${p.number || 'N/A'})</option>`).join('');
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeReportModal() {
+            document.getElementById('reportModal').classList.add('hidden');
+        }
+
+        function generateReport() {
+            const playerId = parseInt(document.getElementById('reportPlayerSelect').value);
+            if (!playerId) {
+                document.getElementById('reportContent').innerHTML =
+                    '<p class="text-gray-500 text-center">Select a player to generate their summary report</p>';
+                return;
+            }
+
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+
+            document.getElementById('reportContent').innerHTML = generatePlayerReportHTML(player);
+        }
+
+        function generateAllReports() {
+            if (players.length === 0) {
+                document.getElementById('reportContent').innerHTML =
+                    '<p class="text-gray-500 text-center">No players to generate reports for</p>';
+                return;
+            }
+
+            const sortedPlayers = [...players].sort((a, b) => {
+                const totalA = calculateCatchingTotal(a) + calculateBaserunningTotal(a) + calculateIntangiblesTotal(a);
+                const totalB = calculateCatchingTotal(b) + calculateBaserunningTotal(b) + calculateIntangiblesTotal(b);
+                return totalB - totalA;
+            });
+
+            document.getElementById('reportContent').innerHTML = sortedPlayers.map((player, idx) =>
+                `<div class="mb-8 ${idx > 0 ? 'border-t-4 border-gray-300 pt-8' : ''}">${generatePlayerReportHTML(player, idx + 1)}</div>`
+            ).join('');
+        }
+
+        function generatePlayerReportHTML(player, rank = null) {
+            const c = player.catching || {};
+            const b = player.baserunning || {};
+            const intang = player.intangibles || {};
+
+            const catchingTotal = calculateCatchingTotal(player);
+            const baserunningTotal = calculateBaserunningTotal(player);
+            const intangiblesTotal = calculateIntangiblesTotal(player);
+            const grandTotal = catchingTotal + baserunningTotal + intangiblesTotal;
+
+            // Get all notes
+            const catchingNotes = c.notes || [];
+            const baserunningNotes = b.notes || [];
+            const intangiblesNotes = intang.notes || [];
+
+            return `
+                <div class="report-player border-2 border-gray-200 rounded-lg p-6 bg-white print:break-inside-avoid">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-800">${player.name}</h3>
+                            <p class="text-gray-600">Jersey #${player.number || 'N/A'}</p>
+                        </div>
+                        <div class="text-right">
+                            ${rank ? `<div class="text-lg font-semibold text-indigo-600">Rank #${rank}</div>` : ''}
+                            <div class="text-3xl font-bold text-green-600">${grandTotal.toFixed(1)}</div>
+                            <div class="text-sm text-gray-500">Total Points</div>
+                        </div>
+                    </div>
+
+                    <!-- Score Summary Bar -->
+                    <div class="grid grid-cols-3 gap-4 mb-6">
+                        <div class="bg-purple-100 p-3 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-purple-700">${catchingTotal}</div>
+                            <div class="text-sm text-purple-600">Catching</div>
+                        </div>
+                        <div class="bg-blue-100 p-3 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-blue-700">${baserunningTotal.toFixed(1)}</div>
+                            <div class="text-sm text-blue-600">Baserunning</div>
+                        </div>
+                        <div class="bg-yellow-100 p-3 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-yellow-700">${intangiblesTotal.toFixed(1)}</div>
+                            <div class="text-sm text-yellow-600">Intangibles</div>
+                        </div>
+                    </div>
+
+                    <!-- Catching Details -->
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-purple-700 border-b border-purple-200 pb-1 mb-2">Catching Details</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                            <div><span class="text-gray-500">Pop Time:</span> ${getBestTime(c.poptime) || 'N/A'}s (${calculatePopTimeScore(c.poptime)}/5)</div>
+                            <div><span class="text-gray-500">Throw Accuracy:</span> ${sumScores(c.throwaccuracy)}/9</div>
+                            <div><span class="text-gray-500">Blocking:</span> ${c.blocking ?? 'N/A'}/3</div>
+                            <div><span class="text-gray-500">Footwork:</span> ${c.footwork ?? 'N/A'}/3</div>
+                            <div><span class="text-gray-500">Mobility:</span> ${c.mobility ?? 'N/A'}/3</div>
+                            <div><span class="text-gray-500">Expl. Throwing:</span> ${c.explosiveness_throwing ?? 'N/A'}/3</div>
+                            <div><span class="text-gray-500">Expl. Bunts:</span> ${c.explosiveness_bunts ?? 'N/A'}/3</div>
+                        </div>
+                        ${catchingNotes.length > 0 ? `
+                            <div class="mt-2 p-2 bg-purple-50 rounded text-sm">
+                                <strong>Notes:</strong>
+                                ${catchingNotes.map(n => `<div class="ml-2"><em>${n.coach}:</em> ${n.text}</div>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- Baserunning Details -->
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-blue-700 border-b border-blue-200 pb-1 mb-2">Baserunning Details</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                            <div><span class="text-gray-500">H→1B:</span> ${getAdjustedBestH1B(b.h1b) || 'N/A'}s (${calculateSpeedScore('h1b', getAdjustedBestH1B(b.h1b))}/5)</div>
+                            <div><span class="text-gray-500">2B→H:</span> ${getAdjustedBest2BH(b['2bh']) || 'N/A'}s (${calculateSpeedScore('2bh', getAdjustedBest2BH(b['2bh']))}/5)</div>
+                            <div><span class="text-gray-500">H→3B:</span> ${getAdjustedH3B(b.h3b) || 'N/A'}s (${calculateSpeedScore('h3b', getAdjustedH3B(b.h3b))}/5)</div>
+                            <div><span class="text-gray-500">H→H:</span> ${getAdjustedHH(b.hh) || 'N/A'}s (${calculateSpeedScore('hh', getAdjustedHH(b.hh))}/5)</div>
+                            <div><span class="text-gray-500">Pro Agility:</span> ${getBestTime(b.proagility) || 'N/A'}s (${calculateProAgilityScore(b.proagility)}/5)</div>
+                            <div><span class="text-gray-500">Broad Jump:</span> ${getBestBroadJump(b.broadjump) || 'N/A'} (${calculateBroadJumpScore(b.broadjump)}/5)</div>
+                        </div>
+                        <div class="mt-2 text-sm">
+                            <span class="text-gray-500">Scrimmage Scores (Avg):</span>
+                            Chop Step: ${calculateAverageScore(b.scrimmage || {}, 'chopstep').toFixed(1)} |
+                            Rounding: ${calculateAverageScore(b.scrimmage || {}, 'rounding').toFixed(1)} |
+                            Sliding: ${calculateAverageScore(b.scrimmage || {}, 'sliding').toFixed(1)} |
+                            IQ: ${calculateAverageScore(b.scrimmage || {}, 'softballiq').toFixed(1)} |
+                            Aggression: ${calculateAverageScore(b.scrimmage || {}, 'aggressiveness').toFixed(1)}
+                        </div>
+                        ${baserunningNotes.length > 0 ? `
+                            <div class="mt-2 p-2 bg-blue-50 rounded text-sm">
+                                <strong>Notes:</strong>
+                                ${baserunningNotes.map(n => `<div class="ml-2"><em>${n.coach}:</em> ${n.text}</div>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- Intangibles Details -->
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-yellow-700 border-b border-yellow-200 pb-1 mb-2">Intangibles Details</h4>
+                        <div class="grid grid-cols-3 gap-2 text-sm">
+                            <div><span class="text-gray-500">Awareness:</span> ${calculateAverageScore(intang, 'awareness').toFixed(1)}/5</div>
+                            <div><span class="text-gray-500">Leadership:</span> ${calculateAverageScore(intang, 'leadership').toFixed(1)}/5</div>
+                            <div><span class="text-gray-500">Enthusiasm:</span> ${calculateAverageScore(intang, 'enthusiasm').toFixed(1)}/5</div>
+                        </div>
+                        ${intangiblesNotes.length > 0 ? `
+                            <div class="mt-2 p-2 bg-yellow-50 rounded text-sm">
+                                <strong>Notes:</strong>
+                                ${intangiblesNotes.map(n => `<div class="ml-2"><em>${n.coach}:</em> ${n.text}</div>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="text-xs text-gray-400 text-right mt-4">
+                        Report generated: ${new Date().toLocaleString()}
+                    </div>
+                </div>
+            `;
+        }
+
+        function exportCurrentReport() {
+            const reportContent = document.getElementById('reportContent').innerHTML;
+            if (!reportContent || reportContent.includes('Select a player')) {
+                alert('Please generate a report first');
+                return;
+            }
+
+            const html = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>GC Softball Tryouts Report</title>
+    <script src="https://cdn.tailwindcss.com"><\/script>
+    <style>
+        @media print {
+            .report-player { page-break-inside: avoid; }
+        }
+        body { font-family: system-ui, -apple-system, sans-serif; }
+    </style>
+</head>
+<body class="p-8 bg-gray-100">
+    <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">GC Softball Tryouts 2026</h1>
+            <p class="text-gray-600">Player Summary Report</p>
+            <p class="text-sm text-gray-500">Generated: ${new Date().toLocaleString()}</p>
+        </div>
+        <div class="space-y-6">
+            ${reportContent}
+        </div>
+    </div>
+</body>
+</html>`;
+
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `GC_Tryouts_Report_${new Date().toISOString().split('T')[0]}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
 
         // ============================================

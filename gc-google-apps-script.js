@@ -105,16 +105,16 @@ function updateReadableSheet(players) {
   const headers = [
     'Rank', 'Name', 'Jersey #',
     // Catching
-    'Pop Time Best', 'Pop Time Score', 'Throw Acc Total', 'Blocking', 'Footwork', 'Mobility', 'Expl-Throw', 'Expl-Bunt', 'Catching Total',
+    'Pop Time Best', 'Pop Time Score', 'Throw Acc Total', 'Blocking', 'Footwork', 'Mobility', 'Expl-Throw', 'Expl-Bunt', 'Catching Total', 'Catching Notes',
     // Baserunning Speed
     'H→1B Best', 'H→1B Score', '2B→H Best', '2B→H Score', 'H→3B Adj', 'H→3B Score', 'H→H Adj', 'H→H Score',
     // Baserunning Explosiveness
     'Pro Agility Best', 'Pro Agility Score', 'Broad Jump Best', 'Broad Jump Score',
     // Scrimmage (averaged)
     'Chop Step Avg', 'Rounding Avg', 'Sliding Avg', 'Softball IQ Avg', 'Aggressiveness Avg',
-    'Baserunning Total',
+    'Baserunning Total', 'Baserunning Notes',
     // Intangibles (averaged)
-    'Awareness Avg', 'Leadership Avg', 'Enthusiasm Avg', 'Intangibles Total',
+    'Awareness Avg', 'Leadership Avg', 'Enthusiasm Avg', 'Intangibles Total', 'Intangibles Notes',
     // Grand Total
     'GRAND TOTAL'
   ];
@@ -172,6 +172,11 @@ function updateReadableSheet(players) {
 
     const grandTotal = catchingTotal + baserunningTotal + intangiblesTotal;
 
+    // Format notes for each category
+    const catchingNotes = formatNotes(c.notes || []);
+    const baserunningNotes = formatNotes(b.notes || []);
+    const intangiblesNotes = formatNotes(intang.notes || []);
+
     return [
       index + 1,
       player.name,
@@ -185,6 +190,7 @@ function updateReadableSheet(players) {
       c.explosiveness_throwing || '',
       c.explosiveness_bunts || '',
       catchingTotal,
+      catchingNotes,
       h1bBest || '',
       h1bScore,
       tbhBest || '',
@@ -203,10 +209,12 @@ function updateReadableSheet(players) {
       softballiqAvg.toFixed(1),
       aggressivenessAvg.toFixed(1),
       baserunningTotal.toFixed(1),
+      baserunningNotes,
       awarenessAvg.toFixed(1),
       leadershipAvg.toFixed(1),
       enthusiasmAvg.toFixed(1),
       intangiblesTotal.toFixed(1),
+      intangiblesNotes,
       grandTotal.toFixed(1)
     ];
   });
@@ -223,6 +231,13 @@ function updateReadableSheet(players) {
 // ============================================
 // HELPER FUNCTIONS
 // ============================================
+
+function formatNotes(notes) {
+  if (!notes || !Array.isArray(notes) || notes.length === 0) return '';
+  return notes.map(function(n) {
+    return n.coach + ': ' + n.text;
+  }).join(' | ');
+}
 
 function getBestTime(times) {
   if (!times || !Array.isArray(times)) return null;
