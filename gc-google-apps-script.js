@@ -151,7 +151,7 @@ function updateReadableSheet(players) {
     // Explosiveness
     const proAgilityBest = getBestTime(b.proagility || []);
     const proAgilityScore = calculateProAgilityScore(b.proagility || []);
-    const broadJumpBest = getBestDistance(b.broadjump || []);
+    const broadJumpBest = getBestBroadJump(b.broadjump || []);
     const broadJumpScore = calculateBroadJumpScore(b.broadjump || []);
 
     // Scrimmage averages
@@ -238,6 +238,56 @@ function getBestDistance(distances) {
   return Math.max(...valid).toFixed(1);
 }
 
+function getBestBroadJump(jumps) {
+  if (!jumps || !Array.isArray(jumps)) return null;
+  let bestTotal = null;
+  let bestFeet = null;
+  let bestInches = null;
+
+  jumps.forEach(function(jump) {
+    if (jump && typeof jump === 'object' && jump.feet !== null && jump.feet !== undefined) {
+      var totalInches = (jump.feet * 12) + (jump.inches || 0);
+      if (bestTotal === null || totalInches > bestTotal) {
+        bestTotal = totalInches;
+        bestFeet = jump.feet;
+        bestInches = jump.inches || 0;
+      }
+    } else if (typeof jump === 'number') {
+      // Handle legacy format (just feet as decimal)
+      var totalInches = jump * 12;
+      if (bestTotal === null || totalInches > bestTotal) {
+        bestTotal = totalInches;
+        bestFeet = Math.floor(jump);
+        bestInches = Math.round((jump - Math.floor(jump)) * 12);
+      }
+    }
+  });
+
+  if (bestTotal === null) return null;
+  return bestFeet + "' " + bestInches + '"';
+}
+
+function getBroadJumpInFeet(jumps) {
+  if (!jumps || !Array.isArray(jumps)) return null;
+  let best = null;
+
+  jumps.forEach(function(jump) {
+    if (jump && typeof jump === 'object' && jump.feet !== null && jump.feet !== undefined) {
+      var totalFeet = jump.feet + ((jump.inches || 0) / 12);
+      if (best === null || totalFeet > best) {
+        best = totalFeet;
+      }
+    } else if (typeof jump === 'number') {
+      // Handle legacy format
+      if (best === null || jump > best) {
+        best = jump;
+      }
+    }
+  });
+
+  return best;
+}
+
 function sumArray(arr) {
   if (!arr || !Array.isArray(arr)) return 0;
   return arr.filter(v => v !== null && !isNaN(v)).reduce((sum, v) => sum + parseInt(v), 0);
@@ -316,10 +366,10 @@ function calculateProAgilityScore(times) {
   return 1;
 }
 
-function calculateBroadJumpScore(distances) {
-  const best = getBestDistance(distances);
+function calculateBroadJumpScore(jumps) {
+  const best = getBroadJumpInFeet(jumps);
   if (!best) return 0;
-  const d = parseFloat(best);
+  const d = best;
   if (d < 4) return 1;
   if (d < 5) return 2;
   if (d < 6) return 3;

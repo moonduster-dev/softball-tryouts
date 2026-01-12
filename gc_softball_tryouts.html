@@ -336,7 +336,7 @@
                 hh: { time: null, missedbase: false },
                 // Explosiveness
                 proagility: [null, null],
-                broadjump: [null, null],
+                broadjump: [{ feet: null, inches: null }, { feet: null, inches: null }],
                 // Scrimmage scores (by coach)
                 scrimmage: {}
             };
@@ -677,19 +677,26 @@
 
                         <!-- Broad Jump -->
                         <div class="mb-4 p-4 bg-orange-50 rounded-lg">
-                            <h4 class="font-semibold mb-2">Broad Jump (2 attempts, in feet)</h4>
+                            <h4 class="font-semibold mb-2">Broad Jump (2 attempts)</h4>
                             <div class="grid grid-cols-2 gap-4">
-                                ${[0, 1].map(i => `
+                                ${[0, 1].map(i => {
+                                    const jump = b.broadjump[i] || { feet: null, inches: null };
+                                    return `
                                     <div>
                                         <label class="text-sm text-gray-600">Attempt ${i + 1}</label>
-                                        <input type="number" step="0.1" value="${b.broadjump[i] || ''}"
-                                            onchange="updateExplosiveness(${player.id}, 'broadjump', ${i}, this.value)"
-                                            class="w-full px-3 py-2 border rounded-lg" placeholder="feet">
+                                        <div class="flex gap-2">
+                                            <input type="number" min="0" max="15" value="${jump.feet || ''}"
+                                                onchange="updateBroadJump(${player.id}, ${i}, 'feet', this.value)"
+                                                class="w-1/2 px-3 py-2 border rounded-lg" placeholder="ft">
+                                            <input type="number" min="0" max="11" value="${jump.inches || ''}"
+                                                onchange="updateBroadJump(${player.id}, ${i}, 'inches', this.value)"
+                                                class="w-1/2 px-3 py-2 border rounded-lg" placeholder="in">
+                                        </div>
                                     </div>
-                                `).join('')}
+                                `}).join('')}
                             </div>
                             <div class="mt-2 text-sm">
-                                Best: <strong>${getBestDistance(b.broadjump) || 'N/A'} ft</strong> |
+                                Best: <strong>${getBestBroadJump(b.broadjump) || 'N/A'}</strong> |
                                 Score: <strong>${calculateBroadJumpScore(b.broadjump)}</strong>/5
                             </div>
                         </div>
@@ -853,6 +860,24 @@
             renderScoringArea();
         }
 
+        function updateBroadJump(playerId, index, field, value) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+            if (!player.baserunning) player.baserunning = createBaserunningData();
+
+            // Ensure broadjump array has proper structure
+            if (!player.baserunning.broadjump || !Array.isArray(player.baserunning.broadjump)) {
+                player.baserunning.broadjump = [{ feet: null, inches: null }, { feet: null, inches: null }];
+            }
+            if (!player.baserunning.broadjump[index] || typeof player.baserunning.broadjump[index] !== 'object') {
+                player.baserunning.broadjump[index] = { feet: null, inches: null };
+            }
+
+            player.baserunning.broadjump[index][field] = value === '' ? null : parseInt(value);
+            saveData();
+            renderScoringArea();
+        }
+
         function updateScrimmageScore(playerId, drillId, value) {
             const player = players.find(p => p.id === playerId);
             if (!player) return;
@@ -953,10 +978,60 @@
             return 1;
         }
 
-        function calculateBroadJumpScore(distances) {
-            const best = getBestDistance(distances);
+        function getBestBroadJump(jumps) {
+            if (!jumps || !Array.isArray(jumps)) return null;
+            let bestTotal = null;
+            let bestFeet = null;
+            let bestInches = null;
+
+            jumps.forEach(jump => {
+                if (jump && typeof jump === 'object' && jump.feet !== null) {
+                    const totalInches = (jump.feet * 12) + (jump.inches || 0);
+                    if (bestTotal === null || totalInches > bestTotal) {
+                        bestTotal = totalInches;
+                        bestFeet = jump.feet;
+                        bestInches = jump.inches || 0;
+                    }
+                } else if (typeof jump === 'number') {
+                    // Handle legacy format (just feet as decimal)
+                    const totalInches = jump * 12;
+                    if (bestTotal === null || totalInches > bestTotal) {
+                        bestTotal = totalInches;
+                        bestFeet = Math.floor(jump);
+                        bestInches = Math.round((jump - Math.floor(jump)) * 12);
+                    }
+                }
+            });
+
+            if (bestTotal === null) return null;
+            return `${bestFeet}' ${bestInches}"`;
+        }
+
+        function getBroadJumpInFeet(jumps) {
+            if (!jumps || !Array.isArray(jumps)) return null;
+            let best = null;
+
+            jumps.forEach(jump => {
+                if (jump && typeof jump === 'object' && jump.feet !== null) {
+                    const totalFeet = jump.feet + ((jump.inches || 0) / 12);
+                    if (best === null || totalFeet > best) {
+                        best = totalFeet;
+                    }
+                } else if (typeof jump === 'number') {
+                    // Handle legacy format
+                    if (best === null || jump > best) {
+                        best = jump;
+                    }
+                }
+            });
+
+            return best;
+        }
+
+        function calculateBroadJumpScore(jumps) {
+            const best = getBroadJumpInFeet(jumps);
             if (!best) return 0;
-            const d = parseFloat(best);
+            const d = best;
             const config = scoringConfig.broadjump;
             if (d < config.t1) return 1;
             if (d < config.t2) return 2;
