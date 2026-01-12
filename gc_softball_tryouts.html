@@ -105,8 +105,8 @@
         <!-- Category Navigation -->
         <div class="bg-white rounded-lg shadow-lg p-4 mb-6">
             <div class="flex gap-2 flex-wrap justify-center">
-                <button onclick="selectCategory('catching')" id="cat-catching" class="category-btn px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 font-medium">
-                    🧤 Catching
+                <button onclick="selectCategory('catching')" id="cat-catching" class="category-btn px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 font-medium flex items-center gap-1">
+                    <img src="catcher.jpg" alt="Catcher" class="w-5 h-5 object-contain"> Catching
                 </button>
                 <button onclick="selectCategory('baserunning')" id="cat-baserunning" class="category-btn px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 font-medium">
                     🏃 Baserunning
@@ -114,17 +114,17 @@
                 <button onclick="selectCategory('intangibles')" id="cat-intangibles" class="category-btn px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 font-medium">
                     ⭐ Intangibles
                 </button>
-                <button onclick="selectCategory('pitching')" id="cat-pitching" class="category-btn px-4 py-2 bg-gray-100 text-gray-500 rounded-lg font-medium" disabled title="Coming soon">
-                    ⚾ Pitching (Soon)
+                <button onclick="selectCategory('pitching')" id="cat-pitching" class="category-btn px-4 py-2 bg-gray-100 text-gray-500 rounded-lg font-medium flex items-center gap-1" disabled title="Coming soon">
+                    <img src="pitching.jpg" alt="Pitching" class="w-5 h-5 object-contain"> Pitching (Soon)
                 </button>
-                <button onclick="selectCategory('fielding')" id="cat-fielding" class="category-btn px-4 py-2 bg-gray-100 text-gray-500 rounded-lg font-medium" disabled title="Coming soon">
-                    🥎 Fielding (Soon)
+                <button onclick="selectCategory('fielding')" id="cat-fielding" class="category-btn px-4 py-2 bg-gray-100 text-gray-500 rounded-lg font-medium flex items-center gap-1" disabled title="Coming soon">
+                    <img src="fielding.jpg" alt="Fielding" class="w-5 h-5 object-contain"> Fielding (Soon)
                 </button>
-                <button onclick="selectCategory('throwing')" id="cat-throwing" class="category-btn px-4 py-2 bg-gray-100 text-gray-500 rounded-lg font-medium" disabled title="Coming soon">
-                    💪 Throwing (Soon)
+                <button onclick="selectCategory('throwing')" id="cat-throwing" class="category-btn px-4 py-2 bg-gray-100 text-gray-500 rounded-lg font-medium flex items-center gap-1" disabled title="Coming soon">
+                    <img src="softball fielding.JPG" alt="Throwing" class="w-5 h-5 object-contain"> Throwing (Soon)
                 </button>
-                <button onclick="selectCategory('hitting')" id="cat-hitting" class="category-btn px-4 py-2 bg-gray-100 text-gray-500 rounded-lg font-medium" disabled title="Coming soon">
-                    🏏 Hitting (Soon)
+                <button onclick="selectCategory('hitting')" id="cat-hitting" class="category-btn px-4 py-2 bg-gray-100 text-gray-500 rounded-lg font-medium flex items-center gap-1" disabled title="Coming soon">
+                    <img src="hitting.jpg" alt="Hitting" class="w-5 h-5 object-contain"> Hitting (Soon)
                 </button>
             </div>
         </div>
@@ -445,7 +445,7 @@
 
             return `
                 <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-                    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">🧤 Catching - ${player.name}</h2>
+                    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2"><img src="catcher.jpg" alt="Catcher" class="w-6 h-6 object-contain"> Catching - ${player.name}</h2>
 
                     <!-- Pop Time -->
                     <div class="mb-6 p-4 bg-purple-50 rounded-lg">
