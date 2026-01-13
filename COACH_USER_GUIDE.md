@@ -5,7 +5,7 @@
 ### Logging In
 1. Open the application in your web browser
 2. Select your name from the dropdown (nick, bob, sophia, amy, bill, gabby, or guest)
-3. Enter the password: `nick2026`
+3. Enter the password
 4. Click "Login"
 
 Your login stays active until you log out or clear your browser data.
@@ -15,7 +15,7 @@ Your login stays active until you log out or clear your browser data.
 ## Adding Players
 
 1. Click the **"Add Player"** button at the top
-2. Enter the player's name and jersey number
+2. Enter the player's name and jersey number (if available)
 3. Click "Add" - the player will appear in the list
 
 ---
@@ -24,7 +24,7 @@ Your login stays active until you log out or clear your browser data.
 
 Click on any player's name to expand their scoring sections.
 
-### Catching (30 points max)
+### Catching (29 points max)
 
 | Metric | How to Score |
 |--------|--------------|
@@ -36,7 +36,7 @@ Click on any player's name to expand their scoring sections.
 | **Explosiveness (Throwing)** | Score 0-3 |
 | **Explosiveness (Bunts)** | Score 0-3 |
 
-### Baserunning (35 points max)
+### Baserunning (45 points max)
 
 **Timed Runs** (scored 1-5 based on **average** time):
 | Run | Attempts | Penalty Checkbox |
@@ -99,16 +99,30 @@ Each category (Catching, Baserunning, Intangibles) has a **Notes** section at th
 - **Broad Jump**: **Average** distance of attempts is converted to a 1-5 score
 - **Coach-averaged scores**: Scrimmage and Intangibles average all coaches' scores
 
-### Score Thresholds
+### Default Score Thresholds
 
-**Pop Time (seconds):**
+**Note:** Thresholds can be customized using the "Scoring Thresholds" button.
+
+**Pop Time (seconds)** - lower is better:
 - 5 pts: ≤2.3s | 4 pts: ≤2.5s | 3 pts: ≤2.7s | 2 pts: ≤3.0s | 1 pt: >3.0s
 
-**H→1B (seconds):**
+**H→1B (seconds)** - lower is better:
 - 5 pts: ≤3.1s | 4 pts: ≤3.8s | 3 pts: ≤4.6s | 2 pts: ≤5.2s | 1 pt: >5.2s
 
-**Broad Jump (feet):**
-- 5 pts: ≥7ft | 4 pts: ≥6ft | 3 pts: ≥5ft | 2 pts: ≥4ft | 1 pt: <4ft
+**2B→H (seconds)** - lower is better:
+- 5 pts: ≤5.75s | 4 pts: ≤6.25s | 3 pts: ≤7.0s | 2 pts: ≤8.0s | 1 pt: >8.0s
+
+**H→3B (seconds)** - lower is better:
+- 5 pts: ≤8.6s | 4 pts: ≤9.4s | 3 pts: ≤10.5s | 2 pts: ≤12.0s | 1 pt: >12.0s
+
+**H→H (seconds)** - lower is better:
+- 5 pts: ≤11.8s | 4 pts: ≤13.3s | 3 pts: ≤15.0s | 2 pts: ≤17.0s | 1 pt: >17.0s
+
+**Pro Agility (seconds)** - lower is better:
+- 5 pts: ≤4.3s | 4 pts: ≤4.6s | 3 pts: ≤5.0s | 2 pts: ≤5.5s | 1 pt: >5.5s
+
+**Broad Jump (feet' inches")** - higher is better:
+- 5 pts: ≥7'0" | 4 pts: ≥6'0" | 3 pts: ≥5'0" | 2 pts: ≥4'0" | 1 pt: <4'0"
 
 ---
 
@@ -134,7 +148,6 @@ Each category (Catching, Baserunning, Intangibles) has a **Notes** section at th
 
 | Problem | Solution |
 |---------|----------|
-| Can't log in | Make sure password is exactly `nick2026` |
 | Data not saving | Check your internet connection; look for sync indicator |
 | Can't see other coaches' scores | Refresh the page to pull latest data |
 | Report shows "N/A" | That metric hasn't been scored yet |
@@ -143,4 +156,4 @@ Each category (Catching, Baserunning, Intangibles) has a **Notes** section at th
 
 ## Questions?
 
-Contact Nick for technical support.
+Contact Bob for technical support.

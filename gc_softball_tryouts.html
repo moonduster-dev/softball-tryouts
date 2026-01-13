@@ -71,11 +71,17 @@
                     <button onclick="toggleSection('advancedOptions')" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
                         ⚙️ Options
                     </button>
+                    <button onclick="toggleSection('scoringConfigSection')" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                        📊 Scoring Thresholds
+                    </button>
                     <button onclick="uploadToSheets()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
                         ⬆️ Sync to Sheets
                     </button>
                     <button onclick="downloadFromSheets()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                         ⬇️ Download from Sheets
+                    </button>
+                    <button onclick="showUserGuideModal()" class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700">
+                        📖 User Guide
                     </button>
                 </div>
 
@@ -98,6 +104,281 @@
                         </button>
                         <button onclick="clearAllData()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
                             🗑️ Clear All Data
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Scoring Configuration Section -->
+                <div id="scoringConfigSection" class="hidden mt-4 pt-4 border-t border-gray-200">
+                    <h3 class="text-lg font-semibold mb-3">📊 Scoring Thresholds Configuration</h3>
+                    <p class="text-sm text-gray-600 mb-4">Customize scoring thresholds for all timed drills. Lower times = higher scores (except Broad Jump where higher distance = higher scores).</p>
+
+                    <!-- Speed Drills Configuration -->
+                    <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-semibold text-md mb-3">⚡ Baserunning Speed Drills (seconds)</h4>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- H→1B -->
+                            <div class="bg-white p-3 rounded border">
+                                <label class="text-sm font-medium mb-2 block">H→1B (seconds)</label>
+                                <div class="grid grid-cols-5 gap-2 text-xs">
+                                    <div>
+                                        <div class="text-center font-semibold text-green-600 mb-1">5 pts</div>
+                                        <input type="number" step="0.1" id="h1b_t5" class="px-2 py-1 border rounded w-full text-center" title="5 points if less than this value">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-blue-600 mb-1">4 pts</div>
+                                        <input type="number" step="0.1" id="h1b_t4" class="px-2 py-1 border rounded w-full text-center">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-yellow-600 mb-1">3 pts</div>
+                                        <input type="number" step="0.1" id="h1b_t3" class="px-2 py-1 border rounded w-full text-center">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-orange-600 mb-1">2 pts</div>
+                                        <input type="number" step="0.1" id="h1b_t2" class="px-2 py-1 border rounded w-full text-center">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-red-600 mb-1">1 pt</div>
+                                        <input type="number" step="0.1" id="h1b_t1" class="px-2 py-1 border rounded w-full text-center">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≥ this</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 2B→H -->
+                            <div class="bg-white p-3 rounded border">
+                                <label class="text-sm font-medium mb-2 block">2B→H (seconds)</label>
+                                <div class="grid grid-cols-5 gap-2 text-xs">
+                                    <div>
+                                        <div class="text-center font-semibold text-green-600 mb-1">5 pts</div>
+                                        <input type="number" step="0.1" id="2bh_t5" class="px-2 py-1 border rounded w-full text-center">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-blue-600 mb-1">4 pts</div>
+                                        <input type="number" step="0.1" id="2bh_t4" class="px-2 py-1 border rounded w-full text-center">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-yellow-600 mb-1">3 pts</div>
+                                        <input type="number" step="0.1" id="2bh_t3" class="px-2 py-1 border rounded w-full text-center">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-orange-600 mb-1">2 pts</div>
+                                        <input type="number" step="0.1" id="2bh_t2" class="px-2 py-1 border rounded w-full text-center">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-red-600 mb-1">1 pt</div>
+                                        <input type="number" step="0.1" id="2bh_t1" class="px-2 py-1 border rounded w-full text-center">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≥ this</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- H→3B -->
+                            <div class="bg-white p-3 rounded border">
+                                <label class="text-sm font-medium mb-2 block">H→3B (seconds)</label>
+                                <div class="grid grid-cols-5 gap-2 text-xs">
+                                    <div>
+                                        <div class="text-center font-semibold text-green-600 mb-1">5 pts</div>
+                                        <input type="number" step="0.1" id="h3b_t5" class="px-2 py-1 border rounded w-full text-center">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-blue-600 mb-1">4 pts</div>
+                                        <input type="number" step="0.1" id="h3b_t4" class="px-2 py-1 border rounded w-full text-center">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-yellow-600 mb-1">3 pts</div>
+                                        <input type="number" step="0.1" id="h3b_t3" class="px-2 py-1 border rounded w-full text-center">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-orange-600 mb-1">2 pts</div>
+                                        <input type="number" step="0.1" id="h3b_t2" class="px-2 py-1 border rounded w-full text-center">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-red-600 mb-1">1 pt</div>
+                                        <input type="number" step="0.1" id="h3b_t1" class="px-2 py-1 border rounded w-full text-center">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≥ this</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- H→H -->
+                            <div class="bg-white p-3 rounded border">
+                                <label class="text-sm font-medium mb-2 block">H→H (seconds)</label>
+                                <div class="grid grid-cols-5 gap-2 text-xs">
+                                    <div>
+                                        <div class="text-center font-semibold text-green-600 mb-1">5 pts</div>
+                                        <input type="number" step="0.1" id="hh_t5" class="px-2 py-1 border rounded w-full text-center">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-blue-600 mb-1">4 pts</div>
+                                        <input type="number" step="0.1" id="hh_t4" class="px-2 py-1 border rounded w-full text-center">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-yellow-600 mb-1">3 pts</div>
+                                        <input type="number" step="0.1" id="hh_t3" class="px-2 py-1 border rounded w-full text-center">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-orange-600 mb-1">2 pts</div>
+                                        <input type="number" step="0.1" id="hh_t2" class="px-2 py-1 border rounded w-full text-center">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-red-600 mb-1">1 pt</div>
+                                        <input type="number" step="0.1" id="hh_t1" class="px-2 py-1 border rounded w-full text-center">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≥ this</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Catching Drills Configuration -->
+                    <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-semibold text-md mb-3 flex items-center gap-2">
+                            <img src="catcher.jpg" alt="Catcher" class="w-5 h-5 object-contain"> Catching Drills (seconds)
+                        </h4>
+
+                        <div class="bg-white p-3 rounded border">
+                            <label class="text-sm font-medium mb-2 block">Pop Time (seconds)</label>
+                            <div class="grid grid-cols-5 gap-2 text-xs">
+                                <div>
+                                    <div class="text-center font-semibold text-green-600 mb-1">5 pts</div>
+                                    <input type="number" step="0.01" id="poptime_t5" class="px-2 py-1 border rounded w-full text-center">
+                                    <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≤ this</div>
+                                </div>
+                                <div>
+                                    <div class="text-center font-semibold text-blue-600 mb-1">4 pts</div>
+                                    <input type="number" step="0.01" id="poptime_t4" class="px-2 py-1 border rounded w-full text-center">
+                                    <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≤ this</div>
+                                </div>
+                                <div>
+                                    <div class="text-center font-semibold text-yellow-600 mb-1">3 pts</div>
+                                    <input type="number" step="0.01" id="poptime_t3" class="px-2 py-1 border rounded w-full text-center">
+                                    <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≤ this</div>
+                                </div>
+                                <div>
+                                    <div class="text-center font-semibold text-orange-600 mb-1">2 pts</div>
+                                    <input type="number" step="0.01" id="poptime_t2" class="px-2 py-1 border rounded w-full text-center">
+                                    <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≤ this</div>
+                                </div>
+                                <div>
+                                    <div class="text-center font-semibold text-red-600 mb-1">1 pt</div>
+                                    <input type="number" step="0.01" id="poptime_t1" class="px-2 py-1 border rounded w-full text-center">
+                                    <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&gt; this</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Explosiveness Drills Configuration -->
+                    <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-semibold text-md mb-3">💥 Explosiveness Drills</h4>
+
+                        <div class="grid grid-cols-1 gap-4">
+                            <!-- Pro Agility -->
+                            <div class="bg-white p-3 rounded border">
+                                <label class="text-sm font-medium mb-2 block">Pro Agility (seconds)</label>
+                                <div class="grid grid-cols-5 gap-2 text-xs">
+                                    <div>
+                                        <div class="text-center font-semibold text-green-600 mb-1">5 pts</div>
+                                        <input type="number" step="0.1" id="proagility_t5" class="px-2 py-1 border rounded w-full text-center">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-blue-600 mb-1">4 pts</div>
+                                        <input type="number" step="0.1" id="proagility_t4" class="px-2 py-1 border rounded w-full text-center">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≤ this</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-yellow-600 mb-1">3 pts</div>
+                                        <input type="number" step="0.1" id="proagility_t3" class="px-2 py-1 border rounded w-full text-center">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≤ this</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-orange-600 mb-1">2 pts</div>
+                                        <input type="number" step="0.1" id="proagility_t2" class="px-2 py-1 border rounded w-full text-center">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≤ this</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-red-600 mb-1">1 pt</div>
+                                        <input type="number" step="0.1" id="proagility_t1" class="px-2 py-1 border rounded w-full text-center">
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&gt; this</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Broad Jump - Feet and Inches -->
+                            <div class="bg-white p-3 rounded border">
+                                <label class="text-sm font-medium mb-2 block">Broad Jump (feet' inches") - Higher is better</label>
+                                <div class="grid grid-cols-5 gap-2 text-xs">
+                                    <div>
+                                        <div class="text-center font-semibold text-red-600 mb-1">1 pt</div>
+                                        <div class="flex gap-1">
+                                            <input type="number" min="0" max="15" id="broadjump_t1_feet" class="px-1 py-1 border rounded w-1/2 text-center" placeholder="ft">
+                                            <input type="number" min="0" max="11" id="broadjump_t1_inches" class="px-1 py-1 border rounded w-1/2 text-center" placeholder="in">
+                                        </div>
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-orange-600 mb-1">2 pts</div>
+                                        <div class="flex gap-1">
+                                            <input type="number" min="0" max="15" id="broadjump_t2_feet" class="px-1 py-1 border rounded w-1/2 text-center" placeholder="ft">
+                                            <input type="number" min="0" max="11" id="broadjump_t2_inches" class="px-1 py-1 border rounded w-1/2 text-center" placeholder="in">
+                                        </div>
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-yellow-600 mb-1">3 pts</div>
+                                        <div class="flex gap-1">
+                                            <input type="number" min="0" max="15" id="broadjump_t3_feet" class="px-1 py-1 border rounded w-1/2 text-center" placeholder="ft">
+                                            <input type="number" min="0" max="11" id="broadjump_t3_inches" class="px-1 py-1 border rounded w-1/2 text-center" placeholder="in">
+                                        </div>
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-blue-600 mb-1">4 pts</div>
+                                        <div class="flex gap-1">
+                                            <input type="number" min="0" max="15" id="broadjump_t4_feet" class="px-1 py-1 border rounded w-1/2 text-center" placeholder="ft">
+                                            <input type="number" min="0" max="11" id="broadjump_t4_inches" class="px-1 py-1 border rounded w-1/2 text-center" placeholder="in">
+                                        </div>
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-center font-semibold text-green-600 mb-1">5 pts</div>
+                                        <div class="flex gap-1">
+                                            <input type="number" min="0" max="15" id="broadjump_t5_feet" class="px-1 py-1 border rounded w-1/2 text-center" placeholder="ft">
+                                            <input type="number" min="0" max="11" id="broadjump_t5_inches" class="px-1 py-1 border rounded w-1/2 text-center" placeholder="in">
+                                        </div>
+                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≥ this</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex gap-2 justify-center">
+                        <button onclick="loadScoringDefaults()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+                            Reset to Defaults
+                        </button>
+                        <button onclick="saveScoringConfig()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                            💾 Save Thresholds
                         </button>
                     </div>
                 </div>
@@ -181,11 +462,36 @@
         </div>
     </div>
 
+    <!-- User Guide Modal -->
+    <div id="userGuideModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 overflow-y-auto">
+        <div class="min-h-screen px-4 py-8 flex items-start justify-center">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+                <div class="p-4 border-b flex justify-between items-center bg-amber-600 text-white">
+                    <h2 class="text-xl font-semibold">📖 Coach User Guide</h2>
+                    <button onclick="closeUserGuideModal()" class="text-white hover:text-gray-200 text-2xl">&times;</button>
+                </div>
+                <div class="p-4 border-b bg-gray-50">
+                    <div class="flex gap-4 items-center flex-wrap">
+                        <button onclick="exportUserGuideHTML()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            📥 Export as HTML
+                        </button>
+                        <button onclick="printUserGuide()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+                            🖨️ Print Guide
+                        </button>
+                    </div>
+                </div>
+                <div id="userGuideContent" class="p-6 overflow-y-auto flex-1 prose max-w-none">
+                    <!-- Guide content will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ============================================
         // CONFIGURATION
         // ============================================
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyjM9zrL1BidJJeM0Yxf78AaFpdnrz1xdHGyX9mXCxObCwRoftMe0SG4P9APAqJOgN8/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxkTRC_6ucRdv-PBiaNq4ybRGYzvUbhC0vBPJGrPf3xEHOmcs284Fij7TCRhUdvc6Z1/exec';
         const STORAGE_KEY = 'gc_softball_tryouts_2026';
         const APP_PASSWORD = 'nick2026';
         const VALID_USERS = ['nick', 'bob', 'sophia', 'amy', 'bill', 'gabby', 'guest'];
@@ -204,19 +510,149 @@
         // ============================================
         // SCORING THRESHOLDS
         // ============================================
-        const scoringConfig = {
-            // Speed metrics (lower is better)
-            h1b: { t5: 3.1, t4: 3.8, t3: 4.6, t2: 5.2 },
-            '2bh': { t5: 5.75, t4: 6.25, t3: 7, t2: 8 },  // 2B to Home
-            h3b: { t5: 8.6, t4: 9.4, t3: 10.5, t2: 12 },  // Scaled ~1.5x from h2b
-            hh: { t5: 11.8, t4: 13.3, t3: 15.0, t2: 17.0 },
+        const SCORING_CONFIG_KEY = 'gc_softball_scoring_config';
+
+        // Default scoring thresholds - can be configured in Scoring Thresholds section
+        // Time-based drills: t5=5pts, t4=4pts, t3=3pts, t2=2pts, t1=1pt (lower time = higher score)
+        // Broad jump: t1=1pt, t2=2pts, t3=3pts, t4=4pts, t5=5pts (higher distance = higher score)
+        let scoringConfig = {
+            // Speed metrics (lower is better) - t5 is fastest (5pts), t1 is slowest (1pt)
+            h1b: { t5: 3.1, t4: 3.8, t3: 4.6, t2: 5.2, t1: 6.0 },
+            '2bh': { t5: 5.75, t4: 6.25, t3: 7, t2: 8, t1: 9 },  // 2B to Home
+            h3b: { t5: 8.6, t4: 9.4, t3: 10.5, t2: 12, t1: 14 },
+            hh: { t5: 11.8, t4: 13.3, t3: 15.0, t2: 17.0, t1: 19.0 },
             // Pop time (lower is better)
-            poptime: { t5: 2.3, t4: 2.5, t3: 2.7, t2: 3.0 },
+            poptime: { t5: 2.3, t4: 2.5, t3: 2.7, t2: 3.0, t1: 3.5 },
             // Pro Agility (lower is better)
-            proagility: { t5: 4.3, t4: 4.6, t3: 5.0, t2: 5.5 },
-            // Broad jump (higher is better, in feet)
-            broadjump: { t1: 4, t2: 5, t3: 6, t4: 7 }
+            proagility: { t5: 4.3, t4: 4.6, t3: 5.0, t2: 5.5, t1: 6.0 },
+            // Broad jump (higher is better) - stored as { feet, inches } for each threshold
+            broadjump: {
+                t1: { feet: 4, inches: 0 },   // < this = 1 pt
+                t2: { feet: 4, inches: 0 },   // >= this = 2 pts
+                t3: { feet: 5, inches: 0 },   // >= this = 3 pts
+                t4: { feet: 6, inches: 0 },   // >= this = 4 pts
+                t5: { feet: 7, inches: 0 }    // >= this = 5 pts
+            }
         };
+
+        // Get default scoring config
+        function getDefaultScoringConfig() {
+            return {
+                h1b: { t5: 3.1, t4: 3.8, t3: 4.6, t2: 5.2, t1: 6.0 },
+                '2bh': { t5: 5.75, t4: 6.25, t3: 7, t2: 8, t1: 9 },
+                h3b: { t5: 8.6, t4: 9.4, t3: 10.5, t2: 12, t1: 14 },
+                hh: { t5: 11.8, t4: 13.3, t3: 15.0, t2: 17.0, t1: 19.0 },
+                poptime: { t5: 2.3, t4: 2.5, t3: 2.7, t2: 3.0, t1: 3.5 },
+                proagility: { t5: 4.3, t4: 4.6, t3: 5.0, t2: 5.5, t1: 6.0 },
+                broadjump: {
+                    t1: { feet: 4, inches: 0 },
+                    t2: { feet: 4, inches: 0 },
+                    t3: { feet: 5, inches: 0 },
+                    t4: { feet: 6, inches: 0 },
+                    t5: { feet: 7, inches: 0 }
+                }
+            };
+        }
+
+        // Load scoring configuration from localStorage
+        function loadScoringConfig() {
+            try {
+                const saved = localStorage.getItem(SCORING_CONFIG_KEY);
+                if (saved) {
+                    scoringConfig = JSON.parse(saved);
+                }
+                populateScoringInputs();
+            } catch (error) {
+                console.error('Error loading scoring config:', error);
+            }
+        }
+
+        // Save scoring configuration to localStorage
+        function saveScoringConfig() {
+            try {
+                // Read all values from inputs for time-based drills
+                const timeDrills = ['h1b', '2bh', 'h3b', 'hh', 'poptime', 'proagility'];
+
+                timeDrills.forEach(drill => {
+                    const cfg = scoringConfig[drill];
+                    ['t5', 't4', 't3', 't2', 't1'].forEach(threshold => {
+                        const inputId = `${drill}_${threshold}`;
+                        const input = document.getElementById(inputId);
+                        if (input && input.value !== '') {
+                            cfg[threshold] = parseFloat(input.value);
+                        }
+                    });
+                });
+
+                // Handle broad jump separately (feet and inches)
+                ['t1', 't2', 't3', 't4', 't5'].forEach(threshold => {
+                    const feetInput = document.getElementById(`broadjump_${threshold}_feet`);
+                    const inchesInput = document.getElementById(`broadjump_${threshold}_inches`);
+                    if (feetInput || inchesInput) {
+                        scoringConfig.broadjump[threshold] = {
+                            feet: feetInput && feetInput.value !== '' ? parseInt(feetInput.value) : 0,
+                            inches: inchesInput && inchesInput.value !== '' ? parseInt(inchesInput.value) : 0
+                        };
+                    }
+                });
+
+                localStorage.setItem(SCORING_CONFIG_KEY, JSON.stringify(scoringConfig));
+                showSaveStatus('✓ Scoring thresholds saved');
+
+                // Refresh the current view to show updated scores
+                renderScoringArea();
+                renderAllPlayers();
+            } catch (error) {
+                console.error('Error saving scoring config:', error);
+                showSaveStatus('⚠️ Failed to save scoring config');
+            }
+        }
+
+        // Reset scoring configuration to defaults
+        function loadScoringDefaults() {
+            scoringConfig = getDefaultScoringConfig();
+            populateScoringInputs();
+            saveScoringConfig();
+            showSaveStatus('✓ Reset to default thresholds');
+        }
+
+        // Populate input fields with current config values
+        function populateScoringInputs() {
+            // Populate time-based drills
+            const timeDrills = ['h1b', '2bh', 'h3b', 'hh', 'poptime', 'proagility'];
+            timeDrills.forEach(drill => {
+                const cfg = scoringConfig[drill];
+                if (cfg) {
+                    ['t5', 't4', 't3', 't2', 't1'].forEach(threshold => {
+                        const input = document.getElementById(`${drill}_${threshold}`);
+                        if (input && cfg[threshold] !== undefined) {
+                            input.value = cfg[threshold];
+                        }
+                    });
+                }
+            });
+
+            // Populate broad jump (feet and inches)
+            const bjCfg = scoringConfig.broadjump;
+            if (bjCfg) {
+                ['t1', 't2', 't3', 't4', 't5'].forEach(threshold => {
+                    const feetInput = document.getElementById(`broadjump_${threshold}_feet`);
+                    const inchesInput = document.getElementById(`broadjump_${threshold}_inches`);
+                    const val = bjCfg[threshold];
+                    if (val) {
+                        // Handle both old format (just a number) and new format ({ feet, inches })
+                        if (typeof val === 'object') {
+                            if (feetInput) feetInput.value = val.feet || 0;
+                            if (inchesInput) inchesInput.value = val.inches || 0;
+                        } else {
+                            // Legacy format - convert number to feet/inches
+                            if (feetInput) feetInput.value = Math.floor(val);
+                            if (inchesInput) inchesInput.value = Math.round((val - Math.floor(val)) * 12);
+                        }
+                    }
+                });
+            }
+        }
 
         // ============================================
         // LOGIN FUNCTIONS
@@ -275,6 +711,7 @@
         // ============================================
         function initApp() {
             loadData();
+            loadScoringConfig();
             autoDownloadFromSheets().then(() => {
                 renderPlayerSelect();
                 renderAllPlayers();
@@ -1148,10 +1585,12 @@
             const config = scoringConfig[drill];
             if (!config) return 0;
 
-            if (t < config.t5) return 5;
-            if (t < config.t4) return 4;
-            if (t < config.t3) return 3;
-            if (t < config.t2) return 2;
+            // For time-based drills, lower is better
+            // Using <= so hitting the threshold exactly gives the higher score
+            if (t <= config.t5) return 5;
+            if (t <= config.t4) return 4;
+            if (t <= config.t3) return 3;
+            if (t <= config.t2) return 2;
             return 1;
         }
 
@@ -1165,10 +1604,12 @@
             const avg = getAverageTime(times);
             if (!avg) return 0;
             const t = parseFloat(avg);
-            if (t < 4.3) return 5;
-            if (t <= 4.6) return 4;
-            if (t <= 5.0) return 3;
-            if (t <= 5.5) return 2;
+            const cfg = scoringConfig.proagility;
+            // Using <= so hitting the threshold exactly gives the higher score
+            if (t <= cfg.t5) return 5;
+            if (t <= cfg.t4) return 4;
+            if (t <= cfg.t3) return 3;
+            if (t <= cfg.t2) return 2;
             return 1;
         }
 
@@ -1251,11 +1692,22 @@
             if (!avg) return 0;
             const d = avg;
             const config = scoringConfig.broadjump;
-            if (d < config.t1) return 1;
-            if (d < config.t2) return 2;
-            if (d < config.t3) return 3;
-            if (d < config.t4) return 4;
-            return 5;
+
+            // Helper to convert threshold to feet (handles both old number format and new {feet, inches} format)
+            const toFeet = (val) => {
+                if (typeof val === 'object' && val !== null) {
+                    return (val.feet || 0) + ((val.inches || 0) / 12);
+                }
+                return val || 0;
+            };
+
+            // For broad jump, higher is better
+            // Using >= so hitting the threshold exactly gives the higher score
+            if (d >= toFeet(config.t5)) return 5;
+            if (d >= toFeet(config.t4)) return 4;
+            if (d >= toFeet(config.t3)) return 3;
+            if (d >= toFeet(config.t2)) return 2;
+            return 1;
         }
 
         function sumScores(arr) {
@@ -1344,6 +1796,279 @@
 
         function closeReportModal() {
             document.getElementById('reportModal').classList.add('hidden');
+        }
+
+        // ============================================
+        // USER GUIDE FUNCTIONS
+        // ============================================
+        function showUserGuideModal() {
+            const modal = document.getElementById('userGuideModal');
+            const content = document.getElementById('userGuideContent');
+            content.innerHTML = getUserGuideHTML();
+            modal.classList.remove('hidden');
+        }
+
+        function closeUserGuideModal() {
+            document.getElementById('userGuideModal').classList.add('hidden');
+        }
+
+        function getUserGuideHTML() {
+            // Get current thresholds for display
+            const cfg = scoringConfig;
+            const bj = cfg.broadjump;
+            const formatBJ = (t) => `${t.feet}'${t.inches}"`;
+
+            return `
+                <style>
+                    .guide-section { margin-bottom: 24px; }
+                    .guide-section h2 { color: #1e40af; border-bottom: 2px solid #3b82f6; padding-bottom: 8px; margin-bottom: 16px; }
+                    .guide-section h3 { color: #1e3a8a; margin-top: 16px; margin-bottom: 8px; }
+                    .guide-table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+                    .guide-table th, .guide-table td { padding: 8px 12px; text-align: left; border: 1px solid #e5e7eb; }
+                    .guide-table th { background: #f3f4f6; font-weight: 600; }
+                    .guide-table tr:nth-child(even) { background: #f9fafb; }
+                    .threshold-table { font-size: 0.9em; }
+                    .threshold-table td { text-align: center; }
+                    .note-box { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 12px; margin: 12px 0; }
+                    .tip-box { background: #dbeafe; border-left: 4px solid #3b82f6; padding: 12px; margin: 12px 0; }
+                </style>
+
+                <div class="guide-section">
+                    <h2>📋 Getting Started</h2>
+                    <h3>Logging In</h3>
+                    <ol>
+                        <li>Open the application in your web browser</li>
+                        <li>Select your name from the dropdown</li>
+                        <li>Enter the password: <code>nick2026</code></li>
+                        <li>Click "Login"</li>
+                    </ol>
+                    <p>Your login stays active until you log out or clear your browser data.</p>
+                </div>
+
+                <div class="guide-section">
+                    <h2>➕ Adding Players</h2>
+                    <ol>
+                        <li>Click the <strong>"Options"</strong> button at the top</li>
+                        <li>Enter the player's name and jersey number</li>
+                        <li>Click "Add Player" - the player will appear in the list</li>
+                    </ol>
+                </div>
+
+                <div class="guide-section">
+                    <h2>📊 Scoring Players</h2>
+                    <p>Click on any player's name to expand their scoring sections.</p>
+
+                    <h3>Catching (29 points max)</h3>
+                    <table class="guide-table">
+                        <tr><th>Metric</th><th>How to Score</th></tr>
+                        <tr><td><strong>Pop Time</strong></td><td>Enter time in seconds for 2 attempts. Average is scored 1-5.</td></tr>
+                        <tr><td><strong>Throw Accuracy</strong></td><td>Score each of 3 throws from 0-3 (0=miss, 3=perfect)</td></tr>
+                        <tr><td><strong>Blocking</strong></td><td>Score 0-3</td></tr>
+                        <tr><td><strong>Footwork</strong></td><td>Score 0-3</td></tr>
+                        <tr><td><strong>Mobility</strong></td><td>Score 0-3</td></tr>
+                        <tr><td><strong>Explosiveness (Throwing)</strong></td><td>Score 0-3</td></tr>
+                        <tr><td><strong>Explosiveness (Bunts)</strong></td><td>Score 0-3</td></tr>
+                    </table>
+
+                    <h3>Baserunning (45 points max)</h3>
+                    <p><strong>Timed Runs</strong> (scored 1-5 based on average time):</p>
+                    <table class="guide-table">
+                        <tr><th>Run</th><th>Attempts</th><th>Penalty Checkbox</th></tr>
+                        <tr><td><strong>H→1B</strong></td><td>2</td><td>"Missed 1B" adds 0.5 seconds</td></tr>
+                        <tr><td><strong>2B→H</strong></td><td>2</td><td>"Missed 3B" adds 1 second</td></tr>
+                        <tr><td><strong>H→3B</strong></td><td>1</td><td>"No Stick" adds 1 second</td></tr>
+                        <tr><td><strong>H→H</strong></td><td>1</td><td>"Missed Base" adds 1 second</td></tr>
+                    </table>
+
+                    <p><strong>Explosiveness:</strong></p>
+                    <table class="guide-table">
+                        <tr><th>Metric</th><th>How to Enter</th></tr>
+                        <tr><td><strong>Pro Agility</strong></td><td>Enter time in seconds for 2 attempts (scored on average)</td></tr>
+                        <tr><td><strong>Broad Jump</strong></td><td>Enter feet and inches for 2 attempts (scored on average)</td></tr>
+                    </table>
+
+                    <p><strong>Scrimmage Scores</strong> (each coach enters their own 1-3 scores):</p>
+                    <ul>
+                        <li>Chop Step</li>
+                        <li>Rounding</li>
+                        <li>Sliding</li>
+                        <li>Softball IQ</li>
+                        <li>Aggressiveness</li>
+                    </ul>
+
+                    <h3>Intangibles (15 points max)</h3>
+                    <p>Each coach enters their own 1-5 scores:</p>
+                    <ul>
+                        <li>Game Situation Awareness</li>
+                        <li>Leadership</li>
+                        <li>Enthusiasm</li>
+                    </ul>
+                    <p><em>Intangibles are averaged across all coaches who scored the player.</em></p>
+                </div>
+
+                <div class="guide-section">
+                    <h2>📝 Adding Notes</h2>
+                    <p>Each category has a <strong>Notes</strong> section at the bottom.</p>
+                    <ol>
+                        <li>Type your note in the text box</li>
+                        <li>Click <strong>"Add Note"</strong></li>
+                        <li>Your name and timestamp are automatically recorded</li>
+                    </ol>
+                    <div class="note-box">
+                        <strong>Note:</strong> You can only delete notes that you created.
+                    </div>
+                </div>
+
+                <div class="guide-section">
+                    <h2>📈 Generating Reports</h2>
+                    <ol>
+                        <li>Click <strong>"Options"</strong> then <strong>"Generate Reports"</strong></li>
+                        <li>Choose:
+                            <ul>
+                                <li><strong>Individual Player:</strong> Select from dropdown</li>
+                                <li><strong>All Players:</strong> Click "Generate All Reports" for ranked summary</li>
+                            </ul>
+                        </li>
+                        <li>Click <strong>"Export Report"</strong> to download as HTML</li>
+                    </ol>
+                </div>
+
+                <div class="guide-section">
+                    <h2>⚙️ Scoring Thresholds</h2>
+                    <p>Current thresholds (can be customized via "Scoring Thresholds" button):</p>
+
+                    <h3>Time-Based Drills (lower is better)</h3>
+                    <table class="guide-table threshold-table">
+                        <tr><th>Drill</th><th>5 pts</th><th>4 pts</th><th>3 pts</th><th>2 pts</th><th>1 pt</th></tr>
+                        <tr><td><strong>Pop Time</strong></td><td>≤${cfg.poptime.t5}s</td><td>≤${cfg.poptime.t4}s</td><td>≤${cfg.poptime.t3}s</td><td>≤${cfg.poptime.t2}s</td><td>>${cfg.poptime.t2}s</td></tr>
+                        <tr><td><strong>H→1B</strong></td><td>≤${cfg.h1b.t5}s</td><td>≤${cfg.h1b.t4}s</td><td>≤${cfg.h1b.t3}s</td><td>≤${cfg.h1b.t2}s</td><td>>${cfg.h1b.t2}s</td></tr>
+                        <tr><td><strong>2B→H</strong></td><td>≤${cfg['2bh'].t5}s</td><td>≤${cfg['2bh'].t4}s</td><td>≤${cfg['2bh'].t3}s</td><td>≤${cfg['2bh'].t2}s</td><td>>${cfg['2bh'].t2}s</td></tr>
+                        <tr><td><strong>H→3B</strong></td><td>≤${cfg.h3b.t5}s</td><td>≤${cfg.h3b.t4}s</td><td>≤${cfg.h3b.t3}s</td><td>≤${cfg.h3b.t2}s</td><td>>${cfg.h3b.t2}s</td></tr>
+                        <tr><td><strong>H→H</strong></td><td>≤${cfg.hh.t5}s</td><td>≤${cfg.hh.t4}s</td><td>≤${cfg.hh.t3}s</td><td>≤${cfg.hh.t2}s</td><td>>${cfg.hh.t2}s</td></tr>
+                        <tr><td><strong>Pro Agility</strong></td><td>≤${cfg.proagility.t5}s</td><td>≤${cfg.proagility.t4}s</td><td>≤${cfg.proagility.t3}s</td><td>≤${cfg.proagility.t2}s</td><td>>${cfg.proagility.t2}s</td></tr>
+                    </table>
+
+                    <h3>Broad Jump (higher is better)</h3>
+                    <table class="guide-table threshold-table">
+                        <tr><th>5 pts</th><th>4 pts</th><th>3 pts</th><th>2 pts</th><th>1 pt</th></tr>
+                        <tr><td>≥${formatBJ(bj.t5)}</td><td>≥${formatBJ(bj.t4)}</td><td>≥${formatBJ(bj.t3)}</td><td>≥${formatBJ(bj.t2)}</td><td><${formatBJ(bj.t2)}</td></tr>
+                    </table>
+                </div>
+
+                <div class="guide-section">
+                    <h2>🔄 Data Syncing</h2>
+                    <ul>
+                        <li>All scores <strong>automatically save</strong> to Google Sheets</li>
+                        <li>Changes sync within 1 second of entering data</li>
+                        <li>You'll see the last sync time at the top of the screen</li>
+                        <li>Multiple coaches can score simultaneously - data merges automatically</li>
+                    </ul>
+                </div>
+
+                <div class="guide-section">
+                    <h2>💡 Tips</h2>
+                    <div class="tip-box">
+                        <ol>
+                            <li><strong>Score as you go</strong> - Don't wait until the end; data saves automatically</li>
+                            <li><strong>Use notes</strong> for observations that don't fit in scores (attitude, coachability, etc.)</li>
+                            <li><strong>Check the sync indicator</strong> to make sure your data is saving</li>
+                            <li><strong>Generate reports</strong> at the end of tryouts to review all players ranked by score</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="guide-section">
+                    <h2>❓ Troubleshooting</h2>
+                    <table class="guide-table">
+                        <tr><th>Problem</th><th>Solution</th></tr>
+                        <tr><td>Can't log in</td><td>Make sure password is exactly <code>nick2026</code></td></tr>
+                        <tr><td>Data not saving</td><td>Check your internet connection; look for sync indicator</td></tr>
+                        <tr><td>Can't see other coaches' scores</td><td>Refresh the page to pull latest data</td></tr>
+                        <tr><td>Report shows "N/A"</td><td>That metric hasn't been scored yet</td></tr>
+                    </table>
+                </div>
+
+                <div class="guide-section">
+                    <h2>📞 Questions?</h2>
+                    <p>Contact Nick for technical support.</p>
+                </div>
+            `;
+        }
+
+        function exportUserGuideHTML() {
+            const guideHTML = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GC Softball Tryouts 2026 - Coach User Guide</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
+        h1 { color: #d97706; border-bottom: 3px solid #d97706; padding-bottom: 10px; }
+        h2 { color: #1e40af; border-bottom: 2px solid #3b82f6; padding-bottom: 8px; margin-top: 30px; }
+        h3 { color: #1e3a8a; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { padding: 10px; text-align: left; border: 1px solid #e5e7eb; }
+        th { background: #f3f4f6; font-weight: 600; }
+        tr:nth-child(even) { background: #f9fafb; }
+        code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+        .note-box { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 12px; margin: 15px 0; }
+        .tip-box { background: #dbeafe; border-left: 4px solid #3b82f6; padding: 12px; margin: 15px 0; }
+        ul, ol { margin: 10px 0; padding-left: 25px; }
+        li { margin: 5px 0; }
+        @media print { body { max-width: 100%; } }
+    </style>
+</head>
+<body>
+    <h1>📖 GC Softball Tryouts 2026 - Coach User Guide</h1>
+    ${document.getElementById('userGuideContent').innerHTML}
+    <hr>
+    <p style="text-align: center; color: #6b7280; font-size: 0.9em;">
+        Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}
+    </p>
+</body>
+</html>`;
+
+            const blob = new Blob([guideHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'GC_Softball_Tryouts_User_Guide.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function printUserGuide() {
+            const content = document.getElementById('userGuideContent').innerHTML;
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GC Softball Tryouts - Coach User Guide</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
+        h1 { color: #d97706; border-bottom: 3px solid #d97706; padding-bottom: 10px; }
+        h2 { color: #1e40af; border-bottom: 2px solid #3b82f6; padding-bottom: 8px; margin-top: 30px; }
+        h3 { color: #1e3a8a; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { padding: 10px; text-align: left; border: 1px solid #ccc; }
+        th { background: #f3f4f6; }
+        code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; }
+        .note-box { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 12px; margin: 15px 0; }
+        .tip-box { background: #dbeafe; border-left: 4px solid #3b82f6; padding: 12px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <h1>📖 GC Softball Tryouts 2026 - Coach User Guide</h1>
+    ${content}
+</body>
+</html>`);
+            printWindow.document.close();
+            printWindow.print();
         }
 
         function generateReport() {

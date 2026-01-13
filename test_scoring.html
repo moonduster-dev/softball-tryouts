@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoring Test - GC Softball Tryouts</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 1200px; margin: 0 auto; }
+        h1 { color: #2d3748; }
+        h2 { color: #4a5568; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+        .test-section { margin: 20px 0; padding: 15px; background: #f7fafc; border-radius: 8px; }
+        .test-case { padding: 10px; margin: 5px 0; border-left: 4px solid #4299e1; background: white; }
+        .test-case.pass { border-left-color: #48bb78; }
+        .test-case.fail { border-left-color: #f56565; background: #fff5f5; }
+        .result { font-weight: bold; }
+        .pass .result { color: #48bb78; }
+        .fail .result { color: #f56565; }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        th, td { padding: 8px 12px; text-align: left; border: 1px solid #e2e8f0; }
+        th { background: #edf2f7; }
+        .player-card { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin: 10px 0; }
+        .score-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-weight: bold; margin: 2px; }
+        .score-5 { background: #c6f6d5; color: #22543d; }
+        .score-4 { background: #bee3f8; color: #2a4365; }
+        .score-3 { background: #fefcbf; color: #744210; }
+        .score-2 { background: #fed7aa; color: #7b341e; }
+        .score-1 { background: #fed7d7; color: #742a2a; }
+        .score-0 { background: #e2e8f0; color: #4a5568; }
+        .summary { background: #ebf8ff; padding: 15px; border-radius: 8px; margin-top: 20px; }
+        button { padding: 10px 20px; background: #4299e1; color: white; border: none; border-radius: 6px; cursor: pointer; margin: 5px; }
+        button:hover { background: #3182ce; }
+        .load-btn { background: #48bb78; }
+        .load-btn:hover { background: #38a169; }
+    </style>
+</head>
+<body>
+    <h1>GC Softball Tryouts - Scoring Test</h1>
+    <p>This page tests the scoring functions with sample data to verify thresholds work correctly.</p>
+
+    <div class="test-section">
+        <h2>Test Actions</h2>
+        <button onclick="runAllTests()">Run All Scoring Tests</button>
+        <button onclick="loadTestDataToApp()" class="load-btn">Load Test Players into App</button>
+        <button onclick="clearTestData()" style="background: #f56565;">Clear Test Data</button>
+    </div>
+
+    <div id="testResults"></div>
+    <div id="playerSummary"></div>
+
+    <script>
+        // ============================================
+        // SCORING CONFIGURATION (same as main app)
+        // ============================================
+        const scoringConfig = {
+            h1b: { t5: 3.1, t4: 3.8, t3: 4.6, t2: 5.2, t1: 6.0 },
+            '2bh': { t5: 5.75, t4: 6.25, t3: 7, t2: 8, t1: 9 },
+            h3b: { t5: 8.6, t4: 9.4, t3: 10.5, t2: 12, t1: 14 },
+            hh: { t5: 11.8, t4: 13.3, t3: 15.0, t2: 17.0, t1: 19.0 },
+            poptime: { t5: 2.3, t4: 2.5, t3: 2.7, t2: 3.0, t1: 3.5 },
+            proagility: { t5: 4.3, t4: 4.6, t3: 5.0, t2: 5.5, t1: 6.0 },
+            broadjump: {
+                t1: { feet: 4, inches: 0 },
+                t2: { feet: 4, inches: 0 },
+                t3: { feet: 5, inches: 0 },
+                t4: { feet: 6, inches: 0 },
+                t5: { feet: 7, inches: 0 }
+            }
+        };
+
+        // ============================================
+        // SCORING FUNCTIONS (copied from main app)
+        // ============================================
+        function calculateSpeedScore(drill, time) {
+            if (time === 'N/A' || time === null) return 0;
+            const t = parseFloat(time);
+            const config = scoringConfig[drill];
+            if (!config) return 0;
+            if (t <= config.t5) return 5;
+            if (t <= config.t4) return 4;
+            if (t <= config.t3) return 3;
+            if (t <= config.t2) return 2;
+            return 1;
+        }
+
+        function calculateProAgilityScore(times) {
+            const avg = getAverageTime(times);
+            if (!avg) return 0;
+            const t = parseFloat(avg);
+            const cfg = scoringConfig.proagility;
+            if (t <= cfg.t5) return 5;
+            if (t <= cfg.t4) return 4;
+            if (t <= cfg.t3) return 3;
+            if (t <= cfg.t2) return 2;
+            return 1;
+        }
+
+        function getAverageTime(times) {
+            if (!times || !Array.isArray(times)) return null;
+            const valid = times.filter(t => t !== null && !isNaN(t));
+            if (valid.length === 0) return null;
+            const avg = valid.reduce((sum, t) => sum + t, 0) / valid.length;
+            return avg.toFixed(2);
+        }
+
+        function getAverageBroadJumpInFeet(jumps) {
+            if (!jumps || !Array.isArray(jumps)) return null;
+            const valid = [];
+            jumps.forEach(jump => {
+                if (jump && typeof jump === 'object' && jump.feet !== null && jump.feet !== undefined) {
+                    valid.push(jump.feet + ((jump.inches || 0) / 12));
+                } else if (typeof jump === 'number') {
+                    valid.push(jump);
+                }
+            });
+            if (valid.length === 0) return null;
+            return valid.reduce((sum, v) => sum + v, 0) / valid.length;
+        }
+
+        function calculateBroadJumpScore(jumps) {
+            const avg = getAverageBroadJumpInFeet(jumps);
+            if (!avg) return 0;
+            const d = avg;
+            const config = scoringConfig.broadjump;
+            const toFeet = (val) => {
+                if (typeof val === 'object' && val !== null) {
+                    return (val.feet || 0) + ((val.inches || 0) / 12);
+                }
+                return val || 0;
+            };
+            if (d >= toFeet(config.t5)) return 5;
+            if (d >= toFeet(config.t4)) return 4;
+            if (d >= toFeet(config.t3)) return 3;
+            if (d >= toFeet(config.t2)) return 2;
+            return 1;
+        }
+
+        function getAdjustedAvgH1B(data) {
+            if (!data || !data.times) return null;
+            const adjusted = [];
+            for (let i = 0; i < 2; i++) {
+                if (data.times[i] !== null && data.times[i] !== undefined) {
+                    adjusted.push(parseFloat(data.times[i]) + (data.missed1b && data.missed1b[i] ? 0.5 : 0));
+                }
+            }
+            if (adjusted.length === 0) return null;
+            return (adjusted.reduce((sum, t) => sum + t, 0) / adjusted.length).toFixed(2);
+        }
+
+        function getAdjustedAvg2BH(data) {
+            if (!data || !data.times) return null;
+            const adjusted = [];
+            for (let i = 0; i < 2; i++) {
+                if (data.times[i] !== null && data.times[i] !== undefined) {
+                    adjusted.push(parseFloat(data.times[i]) + (data.missed3b && data.missed3b[i] ? 1 : 0));
+                }
+            }
+            if (adjusted.length === 0) return null;
+            return (adjusted.reduce((sum, t) => sum + t, 0) / adjusted.length).toFixed(2);
+        }
+
+        function getAdjustedH3B(data) {
+            if (!data || data.time === null || data.time === undefined) return null;
+            return (parseFloat(data.time) + (data.nostick ? 1 : 0)).toFixed(2);
+        }
+
+        function getAdjustedHH(data) {
+            if (!data || data.time === null || data.time === undefined) return null;
+            return (parseFloat(data.time) + (data.missedbase ? 1 : 0)).toFixed(2);
+        }
+
+        // ============================================
+        // TEST DATA - 5 Test Players with varying skill levels
+        // ============================================
+        const testPlayers = [
+            {
+                id: 901,
+                name: "Star Player Sally",
+                number: "7",
+                catching: {
+                    poptime: [2.2, 2.3],  // Avg 2.25 -> 5 pts
+                    throwaccuracy: [3, 3, 2],  // 8 total
+                    blocking: 3,
+                    footwork: 3,
+                    mobility: 3,
+                    explosiveness_throwing: 3,
+                    explosiveness_bunts: 3,
+                    notes: [{ coach: "nick", text: "Excellent catcher, could be starter", timestamp: "2026-01-13 10:00" }]
+                },
+                baserunning: {
+                    h1b: { times: [3.0, 3.1], missed1b: [false, false] },  // Avg 3.05 -> 5 pts
+                    '2bh': { times: [5.6, 5.7], missed3b: [false, false] },  // Avg 5.65 -> 5 pts
+                    h3b: { time: 8.5, nostick: false },  // 8.5 -> 5 pts
+                    hh: { time: 11.7, missedbase: false },  // 11.7 -> 5 pts
+                    proagility: [4.2, 4.3],  // Avg 4.25 -> 5 pts
+                    broadjump: [{ feet: 7, inches: 2 }, { feet: 7, inches: 4 }],  // Avg 7'3" -> 5 pts
+                    scrimmage: { nick: { chopstep: 3, rounding: 3, sliding: 3, softballiq: 3, aggressiveness: 3 } },
+                    notes: []
+                },
+                intangibles: {
+                    nick: { awareness: 5, leadership: 5, enthusiasm: 5 },
+                    notes: []
+                }
+            },
+            {
+                id: 902,
+                name: "Good Player Grace",
+                number: "12",
+                catching: {
+                    poptime: [2.4, 2.5],  // Avg 2.45 -> 4 pts
+                    throwaccuracy: [2, 3, 2],  // 7 total
+                    blocking: 2,
+                    footwork: 3,
+                    mobility: 2,
+                    explosiveness_throwing: 2,
+                    explosiveness_bunts: 2,
+                    notes: []
+                },
+                baserunning: {
+                    h1b: { times: [3.5, 3.8], missed1b: [false, false] },  // Avg 3.65 -> 4 pts
+                    '2bh': { times: [6.0, 6.2], missed3b: [false, false] },  // Avg 6.1 -> 4 pts
+                    h3b: { time: 9.2, nostick: false },  // 9.2 -> 4 pts
+                    hh: { time: 13.0, missedbase: false },  // 13.0 -> 4 pts
+                    proagility: [4.5, 4.6],  // Avg 4.55 -> 4 pts
+                    broadjump: [{ feet: 6, inches: 6 }, { feet: 6, inches: 8 }],  // Avg 6'7" -> 4 pts
+                    scrimmage: { nick: { chopstep: 2, rounding: 3, sliding: 2, softballiq: 3, aggressiveness: 2 } },
+                    notes: []
+                },
+                intangibles: {
+                    nick: { awareness: 4, leadership: 4, enthusiasm: 4 },
+                    notes: []
+                }
+            },
+            {
+                id: 903,
+                name: "Average Amy",
+                number: "23",
+                catching: {
+                    poptime: [2.6, 2.7],  // Avg 2.65 -> 3 pts
+                    throwaccuracy: [2, 2, 1],  // 5 total
+                    blocking: 2,
+                    footwork: 2,
+                    mobility: 2,
+                    explosiveness_throwing: 1,
+                    explosiveness_bunts: 2,
+                    notes: []
+                },
+                baserunning: {
+                    h1b: { times: [4.2, 4.5], missed1b: [false, false] },  // Avg 4.35 -> 3 pts
+                    '2bh': { times: [6.5, 6.8], missed3b: [false, false] },  // Avg 6.65 -> 3 pts
+                    h3b: { time: 10.0, nostick: false },  // 10.0 -> 3 pts
+                    hh: { time: 14.5, missedbase: false },  // 14.5 -> 3 pts
+                    proagility: [4.8, 5.0],  // Avg 4.9 -> 3 pts
+                    broadjump: [{ feet: 5, inches: 6 }, { feet: 5, inches: 8 }],  // Avg 5'7" -> 3 pts
+                    scrimmage: { nick: { chopstep: 2, rounding: 2, sliding: 2, softballiq: 2, aggressiveness: 2 } },
+                    notes: []
+                },
+                intangibles: {
+                    nick: { awareness: 3, leadership: 3, enthusiasm: 3 },
+                    notes: [{ coach: "nick", text: "Shows potential, needs more practice", timestamp: "2026-01-13 10:30" }]
+                }
+            },
+            {
+                id: 904,
+                name: "Developing Dina",
+                number: "34",
+                catching: {
+                    poptime: [2.9, 3.0],  // Avg 2.95 -> 2 pts
+                    throwaccuracy: [1, 2, 1],  // 4 total
+                    blocking: 1,
+                    footwork: 2,
+                    mobility: 1,
+                    explosiveness_throwing: 1,
+                    explosiveness_bunts: 1,
+                    notes: []
+                },
+                baserunning: {
+                    h1b: { times: [4.8, 5.1], missed1b: [false, true] },  // Avg with penalty: (4.8 + 5.6)/2 = 5.2 -> 2 pts
+                    '2bh': { times: [7.2, 7.8], missed3b: [false, false] },  // Avg 7.5 -> 2 pts
+                    h3b: { time: 11.5, nostick: false },  // 11.5 -> 2 pts
+                    hh: { time: 16.0, missedbase: false },  // 16.0 -> 2 pts
+                    proagility: [5.2, 5.4],  // Avg 5.3 -> 2 pts
+                    broadjump: [{ feet: 4, inches: 6 }, { feet: 4, inches: 8 }],  // Avg 4'7" -> 2 pts
+                    scrimmage: { nick: { chopstep: 1, rounding: 2, sliding: 1, softballiq: 2, aggressiveness: 1 } },
+                    notes: []
+                },
+                intangibles: {
+                    nick: { awareness: 2, leadership: 2, enthusiasm: 3 },
+                    notes: []
+                }
+            },
+            {
+                id: 905,
+                name: "Beginner Beth",
+                number: "45",
+                catching: {
+                    poptime: [3.2, 3.4],  // Avg 3.3 -> 1 pt
+                    throwaccuracy: [1, 1, 0],  // 2 total
+                    blocking: 1,
+                    footwork: 1,
+                    mobility: 1,
+                    explosiveness_throwing: 0,
+                    explosiveness_bunts: 1,
+                    notes: []
+                },
+                baserunning: {
+                    h1b: { times: [5.5, 5.8], missed1b: [true, true] },  // Avg with penalties: (6.0 + 6.3)/2 = 6.15 -> 1 pt
+                    '2bh': { times: [8.5, 9.0], missed3b: [false, true] },  // Avg with penalty: (8.5 + 10.0)/2 = 9.25 -> 1 pt
+                    h3b: { time: 13.0, nostick: true },  // 14.0 -> 1 pt
+                    hh: { time: 18.0, missedbase: true },  // 19.0 -> 1 pt
+                    proagility: [5.8, 6.0],  // Avg 5.9 -> 1 pt
+                    broadjump: [{ feet: 3, inches: 8 }, { feet: 3, inches: 10 }],  // Avg 3'9" -> 1 pt
+                    scrimmage: { nick: { chopstep: 1, rounding: 1, sliding: 1, softballiq: 1, aggressiveness: 1 } },
+                    notes: []
+                },
+                intangibles: {
+                    nick: { awareness: 2, leadership: 1, enthusiasm: 2 },
+                    notes: [{ coach: "nick", text: "First year player, great attitude", timestamp: "2026-01-13 11:00" }]
+                }
+            },
+            {
+                id: 906,
+                name: "Threshold Tester Tina",
+                number: "99",
+                catching: {
+                    poptime: [2.3, 2.3],  // Exactly 2.3 -> should be 5 pts (testing <=)
+                    throwaccuracy: [2, 2, 2],  // 6 total
+                    blocking: 2,
+                    footwork: 2,
+                    mobility: 2,
+                    explosiveness_throwing: 2,
+                    explosiveness_bunts: 2,
+                    notes: [{ coach: "nick", text: "Testing threshold edge cases", timestamp: "2026-01-13 12:00" }]
+                },
+                baserunning: {
+                    h1b: { times: [3.1, 3.1], missed1b: [false, false] },  // Exactly 3.1 -> should be 5 pts
+                    '2bh': { times: [5.75, 5.75], missed3b: [false, false] },  // Exactly 5.75 -> should be 5 pts
+                    h3b: { time: 8.6, nostick: false },  // Exactly 8.6 -> should be 5 pts
+                    hh: { time: 11.8, missedbase: false },  // Exactly 11.8 -> should be 5 pts
+                    proagility: [4.3, 4.3],  // Exactly 4.3 -> should be 5 pts
+                    broadjump: [{ feet: 7, inches: 0 }, { feet: 7, inches: 0 }],  // Exactly 7'0" -> should be 5 pts
+                    scrimmage: { nick: { chopstep: 2, rounding: 2, sliding: 2, softballiq: 2, aggressiveness: 2 } },
+                    notes: []
+                },
+                intangibles: {
+                    nick: { awareness: 3, leadership: 3, enthusiasm: 3 },
+                    notes: []
+                }
+            }
+        ];
+
+        // ============================================
+        // TEST FUNCTIONS
+        // ============================================
+        function runAllTests() {
+            let html = '<h2>Scoring Function Tests</h2>';
+            let passed = 0;
+            let failed = 0;
+
+            // Test Speed Score calculations
+            html += '<div class="test-section"><h3>Speed Score Tests (H->1B)</h3>';
+
+            const speedTests = [
+                { time: 3.0, expected: 5, desc: "3.0s should be 5 pts (< 3.1)" },
+                { time: 3.1, expected: 5, desc: "3.1s should be 5 pts (= 3.1, testing <=)" },
+                { time: 3.5, expected: 4, desc: "3.5s should be 4 pts (between 3.1 and 3.8)" },
+                { time: 3.8, expected: 4, desc: "3.8s should be 4 pts (= 3.8, testing <=)" },
+                { time: 4.2, expected: 3, desc: "4.2s should be 3 pts (between 3.8 and 4.6)" },
+                { time: 4.6, expected: 3, desc: "4.6s should be 3 pts (= 4.6, testing <=)" },
+                { time: 5.0, expected: 2, desc: "5.0s should be 2 pts (between 4.6 and 5.2)" },
+                { time: 5.2, expected: 2, desc: "5.2s should be 2 pts (= 5.2, testing <=)" },
+                { time: 5.5, expected: 1, desc: "5.5s should be 1 pt (> 5.2)" },
+                { time: 6.5, expected: 1, desc: "6.5s should be 1 pt (> 5.2)" },
+            ];
+
+            speedTests.forEach(test => {
+                const result = calculateSpeedScore('h1b', test.time);
+                const pass = result === test.expected;
+                if (pass) passed++; else failed++;
+                html += `<div class="test-case ${pass ? 'pass' : 'fail'}">
+                    ${test.desc}<br>
+                    <span class="result">Result: ${result} (Expected: ${test.expected}) - ${pass ? 'PASS' : 'FAIL'}</span>
+                </div>`;
+            });
+            html += '</div>';
+
+            // Test Pro Agility calculations
+            html += '<div class="test-section"><h3>Pro Agility Tests</h3>';
+
+            const proAgilityTests = [
+                { times: [4.2, 4.3], expected: 5, desc: "Avg 4.25s should be 5 pts (<= 4.3)" },
+                { times: [4.3, 4.3], expected: 5, desc: "Exactly 4.3s should be 5 pts (= 4.3, testing <=)" },
+                { times: [4.5, 4.6], expected: 4, desc: "Avg 4.55s should be 4 pts (<= 4.6)" },
+                { times: [4.6, 4.6], expected: 4, desc: "Exactly 4.6s should be 4 pts (= 4.6, testing <=)" },
+                { times: [4.8, 5.0], expected: 3, desc: "Avg 4.9s should be 3 pts (<= 5.0)" },
+                { times: [5.0, 5.0], expected: 3, desc: "Exactly 5.0s should be 3 pts (= 5.0, testing <=)" },
+                { times: [5.3, 5.5], expected: 2, desc: "Avg 5.4s should be 2 pts (<= 5.5)" },
+                { times: [5.5, 5.5], expected: 2, desc: "Exactly 5.5s should be 2 pts (= 5.5, testing <=)" },
+                { times: [5.8, 6.0], expected: 1, desc: "Avg 5.9s should be 1 pt (> 5.5)" },
+            ];
+
+            proAgilityTests.forEach(test => {
+                const result = calculateProAgilityScore(test.times);
+                const pass = result === test.expected;
+                if (pass) passed++; else failed++;
+                html += `<div class="test-case ${pass ? 'pass' : 'fail'}">
+                    ${test.desc}<br>
+                    <span class="result">Result: ${result} (Expected: ${test.expected}) - ${pass ? 'PASS' : 'FAIL'}</span>
+                </div>`;
+            });
+            html += '</div>';
+
+            // Test Broad Jump calculations
+            html += '<div class="test-section"><h3>Broad Jump Tests (Higher is Better)</h3>';
+
+            const broadJumpTests = [
+                { jumps: [{ feet: 7, inches: 6 }, { feet: 7, inches: 8 }], expected: 5, desc: "Avg 7'7\" should be 5 pts (>= 7'0\")" },
+                { jumps: [{ feet: 7, inches: 0 }, { feet: 7, inches: 0 }], expected: 5, desc: "Exactly 7'0\" should be 5 pts (= 7'0\", testing >=)" },
+                { jumps: [{ feet: 6, inches: 6 }, { feet: 6, inches: 8 }], expected: 4, desc: "Avg 6'7\" should be 4 pts (>= 6'0\" but < 7'0\")" },
+                { jumps: [{ feet: 6, inches: 0 }, { feet: 6, inches: 0 }], expected: 4, desc: "Exactly 6'0\" should be 4 pts (= 6'0\", testing >=)" },
+                { jumps: [{ feet: 5, inches: 6 }, { feet: 5, inches: 6 }], expected: 3, desc: "Avg 5'6\" should be 3 pts (>= 5'0\" but < 6'0\")" },
+                { jumps: [{ feet: 5, inches: 0 }, { feet: 5, inches: 0 }], expected: 3, desc: "Exactly 5'0\" should be 3 pts (= 5'0\", testing >=)" },
+                { jumps: [{ feet: 4, inches: 6 }, { feet: 4, inches: 6 }], expected: 2, desc: "Avg 4'6\" should be 2 pts (>= 4'0\" but < 5'0\")" },
+                { jumps: [{ feet: 4, inches: 0 }, { feet: 4, inches: 0 }], expected: 2, desc: "Exactly 4'0\" should be 2 pts (= 4'0\", testing >=)" },
+                { jumps: [{ feet: 3, inches: 10 }, { feet: 3, inches: 10 }], expected: 1, desc: "Avg 3'10\" should be 1 pt (< 4'0\")" },
+                { jumps: [{ feet: 3, inches: 6 }, { feet: 3, inches: 6 }], expected: 1, desc: "Avg 3'6\" should be 1 pt (< 4'0\")" },
+            ];
+
+            broadJumpTests.forEach(test => {
+                const result = calculateBroadJumpScore(test.jumps);
+                const pass = result === test.expected;
+                if (pass) passed++; else failed++;
+                html += `<div class="test-case ${pass ? 'pass' : 'fail'}">
+                    ${test.desc}<br>
+                    <span class="result">Result: ${result} (Expected: ${test.expected}) - ${pass ? 'PASS' : 'FAIL'}</span>
+                </div>`;
+            });
+            html += '</div>';
+
+            // Test Penalty calculations
+            html += '<div class="test-section"><h3>Penalty Tests</h3>';
+
+            // H1B with penalty
+            const h1bData = { times: [4.8, 5.1], missed1b: [false, true] };
+            const h1bAdj = getAdjustedAvgH1B(h1bData);
+            const h1bExpected = "5.20"; // (4.8 + 5.6) / 2
+            let pass = h1bAdj === h1bExpected;
+            if (pass) passed++; else failed++;
+            html += `<div class="test-case ${pass ? 'pass' : 'fail'}">
+                H->1B penalty: times [4.8, 5.1] with missed1b on attempt 2<br>
+                Expected: ${h1bExpected} (4.8 + 5.1+0.5) / 2<br>
+                <span class="result">Result: ${h1bAdj} - ${pass ? 'PASS' : 'FAIL'}</span>
+            </div>`;
+
+            // 2BH with penalty
+            const tbhData = { times: [8.5, 9.0], missed3b: [false, true] };
+            const tbhAdj = getAdjustedAvg2BH(tbhData);
+            const tbhExpected = "9.25"; // (8.5 + 10.0) / 2
+            pass = tbhAdj === tbhExpected;
+            if (pass) passed++; else failed++;
+            html += `<div class="test-case ${pass ? 'pass' : 'fail'}">
+                2B->H penalty: times [8.5, 9.0] with missed3b on attempt 2<br>
+                Expected: ${tbhExpected} (8.5 + 9.0+1.0) / 2<br>
+                <span class="result">Result: ${tbhAdj} - ${pass ? 'PASS' : 'FAIL'}</span>
+            </div>`;
+
+            // H3B with penalty
+            const h3bData = { time: 13.0, nostick: true };
+            const h3bAdj = getAdjustedH3B(h3bData);
+            const h3bExpected = "14.00";
+            pass = h3bAdj === h3bExpected;
+            if (pass) passed++; else failed++;
+            html += `<div class="test-case ${pass ? 'pass' : 'fail'}">
+                H->3B penalty: time 13.0 with nostick<br>
+                Expected: ${h3bExpected} (13.0 + 1.0)<br>
+                <span class="result">Result: ${h3bAdj} - ${pass ? 'PASS' : 'FAIL'}</span>
+            </div>`;
+
+            // HH with penalty
+            const hhData = { time: 18.0, missedbase: true };
+            const hhAdj = getAdjustedHH(hhData);
+            const hhExpected = "19.00";
+            pass = hhAdj === hhExpected;
+            if (pass) passed++; else failed++;
+            html += `<div class="test-case ${pass ? 'pass' : 'fail'}">
+                H->H penalty: time 18.0 with missedbase<br>
+                Expected: ${hhExpected} (18.0 + 1.0)<br>
+                <span class="result">Result: ${hhAdj} - ${pass ? 'PASS' : 'FAIL'}</span>
+            </div>`;
+            html += '</div>';
+
+            // Summary
+            html += `<div class="summary">
+                <h3>Test Summary</h3>
+                <p><strong>Passed:</strong> ${passed} | <strong>Failed:</strong> ${failed} | <strong>Total:</strong> ${passed + failed}</p>
+                <p><strong>Status:</strong> ${failed === 0 ? '✅ All tests passed!' : '❌ Some tests failed!'}</p>
+            </div>`;
+
+            document.getElementById('testResults').innerHTML = html;
+
+            // Also show player summary
+            showPlayerSummary();
+        }
+
+        function showPlayerSummary() {
+            let html = '<h2>Test Player Summaries</h2>';
+            html += '<p>These players demonstrate various scoring levels:</p>';
+
+            testPlayers.forEach(player => {
+                const c = player.catching || {};
+                const b = player.baserunning || {};
+                const intang = player.intangibles || {};
+
+                // Calculate scores
+                const poptimeAvg = getAverageTime(c.poptime || []);
+                const poptimeScore = poptimeAvg ? calculateSpeedScore('poptime', poptimeAvg) : 0;
+                const throwAccTotal = (c.throwaccuracy || []).reduce((s, v) => s + (v || 0), 0);
+                const catchingTotal = poptimeScore + throwAccTotal + (c.blocking || 0) + (c.footwork || 0) +
+                    (c.mobility || 0) + (c.explosiveness_throwing || 0) + (c.explosiveness_bunts || 0);
+
+                const h1bAvg = getAdjustedAvgH1B(b.h1b || { times: [null, null], missed1b: [false, false] });
+                const h1bScore = calculateSpeedScore('h1b', h1bAvg);
+                const tbhAvg = getAdjustedAvg2BH(b['2bh'] || { times: [null, null], missed3b: [false, false] });
+                const tbhScore = calculateSpeedScore('2bh', tbhAvg);
+                const h3bAdj = getAdjustedH3B(b.h3b || { time: null, nostick: false });
+                const h3bScore = calculateSpeedScore('h3b', h3bAdj);
+                const hhAdj = getAdjustedHH(b.hh || { time: null, missedbase: false });
+                const hhScore = calculateSpeedScore('hh', hhAdj);
+                const proAgilityScore = calculateProAgilityScore(b.proagility || []);
+                const broadJumpScore = calculateBroadJumpScore(b.broadjump || []);
+
+                const speedTotal = h1bScore + tbhScore + h3bScore + hhScore + proAgilityScore + broadJumpScore;
+
+                // Scrimmage
+                const scrimmage = b.scrimmage || {};
+                let scrimmageTotal = 0;
+                Object.values(scrimmage).forEach(coach => {
+                    scrimmageTotal += (coach.chopstep || 0) + (coach.rounding || 0) + (coach.sliding || 0) +
+                        (coach.softballiq || 0) + (coach.aggressiveness || 0);
+                });
+                const baserunningTotal = speedTotal + scrimmageTotal;
+
+                // Intangibles
+                let intangiblesTotal = 0;
+                Object.entries(intang).forEach(([key, val]) => {
+                    if (key !== 'notes' && typeof val === 'object') {
+                        intangiblesTotal += (val.awareness || 0) + (val.leadership || 0) + (val.enthusiasm || 0);
+                    }
+                });
+
+                const grandTotal = catchingTotal + baserunningTotal + intangiblesTotal;
+
+                html += `<div class="player-card">
+                    <h3>#${player.number} ${player.name}</h3>
+                    <table>
+                        <tr>
+                            <th>Category</th>
+                            <th>Details</th>
+                            <th>Score</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Catching</strong></td>
+                            <td>
+                                Pop Time: ${poptimeAvg || 'N/A'}s <span class="score-badge score-${poptimeScore}">${poptimeScore}</span><br>
+                                Throw Acc: ${throwAccTotal}/9 | Block: ${c.blocking || 0} | Foot: ${c.footwork || 0} | Mob: ${c.mobility || 0}<br>
+                                Expl-Throw: ${c.explosiveness_throwing || 0} | Expl-Bunt: ${c.explosiveness_bunts || 0}
+                            </td>
+                            <td><strong>${catchingTotal}/29</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Baserunning</strong></td>
+                            <td>
+                                H->1B: ${h1bAvg || 'N/A'}s <span class="score-badge score-${h1bScore}">${h1bScore}</span> |
+                                2B->H: ${tbhAvg || 'N/A'}s <span class="score-badge score-${tbhScore}">${tbhScore}</span><br>
+                                H->3B: ${h3bAdj || 'N/A'}s <span class="score-badge score-${h3bScore}">${h3bScore}</span> |
+                                H->H: ${hhAdj || 'N/A'}s <span class="score-badge score-${hhScore}">${hhScore}</span><br>
+                                Pro Agility: <span class="score-badge score-${proAgilityScore}">${proAgilityScore}</span> |
+                                Broad Jump: <span class="score-badge score-${broadJumpScore}">${broadJumpScore}</span><br>
+                                Scrimmage: ${scrimmageTotal}
+                            </td>
+                            <td><strong>${baserunningTotal}/45</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Intangibles</strong></td>
+                            <td>
+                                Awareness + Leadership + Enthusiasm
+                            </td>
+                            <td><strong>${intangiblesTotal}/15</strong></td>
+                        </tr>
+                        <tr style="background: #ebf8ff;">
+                            <td colspan="2"><strong>GRAND TOTAL</strong></td>
+                            <td><strong style="font-size: 1.2em;">${grandTotal}/89</strong></td>
+                        </tr>
+                    </table>
+                </div>`;
+            });
+
+            document.getElementById('playerSummary').innerHTML = html;
+        }
+
+        function loadTestDataToApp() {
+            const STORAGE_KEY = 'gc_softball_tryouts_2026';
+
+            // Get existing data
+            let existingData = localStorage.getItem(STORAGE_KEY);
+            let data = existingData ? JSON.parse(existingData) : { players: [] };
+
+            // Remove any existing test players (IDs 901-999)
+            data.players = data.players.filter(p => p.id < 901 || p.id > 999);
+
+            // Add test players
+            data.players = [...data.players, ...testPlayers];
+
+            // Save back
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+            alert(`Loaded ${testPlayers.length} test players into the app!\n\nOpen gc_softball_tryouts.html and refresh to see them.\n\nTest players have IDs 901-906 and numbers 7, 12, 23, 34, 45, 99.`);
+        }
+
+        function clearTestData() {
+            const STORAGE_KEY = 'gc_softball_tryouts_2026';
+
+            let existingData = localStorage.getItem(STORAGE_KEY);
+            if (!existingData) {
+                alert('No data found.');
+                return;
+            }
+
+            let data = JSON.parse(existingData);
+            const before = data.players.length;
+            data.players = data.players.filter(p => p.id < 901 || p.id > 999);
+            const after = data.players.length;
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+            alert(`Removed ${before - after} test players. ${after} players remain.`);
+        }
+
+        // Auto-run tests on page load
+        window.onload = runAllTests;
+    </script>
+</body>
+</html>

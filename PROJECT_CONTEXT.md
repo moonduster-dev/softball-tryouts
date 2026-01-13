@@ -21,24 +21,24 @@ A multi-coach softball tryout scoring application with Google Sheets integration
 
 **NOTE: All multi-attempt drills are scored based on AVERAGE of attempts (not best).**
 
-### Catching (30 points max)
-- Pop Time: 2 attempts, **averaged**, scored 1-5 based on thresholds
+### Catching (29 points max)
+- Pop Time: 2 attempts, **averaged**, scored 1-5 based on thresholds (5 max)
 - Throw Accuracy: 3 attempts, 0-3 each (9 max)
-- Blocking, Footwork, Mobility: 0-3 each
-- Explosiveness (Throwing), Explosiveness (Bunts): 0-3 each
+- Blocking, Footwork, Mobility: 0-3 each (9 max)
+- Explosiveness (Throwing), Explosiveness (Bunts): 0-3 each (6 max)
 
-### Baserunning (35 points max)
-**Speed Metrics (timed, **averaged**, scored 1-5):**
+### Baserunning (45 points max)
+**Speed Metrics (20 max, timed, **averaged**, scored 1-5 each):**
 - H→1B: 2 attempts **averaged**, +0.5s penalty per attempt if missed 1B
 - 2B→H: 2 attempts **averaged**, +1s penalty per attempt if missed 3B
 - H→3B: 1 attempt, +1s penalty if no stick
 - H→H: 1 attempt, +1s penalty if missed base
 
-**Explosiveness:**
+**Explosiveness (10 max):**
 - Pro Agility: 2 attempts **averaged**, scored 1-5
 - Broad Jump: 2 attempts in feet/inches **averaged**, scored 1-5
 
-**Scrimmage (coach-averaged, 1-3 each):**
+**Scrimmage (15 max, coach-averaged, 1-3 each):**
 - Chop Step, Rounding, Sliding, Softball IQ, Aggressiveness
 
 ### Intangibles (15 points max, coach-averaged, 1-5 each)
