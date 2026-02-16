@@ -337,11 +337,11 @@
                 <button onclick="selectCategory('pitching')" id="cat-pitching" class="category-btn px-4 py-2 bg-gray-100 text-gray-500 rounded-lg font-medium flex items-center gap-1" disabled title="Coming soon">
                     <img src="pitching.jpg" alt="Pitching" class="w-5 h-5 object-contain"> Pitching (Soon)
                 </button>
-                <button onclick="selectCategory('fielding')" id="cat-fielding" class="category-btn px-4 py-2 bg-gray-100 text-gray-500 rounded-lg font-medium flex items-center gap-1" disabled title="Coming soon">
-                    <img src="fielding.jpg" alt="Fielding" class="w-5 h-5 object-contain"> Fielding (Soon)
+                <button onclick="selectCategory('fielding')" id="cat-fielding" class="category-btn px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 font-medium flex items-center gap-1">
+                    <img src="fielding.jpg" alt="Fielding" class="w-5 h-5 object-contain"> Fielding
                 </button>
-                <button onclick="selectCategory('throwing')" id="cat-throwing" class="category-btn px-4 py-2 bg-gray-100 text-gray-500 rounded-lg font-medium flex items-center gap-1" disabled title="Coming soon">
-                    <img src="softball fielding.JPG" alt="Throwing" class="w-5 h-5 object-contain"> Throwing (Soon)
+                <button onclick="selectCategory('throwing')" id="cat-throwing" class="category-btn px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 font-medium flex items-center gap-1">
+                    <img src="softball fielding.JPG" alt="Throwing" class="w-5 h-5 object-contain"> Throwing
                 </button>
                 <button onclick="selectCategory('hitting')" id="cat-hitting" class="category-btn px-4 py-2 bg-gray-100 text-gray-500 rounded-lg font-medium flex items-center gap-1" disabled title="Coming soon">
                     <img src="hitting.jpg" alt="Hitting" class="w-5 h-5 object-contain"> Hitting (Soon)
@@ -749,6 +749,29 @@
             };
         }
 
+        function createFieldingData() {
+            return {
+                // Ground Balls drill (2 attempts, each with 5 scoring categories)
+                groundballs: [
+                    { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null },
+                    { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null }
+                ],
+                // Fly Ball drill (5 scoring categories)
+                flyball: { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null },
+                notes: []
+            };
+        }
+
+        function createThrowingData() {
+            return {
+                // Throwing Velocity (single value in mph)
+                velocity: null,
+                // Fly Ball Tagup Throw drill (5 scoring categories)
+                flyballtagup: { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null },
+                notes: []
+            };
+        }
+
         function deletePlayer(id) {
             if (!confirm('Are you sure you want to delete this player?')) return;
             players = players.filter(p => p.id !== id);
@@ -822,6 +845,8 @@
             if (!player.catching) { player.catching = createCatchingData(); needsSave = true; }
             if (!player.baserunning) { player.baserunning = createBaserunningData(); needsSave = true; }
             if (!player.intangibles) { player.intangibles = {}; needsSave = true; }
+            if (!player.fielding) { player.fielding = createFieldingData(); needsSave = true; }
+            if (!player.throwing) { player.throwing = createThrowingData(); needsSave = true; }
             if (needsSave) saveData();
 
             switch (selectedCategory) {
@@ -833,6 +858,12 @@
                     break;
                 case 'intangibles':
                     area.innerHTML = renderIntangiblesSection(player);
+                    break;
+                case 'fielding':
+                    area.innerHTML = renderFieldingSection(player);
+                    break;
+                case 'throwing':
+                    area.innerHTML = renderThrowingSection(player);
                     break;
                 default:
                     area.innerHTML = '<div class="bg-white rounded-lg shadow-lg p-6 text-center text-gray-500">This category is coming soon!</div>';
@@ -1166,6 +1197,169 @@
         }
 
         // ============================================
+        // FIELDING SECTION
+        // ============================================
+        function renderFieldingSection(player) {
+            if (!player.fielding) player.fielding = createFieldingData();
+            const f = player.fielding;
+
+            const scoreCategories = [
+                { id: 'footwork', name: 'Footwork' },
+                { id: 'technique', name: 'Fielding Technique' },
+                { id: 'moveintothrow', name: 'Move Into the Throw' },
+                { id: 'strongthrow', name: 'Strong Accurate Throw' },
+                { id: 'intangibles', name: 'Intangibles' }
+            ];
+
+            return `
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                        <img src="fielding.jpg" alt="Fielding" class="w-6 h-6 object-contain"> Fielding - ${player.name}
+                    </h2>
+
+                    <!-- Ground Balls (2 attempts) -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold mb-3 text-green-700">Ground Balls (2 attempts)</h3>
+                        ${[0, 1].map(attemptIdx => `
+                            <div class="mb-4 p-4 bg-green-50 rounded-lg">
+                                <h4 class="font-semibold mb-3">Attempt ${attemptIdx + 1}</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                                    ${scoreCategories.map(cat => `
+                                        <div class="p-2 bg-white rounded border">
+                                            <label class="text-xs font-medium text-gray-600 block mb-1">${cat.name}</label>
+                                            <div class="flex gap-1">
+                                                ${[1, 2, 3, 4, 5].map(v => `
+                                                    <button onclick="updateGroundBalls(${player.id}, ${attemptIdx}, '${cat.id}', ${v})"
+                                                        class="flex-1 py-1 text-sm rounded ${f.groundballs[attemptIdx]?.[cat.id] == v ? 'bg-green-600 text-white' : 'bg-gray-100 hover:bg-green-100'}">
+                                                        ${v}
+                                                    </button>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                <div class="mt-2 text-sm text-gray-600">
+                                    Attempt ${attemptIdx + 1} Total: <strong>${calculateGroundBallAttemptTotal(f.groundballs[attemptIdx])}</strong>/25
+                                </div>
+                            </div>
+                        `).join('')}
+                        <div class="p-3 bg-green-100 rounded-lg">
+                            <strong>Ground Balls Average:</strong> ${calculateGroundBallsAverage(f.groundballs).toFixed(1)}/25
+                        </div>
+                    </div>
+
+                    <!-- Fly Ball -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold mb-3 text-green-700">Fly Ball</h3>
+                        <div class="p-4 bg-green-50 rounded-lg">
+                            <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                                ${scoreCategories.map(cat => `
+                                    <div class="p-2 bg-white rounded border">
+                                        <label class="text-xs font-medium text-gray-600 block mb-1">${cat.name}</label>
+                                        <div class="flex gap-1">
+                                            ${[1, 2, 3, 4, 5].map(v => `
+                                                <button onclick="updateFlyBall(${player.id}, '${cat.id}', ${v})"
+                                                    class="flex-1 py-1 text-sm rounded ${f.flyball?.[cat.id] == v ? 'bg-green-600 text-white' : 'bg-gray-100 hover:bg-green-100'}">
+                                                    ${v}
+                                                </button>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="mt-2 text-sm text-gray-600">
+                                Fly Ball Total: <strong>${calculateFlyBallTotal(f.flyball)}</strong>/25
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 p-3 bg-green-100 rounded-lg">
+                        <strong>Fielding Total:</strong> ${calculateFieldingTotal(player).toFixed(1)}/50
+                    </div>
+
+                    <!-- Notes Section -->
+                    ${renderNotesSection(player, 'fielding')}
+                </div>
+            `;
+        }
+
+        // ============================================
+        // THROWING SECTION
+        // ============================================
+        function renderThrowingSection(player) {
+            if (!player.throwing) player.throwing = createThrowingData();
+            const t = player.throwing;
+
+            const scoreCategories = [
+                { id: 'footwork', name: 'Footwork' },
+                { id: 'technique', name: 'Fielding Technique' },
+                { id: 'moveintothrow', name: 'Move Into the Throw' },
+                { id: 'strongthrow', name: 'Strong Accurate Throw' },
+                { id: 'intangibles', name: 'Intangibles' }
+            ];
+
+            return `
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                        <img src="softball fielding.JPG" alt="Throwing" class="w-6 h-6 object-contain"> Throwing - ${player.name}
+                    </h2>
+
+                    <!-- Throwing Velocity -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold mb-3 text-red-700">Throwing Velocity</h3>
+                        <div class="p-4 bg-red-50 rounded-lg">
+                            <p class="text-xs text-gray-500 mb-2">5: 63+ | 4: 59-62 | 3: 53-58 | 2: 48-52 | 1: Under 48</p>
+                            <div class="flex items-center gap-4">
+                                <div class="flex-1">
+                                    <label class="text-sm text-gray-600">Velocity (mph)</label>
+                                    <input type="number" step="1" value="${t.velocity || ''}"
+                                        onchange="updateThrowingVelocity(${player.id}, this.value)"
+                                        class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., 55">
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-sm text-gray-600">Score</div>
+                                    <div class="text-2xl font-bold text-red-600">${calculateVelocityScore(t.velocity)}/5</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fly Ball Tagup Throw -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold mb-3 text-red-700">Fly Ball Tagup Throw</h3>
+                        <div class="p-4 bg-red-50 rounded-lg">
+                            <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                                ${scoreCategories.map(cat => `
+                                    <div class="p-2 bg-white rounded border">
+                                        <label class="text-xs font-medium text-gray-600 block mb-1">${cat.name}</label>
+                                        <div class="flex gap-1">
+                                            ${[1, 2, 3, 4, 5].map(v => `
+                                                <button onclick="updateFlyBallTagup(${player.id}, '${cat.id}', ${v})"
+                                                    class="flex-1 py-1 text-sm rounded ${t.flyballtagup?.[cat.id] == v ? 'bg-red-600 text-white' : 'bg-gray-100 hover:bg-red-100'}">
+                                                    ${v}
+                                                </button>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="mt-2 text-sm text-gray-600">
+                                Fly Ball Tagup Total: <strong>${calculateFlyBallTagupTotal(t.flyballtagup)}</strong>/25
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 p-3 bg-red-100 rounded-lg">
+                        <strong>Throwing Total:</strong> ${calculateThrowingTotal(player).toFixed(1)}/30
+                    </div>
+
+                    <!-- Notes Section -->
+                    ${renderNotesSection(player, 'throwing')}
+                </div>
+            `;
+        }
+
+        // ============================================
         // NOTES SECTION
         // ============================================
         function renderNotesSection(player, category) {
@@ -1175,14 +1369,19 @@
             } else if (category === 'baserunning' && player.baserunning) {
                 notes = player.baserunning.notes || [];
             } else if (category === 'intangibles') {
-                // For intangibles, notes are stored directly in the intangibles object
                 notes = player.intangibles?.notes || [];
+            } else if (category === 'fielding' && player.fielding) {
+                notes = player.fielding.notes || [];
+            } else if (category === 'throwing' && player.throwing) {
+                notes = player.throwing.notes || [];
             }
 
             const categoryColors = {
                 catching: 'purple',
                 baserunning: 'blue',
-                intangibles: 'yellow'
+                intangibles: 'yellow',
+                fielding: 'green',
+                throwing: 'red'
             };
             const color = categoryColors[category] || 'gray';
 
@@ -1256,6 +1455,14 @@
                 if (!player.intangibles) player.intangibles = createIntangiblesData();
                 if (!player.intangibles.notes) player.intangibles.notes = [];
                 player.intangibles.notes.push(note);
+            } else if (category === 'fielding') {
+                if (!player.fielding) player.fielding = createFieldingData();
+                if (!player.fielding.notes) player.fielding.notes = [];
+                player.fielding.notes.push(note);
+            } else if (category === 'throwing') {
+                if (!player.throwing) player.throwing = createThrowingData();
+                if (!player.throwing.notes) player.throwing.notes = [];
+                player.throwing.notes.push(note);
             }
 
             input.value = '';
@@ -1274,6 +1481,10 @@
                 notes = player.baserunning.notes;
             } else if (category === 'intangibles' && player.intangibles) {
                 notes = player.intangibles.notes;
+            } else if (category === 'fielding' && player.fielding) {
+                notes = player.fielding.notes;
+            } else if (category === 'throwing' && player.throwing) {
+                notes = player.throwing.notes;
             }
 
             if (notes && notes[noteIndex] && notes[noteIndex].coach === currentUser) {
@@ -1355,6 +1566,117 @@
             player.intangibles[currentUser][drillId] = value;
             saveData();
             renderScoringArea();
+        }
+
+        // ============================================
+        // FIELDING UPDATE FUNCTIONS
+        // ============================================
+        function updateGroundBalls(playerId, attemptIdx, category, value) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+            if (!player.fielding) player.fielding = createFieldingData();
+            if (!player.fielding.groundballs) {
+                player.fielding.groundballs = [
+                    { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null },
+                    { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null }
+                ];
+            }
+            if (!player.fielding.groundballs[attemptIdx]) {
+                player.fielding.groundballs[attemptIdx] = { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null };
+            }
+            player.fielding.groundballs[attemptIdx][category] = value;
+            saveData();
+            renderScoringArea();
+        }
+
+        function updateFlyBall(playerId, category, value) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+            if (!player.fielding) player.fielding = createFieldingData();
+            if (!player.fielding.flyball) {
+                player.fielding.flyball = { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null };
+            }
+            player.fielding.flyball[category] = value;
+            saveData();
+            renderScoringArea();
+        }
+
+        // ============================================
+        // THROWING UPDATE FUNCTIONS
+        // ============================================
+        function updateThrowingVelocity(playerId, value) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+            if (!player.throwing) player.throwing = createThrowingData();
+            player.throwing.velocity = value === '' ? null : parseFloat(value);
+            saveData();
+            renderScoringArea();
+        }
+
+        function updateFlyBallTagup(playerId, category, value) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+            if (!player.throwing) player.throwing = createThrowingData();
+            if (!player.throwing.flyballtagup) {
+                player.throwing.flyballtagup = { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null };
+            }
+            player.throwing.flyballtagup[category] = value;
+            saveData();
+            renderScoringArea();
+        }
+
+        // ============================================
+        // FIELDING & THROWING CALCULATION FUNCTIONS
+        // ============================================
+        function calculateGroundBallAttemptTotal(attempt) {
+            if (!attempt) return 0;
+            const categories = ['footwork', 'technique', 'moveintothrow', 'strongthrow', 'intangibles'];
+            return categories.reduce((sum, cat) => sum + (attempt[cat] || 0), 0);
+        }
+
+        function calculateGroundBallsAverage(groundballs) {
+            if (!groundballs || !Array.isArray(groundballs)) return 0;
+            const totals = groundballs.map(attempt => calculateGroundBallAttemptTotal(attempt));
+            const validTotals = totals.filter(t => t > 0);
+            if (validTotals.length === 0) return 0;
+            return validTotals.reduce((sum, t) => sum + t, 0) / validTotals.length;
+        }
+
+        function calculateFlyBallTotal(flyball) {
+            if (!flyball) return 0;
+            const categories = ['footwork', 'technique', 'moveintothrow', 'strongthrow', 'intangibles'];
+            return categories.reduce((sum, cat) => sum + (flyball[cat] || 0), 0);
+        }
+
+        function calculateFlyBallTagupTotal(flyballtagup) {
+            if (!flyballtagup) return 0;
+            const categories = ['footwork', 'technique', 'moveintothrow', 'strongthrow', 'intangibles'];
+            return categories.reduce((sum, cat) => sum + (flyballtagup[cat] || 0), 0);
+        }
+
+        function calculateVelocityScore(velocity) {
+            if (velocity === null || velocity === undefined || velocity === '') return 0;
+            const v = parseFloat(velocity);
+            if (isNaN(v)) return 0;
+            if (v >= 63) return 5;
+            if (v >= 59) return 4;
+            if (v >= 53) return 3;
+            if (v >= 48) return 2;
+            return 1;
+        }
+
+        function calculateFieldingTotal(player) {
+            const f = player.fielding || {};
+            const groundBallsAvg = calculateGroundBallsAverage(f.groundballs || []);
+            const flyBallTotal = calculateFlyBallTotal(f.flyball);
+            return groundBallsAvg + flyBallTotal;
+        }
+
+        function calculateThrowingTotal(player) {
+            const t = player.throwing || {};
+            const velocityScore = calculateVelocityScore(t.velocity);
+            const flyBallTagupTotal = calculateFlyBallTagupTotal(t.flyballtagup);
+            return velocityScore + flyBallTagupTotal;
         }
 
         // ============================================
@@ -1935,8 +2257,8 @@
             }
 
             const sortedPlayers = [...players].sort((a, b) => {
-                const totalA = calculateCatchingTotal(a) + calculateBaserunningTotal(a) + calculateIntangiblesTotal(a);
-                const totalB = calculateCatchingTotal(b) + calculateBaserunningTotal(b) + calculateIntangiblesTotal(b);
+                const totalA = calculateCatchingTotal(a) + calculateBaserunningTotal(a) + calculateIntangiblesTotal(a) + calculateFieldingTotal(a) + calculateThrowingTotal(a);
+                const totalB = calculateCatchingTotal(b) + calculateBaserunningTotal(b) + calculateIntangiblesTotal(b) + calculateFieldingTotal(b) + calculateThrowingTotal(b);
                 return totalB - totalA;
             });
 
@@ -1949,16 +2271,22 @@
             const c = player.catching || {};
             const b = player.baserunning || {};
             const intang = player.intangibles || {};
+            const f = player.fielding || {};
+            const t = player.throwing || {};
 
             const catchingTotal = calculateCatchingTotal(player);
             const baserunningTotal = calculateBaserunningTotal(player);
             const intangiblesTotal = calculateIntangiblesTotal(player);
-            const grandTotal = catchingTotal + baserunningTotal + intangiblesTotal;
+            const fieldingTotal = calculateFieldingTotal(player);
+            const throwingTotal = calculateThrowingTotal(player);
+            const grandTotal = catchingTotal + baserunningTotal + intangiblesTotal + fieldingTotal + throwingTotal;
 
             // Get all notes
             const catchingNotes = c.notes || [];
             const baserunningNotes = b.notes || [];
             const intangiblesNotes = intang.notes || [];
+            const fieldingNotes = f.notes || [];
+            const throwingNotes = t.notes || [];
 
             return `
                 <div class="report-player border-2 border-gray-200 rounded-lg p-6 bg-white print:break-inside-avoid">
@@ -1975,18 +2303,26 @@
                     </div>
 
                     <!-- Score Summary Bar -->
-                    <div class="grid grid-cols-3 gap-4 mb-6">
+                    <div class="grid grid-cols-5 gap-2 mb-6">
                         <div class="bg-purple-100 p-3 rounded-lg text-center">
-                            <div class="text-2xl font-bold text-purple-700">${catchingTotal}</div>
-                            <div class="text-sm text-purple-600">Catching</div>
+                            <div class="text-xl font-bold text-purple-700">${catchingTotal}</div>
+                            <div class="text-xs text-purple-600">Catching</div>
                         </div>
                         <div class="bg-blue-100 p-3 rounded-lg text-center">
-                            <div class="text-2xl font-bold text-blue-700">${baserunningTotal.toFixed(1)}</div>
-                            <div class="text-sm text-blue-600">Baserunning</div>
+                            <div class="text-xl font-bold text-blue-700">${baserunningTotal.toFixed(1)}</div>
+                            <div class="text-xs text-blue-600">Baserunning</div>
+                        </div>
+                        <div class="bg-green-100 p-3 rounded-lg text-center">
+                            <div class="text-xl font-bold text-green-700">${fieldingTotal.toFixed(1)}</div>
+                            <div class="text-xs text-green-600">Fielding</div>
+                        </div>
+                        <div class="bg-red-100 p-3 rounded-lg text-center">
+                            <div class="text-xl font-bold text-red-700">${throwingTotal.toFixed(1)}</div>
+                            <div class="text-xs text-red-600">Throwing</div>
                         </div>
                         <div class="bg-yellow-100 p-3 rounded-lg text-center">
-                            <div class="text-2xl font-bold text-yellow-700">${intangiblesTotal.toFixed(1)}</div>
-                            <div class="text-sm text-yellow-600">Intangibles</div>
+                            <div class="text-xl font-bold text-yellow-700">${intangiblesTotal.toFixed(1)}</div>
+                            <div class="text-xs text-yellow-600">Intangibles</div>
                         </div>
                     </div>
 
@@ -2028,6 +2364,36 @@
                             <div class="mt-2 p-2 bg-blue-50 rounded text-sm">
                                 <strong>Notes:</strong>
                                 ${baserunningNotes.map(n => `<div class="ml-2"><em>${n.coach}:</em> ${n.text}</div>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- Fielding Details -->
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-green-700 border-b border-green-200 pb-1 mb-2">Fielding Details</h4>
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                            <div><span class="text-gray-500">Ground Balls (Avg):</span> ${calculateGroundBallsAverage(f.groundballs || []).toFixed(1)}/25</div>
+                            <div><span class="text-gray-500">Fly Ball:</span> ${calculateFlyBallTotal(f.flyball)}/25</div>
+                        </div>
+                        ${fieldingNotes.length > 0 ? `
+                            <div class="mt-2 p-2 bg-green-50 rounded text-sm">
+                                <strong>Notes:</strong>
+                                ${fieldingNotes.map(n => `<div class="ml-2"><em>${n.coach}:</em> ${n.text}</div>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- Throwing Details -->
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-red-700 border-b border-red-200 pb-1 mb-2">Throwing Details</h4>
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                            <div><span class="text-gray-500">Velocity:</span> ${t.velocity || 'N/A'} mph (${calculateVelocityScore(t.velocity)}/5)</div>
+                            <div><span class="text-gray-500">Fly Ball Tagup:</span> ${calculateFlyBallTagupTotal(t.flyballtagup)}/25</div>
+                        </div>
+                        ${throwingNotes.length > 0 ? `
+                            <div class="mt-2 p-2 bg-red-50 rounded text-sm">
+                                <strong>Notes:</strong>
+                                ${throwingNotes.map(n => `<div class="ml-2"><em>${n.coach}:</em> ${n.text}</div>`).join('')}
                             </div>
                         ` : ''}
                     </div>
@@ -2113,8 +2479,8 @@
             }
 
             const sortedPlayers = [...players].sort((a, b) => {
-                const totalA = calculateCatchingTotal(a) + calculateBaserunningTotal(a) + calculateIntangiblesTotal(a);
-                const totalB = calculateCatchingTotal(b) + calculateBaserunningTotal(b) + calculateIntangiblesTotal(b);
+                const totalA = calculateCatchingTotal(a) + calculateBaserunningTotal(a) + calculateIntangiblesTotal(a) + calculateFieldingTotal(a) + calculateThrowingTotal(a);
+                const totalB = calculateCatchingTotal(b) + calculateBaserunningTotal(b) + calculateIntangiblesTotal(b) + calculateFieldingTotal(b) + calculateThrowingTotal(b);
                 return totalB - totalA;
             });
 
@@ -2128,6 +2494,8 @@
                                 <th class="px-3 py-2 text-center">#</th>
                                 <th class="px-3 py-2 text-center">Catching</th>
                                 <th class="px-3 py-2 text-center">Baserunning</th>
+                                <th class="px-3 py-2 text-center">Fielding</th>
+                                <th class="px-3 py-2 text-center">Throwing</th>
                                 <th class="px-3 py-2 text-center">Intangibles</th>
                                 <th class="px-3 py-2 text-center">Total</th>
                                 <th class="px-3 py-2 text-center">Actions</th>
@@ -2137,17 +2505,21 @@
                             ${sortedPlayers.map((p, idx) => {
                                 const catching = calculateCatchingTotal(p);
                                 const baserunning = calculateBaserunningTotal(p);
+                                const fielding = calculateFieldingTotal(p);
+                                const throwing = calculateThrowingTotal(p);
                                 const intangibles = calculateIntangiblesTotal(p);
-                                const total = catching + baserunning + intangibles;
+                                const total = catching + baserunning + fielding + throwing + intangibles;
                                 return `
                                     <tr class="border-b hover:bg-gray-50">
                                         <td class="px-3 py-2 font-bold">${idx + 1}</td>
                                         <td class="px-3 py-2">${p.name}</td>
                                         <td class="px-3 py-2 text-center">${p.number || '-'}</td>
                                         <td class="px-3 py-2 text-center">${catching}/30</td>
-                                        <td class="px-3 py-2 text-center">${baserunning}/35</td>
+                                        <td class="px-3 py-2 text-center">${baserunning.toFixed(1)}/30</td>
+                                        <td class="px-3 py-2 text-center">${fielding.toFixed(1)}/50</td>
+                                        <td class="px-3 py-2 text-center">${throwing.toFixed(1)}/30</td>
                                         <td class="px-3 py-2 text-center">${intangibles.toFixed(1)}/15</td>
-                                        <td class="px-3 py-2 text-center font-bold">${total.toFixed(1)}/80</td>
+                                        <td class="px-3 py-2 text-center font-bold">${total.toFixed(1)}/155</td>
                                         <td class="px-3 py-2 text-center">
                                             <button onclick="deletePlayer(${p.id})" class="text-red-600 hover:text-red-800">🗑️</button>
                                         </td>
@@ -2304,13 +2676,15 @@
 
         function exportData() {
             // Simple CSV export
-            let csv = 'Name,Number,Catching,Baserunning,Intangibles,Total\n';
+            let csv = 'Name,Number,Catching,Baserunning,Fielding,Throwing,Intangibles,Total\n';
             players.forEach(p => {
                 const catching = calculateCatchingTotal(p);
                 const baserunning = calculateBaserunningTotal(p);
+                const fielding = calculateFieldingTotal(p);
+                const throwing = calculateThrowingTotal(p);
                 const intangibles = calculateIntangiblesTotal(p);
-                const total = catching + baserunning + intangibles;
-                csv += `"${p.name}","${p.number || ''}",${catching},${baserunning},${intangibles.toFixed(1)},${total.toFixed(1)}\n`;
+                const total = catching + baserunning + fielding + throwing + intangibles;
+                csv += `"${p.name}","${p.number || ''}",${catching},${baserunning.toFixed(1)},${fielding.toFixed(1)},${throwing.toFixed(1)},${intangibles.toFixed(1)},${total.toFixed(1)}\n`;
             });
 
             const blob = new Blob([csv], { type: 'text/csv' });
