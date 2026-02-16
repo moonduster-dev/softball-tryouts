@@ -334,8 +334,8 @@
                 <button onclick="selectCategory('intangibles')" id="cat-intangibles" class="category-btn px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 font-medium">
                     ⭐ Intangibles
                 </button>
-                <button onclick="selectCategory('pitching')" id="cat-pitching" class="category-btn px-4 py-2 bg-gray-100 text-gray-500 rounded-lg font-medium flex items-center gap-1" disabled title="Coming soon">
-                    <img src="pitching.jpg" alt="Pitching" class="w-5 h-5 object-contain"> Pitching (Soon)
+                <button onclick="selectCategory('pitching')" id="cat-pitching" class="category-btn px-4 py-2 bg-pink-100 text-pink-700 rounded-lg hover:bg-pink-200 font-medium flex items-center gap-1">
+                    <img src="pitching.jpg" alt="Pitching" class="w-5 h-5 object-contain"> Pitching
                 </button>
                 <button onclick="selectCategory('fielding')" id="cat-fielding" class="category-btn px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 font-medium flex items-center gap-1">
                     <img src="fielding.jpg" alt="Fielding" class="w-5 h-5 object-contain"> Fielding
@@ -828,6 +828,18 @@
             };
         }
 
+        function createPitchingData() {
+            return {
+                // Evaluation categories - coach-keyed scoring
+                evaluation: {},  // 2 categories: mechanics, athleticism
+                // Number of pitches in arsenal
+                numPitches: null,
+                // Array of pitches: { type: string, speeds: [null, null], control: null }
+                pitches: [],
+                notes: []
+            };
+        }
+
         function deletePlayer(id) {
             if (!confirm('Are you sure you want to delete this player?')) return;
             players = players.filter(p => p.id !== id);
@@ -903,6 +915,7 @@
             if (!player.intangibles) { player.intangibles = {}; needsSave = true; }
             if (!player.fielding) { player.fielding = createFieldingData(); needsSave = true; }
             if (!player.throwing) { player.throwing = createThrowingData(); needsSave = true; }
+            if (!player.pitching) { player.pitching = createPitchingData(); needsSave = true; }
             if (needsSave) saveData();
 
             switch (selectedCategory) {
@@ -920,6 +933,9 @@
                     break;
                 case 'throwing':
                     area.innerHTML = renderThrowingSection(player);
+                    break;
+                case 'pitching':
+                    area.innerHTML = renderPitchingSection(player);
                     break;
                 default:
                     area.innerHTML = '<div class="bg-white rounded-lg shadow-lg p-6 text-center text-gray-500">This category is coming soon!</div>';
@@ -1412,6 +1428,234 @@
         }
 
         // ============================================
+        // PITCHING SECTION
+        // ============================================
+        function renderPitchingSection(player) {
+            if (!player.pitching) player.pitching = createPitchingData();
+            const p = player.pitching;
+
+            const pitchingCategories = [
+                { id: 'mechanics', name: 'Pitching Mechanics' },
+                { id: 'athleticism', name: 'Athleticism' }
+            ];
+
+            const pitchTypes = ['Fastball', 'Curveball', 'Drop', 'Rise', 'Changeup', 'Screw', 'Other'];
+
+            return `
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                        <img src="pitching.jpg" alt="Pitching" class="w-6 h-6 object-contain"> Pitching - ${player.name}
+                    </h2>
+
+                    <!-- Your Evaluation -->
+                    <div class="mb-6 p-4 bg-pink-50 rounded-lg">
+                        <h3 class="font-semibold mb-3">📋 Your Evaluation</h3>
+                        <p class="text-xs text-gray-500 mb-3">All coaches evaluate these - scores are averaged | 1=Poor, 2=Below Avg, 3=Average, 4=Above Avg, 5=Excellent</p>
+                        <div class="grid grid-cols-2 gap-4">
+                            ${pitchingCategories.map(cat => {
+                                const evaluation = p.evaluation || {};
+                                const coachScores = evaluation[currentUser] || {};
+                                const value = coachScores[cat.id];
+                                return `
+                                    <div class="p-3 bg-white rounded-lg border">
+                                        <label class="text-sm font-medium text-gray-700">${cat.name}</label>
+                                        <div class="flex gap-1 mt-2">
+                                            ${[1, 2, 3, 4, 5].map(v => `
+                                                <button onclick="updatePitchingEvaluation(${player.id}, '${cat.id}', ${v})"
+                                                    class="score-btn flex-1 py-1 rounded ${value == v ? 'bg-pink-600 text-white' : 'bg-gray-100 hover:bg-pink-100'}">
+                                                    ${v}
+                                                </button>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Number of Pitches -->
+                    <div class="mb-6 p-4 bg-pink-50 rounded-lg">
+                        <div class="flex items-center gap-4 mb-4">
+                            <label class="font-semibold"># of Pitches:</label>
+                            <input type="number" min="0" max="10" value="${p.numPitches || ''}"
+                                onchange="updatePitchingNumPitches(${player.id}, this.value)"
+                                class="w-20 px-3 py-2 border rounded-lg text-center" placeholder="0">
+                        </div>
+
+                        <!-- Add Pitch -->
+                        <div class="flex items-center gap-2 mb-4">
+                            <select id="pitchTypeSelect-${player.id}" class="px-3 py-2 border rounded-lg">
+                                <option value="">Select pitch type...</option>
+                                ${pitchTypes.map(type => `<option value="${type}">${type}</option>`).join('')}
+                            </select>
+                            <button onclick="addPitch(${player.id})"
+                                class="px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700">
+                                + Add Pitch
+                            </button>
+                        </div>
+
+                        <!-- Pitches List -->
+                        <div class="space-y-3">
+                            ${(p.pitches || []).map((pitch, idx) => `
+                                <div class="p-3 bg-white rounded-lg border">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="font-semibold text-pink-700">${pitch.type}</span>
+                                        <button onclick="removePitch(${player.id}, ${idx})"
+                                            class="text-red-500 hover:text-red-700 text-sm">✕ Remove</button>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-3">
+                                        <div>
+                                            <label class="text-xs text-gray-500">Speed 1 (mph)</label>
+                                            <input type="number" step="1" value="${pitch.speeds?.[0] || ''}"
+                                                onchange="updatePitchSpeed(${player.id}, ${idx}, 0, this.value)"
+                                                class="w-full px-2 py-1 border rounded text-center" placeholder="mph">
+                                        </div>
+                                        <div>
+                                            <label class="text-xs text-gray-500">Speed 2 (mph)</label>
+                                            <input type="number" step="1" value="${pitch.speeds?.[1] || ''}"
+                                                onchange="updatePitchSpeed(${player.id}, ${idx}, 1, this.value)"
+                                                class="w-full px-2 py-1 border rounded text-center" placeholder="mph">
+                                        </div>
+                                        <div>
+                                            <label class="text-xs text-gray-500">Control (1-5)</label>
+                                            <div class="flex gap-1">
+                                                ${[1, 2, 3, 4, 5].map(v => `
+                                                    <button onclick="updatePitchControl(${player.id}, ${idx}, ${v})"
+                                                        class="flex-1 py-1 rounded text-xs ${pitch.control == v ? 'bg-pink-600 text-white' : 'bg-gray-100 hover:bg-pink-100'}">
+                                                        ${v}
+                                                    </button>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                            ${(p.pitches || []).length === 0 ? '<p class="text-gray-500 text-sm italic">No pitches added yet</p>' : ''}
+                        </div>
+                    </div>
+
+                    <div class="mt-4 p-3 bg-green-100 rounded-lg">
+                        <strong>Pitching Total:</strong> ${calculatePitchingTotal(player).toFixed(1)} points
+                    </div>
+
+                    <!-- Notes Section -->
+                    ${renderNotesSection(player, 'pitching')}
+                </div>
+            `;
+        }
+
+        function updatePitchingEvaluation(playerId, category, value) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+            if (!player.pitching) player.pitching = createPitchingData();
+            if (!player.pitching.evaluation) player.pitching.evaluation = {};
+            if (!player.pitching.evaluation[currentUser]) player.pitching.evaluation[currentUser] = {};
+            player.pitching.evaluation[currentUser][category] = value;
+            saveData();
+            renderScoringArea();
+        }
+
+        function updatePitchingNumPitches(playerId, value) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+            if (!player.pitching) player.pitching = createPitchingData();
+            player.pitching.numPitches = value === '' ? null : parseInt(value);
+            saveData();
+            renderScoringArea();
+        }
+
+        function addPitch(playerId) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+            if (!player.pitching) player.pitching = createPitchingData();
+            if (!player.pitching.pitches) player.pitching.pitches = [];
+
+            const select = document.getElementById(`pitchTypeSelect-${playerId}`);
+            const pitchType = select.value;
+            if (!pitchType) {
+                alert('Please select a pitch type');
+                return;
+            }
+
+            player.pitching.pitches.push({
+                type: pitchType,
+                speeds: [null, null],
+                control: null
+            });
+            select.value = '';
+            saveData();
+            renderScoringArea();
+        }
+
+        function removePitch(playerId, pitchIdx) {
+            const player = players.find(p => p.id === playerId);
+            if (!player || !player.pitching || !player.pitching.pitches) return;
+            player.pitching.pitches.splice(pitchIdx, 1);
+            saveData();
+            renderScoringArea();
+        }
+
+        function updatePitchSpeed(playerId, pitchIdx, attemptIdx, value) {
+            const player = players.find(p => p.id === playerId);
+            if (!player || !player.pitching || !player.pitching.pitches) return;
+            if (!player.pitching.pitches[pitchIdx]) return;
+            if (!player.pitching.pitches[pitchIdx].speeds) player.pitching.pitches[pitchIdx].speeds = [null, null];
+            player.pitching.pitches[pitchIdx].speeds[attemptIdx] = value === '' ? null : parseInt(value);
+            saveData();
+            renderScoringArea();
+        }
+
+        function updatePitchControl(playerId, pitchIdx, value) {
+            const player = players.find(p => p.id === playerId);
+            if (!player || !player.pitching || !player.pitching.pitches) return;
+            if (!player.pitching.pitches[pitchIdx]) return;
+            player.pitching.pitches[pitchIdx].control = value;
+            saveData();
+            renderScoringArea();
+        }
+
+        function calculatePitchingTotal(player) {
+            const p = player.pitching || {};
+            let total = 0;
+
+            // Evaluation categories (10 points max averaged across coaches)
+            const categories = ['mechanics', 'athleticism'];
+            if (p.evaluation) {
+                const coaches = Object.keys(p.evaluation);
+                if (coaches.length > 0) {
+                    categories.forEach(cat => {
+                        let catTotal = 0;
+                        let catCount = 0;
+                        coaches.forEach(coach => {
+                            if (p.evaluation[coach] && p.evaluation[coach][cat]) {
+                                catTotal += p.evaluation[coach][cat];
+                                catCount++;
+                            }
+                        });
+                        if (catCount > 0) total += catTotal / catCount;
+                    });
+                }
+            }
+
+            // Add pitch control scores (averaged)
+            if (p.pitches && p.pitches.length > 0) {
+                let controlTotal = 0;
+                let controlCount = 0;
+                p.pitches.forEach(pitch => {
+                    if (pitch.control) {
+                        controlTotal += pitch.control;
+                        controlCount++;
+                    }
+                });
+                if (controlCount > 0) {
+                    total += controlTotal / controlCount;  // Average control score
+                }
+            }
+
+            return Math.round(total * 10) / 10;
+        }
+
+        // ============================================
         // NOTES SECTION
         // ============================================
         function renderNotesSection(player, category) {
@@ -1426,6 +1670,8 @@
                 notes = player.fielding.notes || [];
             } else if (category === 'throwing' && player.throwing) {
                 notes = player.throwing.notes || [];
+            } else if (category === 'pitching' && player.pitching) {
+                notes = player.pitching.notes || [];
             }
 
             const categoryColors = {
@@ -1433,7 +1679,8 @@
                 baserunning: 'blue',
                 intangibles: 'yellow',
                 fielding: 'green',
-                throwing: 'red'
+                throwing: 'red',
+                pitching: 'pink'
             };
             const color = categoryColors[category] || 'gray';
 
@@ -1515,6 +1762,10 @@
                 if (!player.throwing) player.throwing = createThrowingData();
                 if (!player.throwing.notes) player.throwing.notes = [];
                 player.throwing.notes.push(note);
+            } else if (category === 'pitching') {
+                if (!player.pitching) player.pitching = createPitchingData();
+                if (!player.pitching.notes) player.pitching.notes = [];
+                player.pitching.notes.push(note);
             }
 
             input.value = '';
@@ -1537,6 +1788,8 @@
                 notes = player.fielding.notes;
             } else if (category === 'throwing' && player.throwing) {
                 notes = player.throwing.notes;
+            } else if (category === 'pitching' && player.pitching) {
+                notes = player.pitching.notes;
             }
 
             if (notes && notes[noteIndex] && notes[noteIndex].coach === currentUser) {
