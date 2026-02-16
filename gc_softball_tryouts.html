@@ -393,6 +393,9 @@
             <div class="flex gap-2 mb-2 flex-wrap">
                 <button onclick="setPlayerSelectMode('all')" id="selectMode-all" class="px-3 py-1 rounded-lg bg-blue-600 text-white text-sm font-medium">All Players</button>
                 <button onclick="setPlayerSelectMode('groups')" id="selectMode-groups" class="px-3 py-1 rounded-lg bg-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-300">By Group</button>
+                <button onclick="setPlayerSelectMode('groupA')" id="selectMode-groupA" class="px-3 py-1 rounded-lg bg-green-100 text-green-700 text-sm font-medium hover:bg-green-200">Group A</button>
+                <button onclick="setPlayerSelectMode('groupB')" id="selectMode-groupB" class="px-3 py-1 rounded-lg bg-yellow-100 text-yellow-700 text-sm font-medium hover:bg-yellow-200">Group B</button>
+                <button onclick="setPlayerSelectMode('groupC')" id="selectMode-groupC" class="px-3 py-1 rounded-lg bg-orange-100 text-orange-700 text-sm font-medium hover:bg-orange-200">Group C</button>
                 <button onclick="setPlayerSelectMode('pitchers')" id="selectMode-pitchers" class="px-3 py-1 rounded-lg bg-pink-100 text-pink-700 text-sm font-medium hover:bg-pink-200">Pitchers</button>
                 <button onclick="setPlayerSelectMode('catchers')" id="selectMode-catchers" class="px-3 py-1 rounded-lg bg-purple-100 text-purple-700 text-sm font-medium hover:bg-purple-200">Catchers</button>
             </div>
@@ -1014,6 +1017,15 @@
             document.getElementById('selectMode-groups').className = mode === 'groups'
                 ? 'px-3 py-1 rounded-lg bg-blue-600 text-white text-sm font-medium'
                 : 'px-3 py-1 rounded-lg bg-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-300';
+            document.getElementById('selectMode-groupA').className = mode === 'groupA'
+                ? 'px-3 py-1 rounded-lg bg-green-600 text-white text-sm font-medium'
+                : 'px-3 py-1 rounded-lg bg-green-100 text-green-700 text-sm font-medium hover:bg-green-200';
+            document.getElementById('selectMode-groupB').className = mode === 'groupB'
+                ? 'px-3 py-1 rounded-lg bg-yellow-600 text-white text-sm font-medium'
+                : 'px-3 py-1 rounded-lg bg-yellow-100 text-yellow-700 text-sm font-medium hover:bg-yellow-200';
+            document.getElementById('selectMode-groupC').className = mode === 'groupC'
+                ? 'px-3 py-1 rounded-lg bg-orange-600 text-white text-sm font-medium'
+                : 'px-3 py-1 rounded-lg bg-orange-100 text-orange-700 text-sm font-medium hover:bg-orange-200';
             document.getElementById('selectMode-pitchers').className = mode === 'pitchers'
                 ? 'px-3 py-1 rounded-lg bg-pink-600 text-white text-sm font-medium'
                 : 'px-3 py-1 rounded-lg bg-pink-100 text-pink-700 text-sm font-medium hover:bg-pink-200';
@@ -1078,6 +1090,36 @@
                 const catcherPlayers = players.filter(p => isPlayerInGroup(p.name, 'Catchers'));
                 const sortedCatchers = catcherPlayers.sort((a, b) => a.name.localeCompare(b.name));
                 sortedCatchers.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.id;
+                    opt.textContent = p.number ? `${p.name} (#${p.number})` : p.name;
+                    select.appendChild(opt);
+                });
+            } else if (playerSelectMode === 'groupA') {
+                // Group A mode: only show Group A players
+                const groupAPlayers = players.filter(p => isPlayerInGroup(p.name, 'A'));
+                const sortedGroupA = groupAPlayers.sort((a, b) => a.name.localeCompare(b.name));
+                sortedGroupA.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.id;
+                    opt.textContent = p.number ? `${p.name} (#${p.number})` : p.name;
+                    select.appendChild(opt);
+                });
+            } else if (playerSelectMode === 'groupB') {
+                // Group B mode: only show Group B players
+                const groupBPlayers = players.filter(p => isPlayerInGroup(p.name, 'B'));
+                const sortedGroupB = groupBPlayers.sort((a, b) => a.name.localeCompare(b.name));
+                sortedGroupB.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.id;
+                    opt.textContent = p.number ? `${p.name} (#${p.number})` : p.name;
+                    select.appendChild(opt);
+                });
+            } else if (playerSelectMode === 'groupC') {
+                // Group C mode: only show Group C players
+                const groupCPlayers = players.filter(p => isPlayerInGroup(p.name, 'C'));
+                const sortedGroupC = groupCPlayers.sort((a, b) => a.name.localeCompare(b.name));
+                sortedGroupC.forEach(p => {
                     const opt = document.createElement('option');
                     opt.value = p.id;
                     opt.textContent = p.number ? `${p.name} (#${p.number})` : p.name;
