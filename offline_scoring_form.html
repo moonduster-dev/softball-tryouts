@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GC Softball Tryouts - Offline Scoring Form</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+            line-height: 1.3;
+            padding: 0.25in;
+        }
+
+        .page {
+            page-break-after: always;
+            max-width: 8in;
+            margin: 0 auto;
+        }
+
+        .page:last-child {
+            page-break-after: avoid;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            font-size: 10px;
+            color: #666;
+        }
+
+        .player-info {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 10px;
+            padding: 8px;
+            background: #f5f5f5;
+            border: 1px solid #ccc;
+        }
+
+        .player-info label {
+            font-weight: bold;
+        }
+
+        .player-info input {
+            border: none;
+            border-bottom: 1px solid #000;
+            width: 150px;
+            background: transparent;
+        }
+
+        .section {
+            margin-bottom: 12px;
+            border: 1px solid #999;
+            padding: 8px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: bold;
+            background: #333;
+            color: white;
+            padding: 4px 8px;
+            margin: -8px -8px 8px -8px;
+        }
+
+        .drill {
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px dotted #ccc;
+        }
+
+        .drill:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .drill-name {
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .scoring-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .score-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .score-item label {
+            font-size: 10px;
+            min-width: 100px;
+        }
+
+        .score-boxes {
+            display: flex;
+            gap: 2px;
+        }
+
+        .score-box {
+            width: 18px;
+            height: 18px;
+            border: 1px solid #000;
+            text-align: center;
+            font-size: 10px;
+            line-height: 16px;
+        }
+
+        .score-box.header {
+            background: #eee;
+            font-weight: bold;
+            font-size: 8px;
+        }
+
+        .time-input {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .time-input label {
+            font-size: 10px;
+        }
+
+        .time-input .box {
+            width: 50px;
+            height: 18px;
+            border: 1px solid #000;
+        }
+
+        .time-input .unit {
+            font-size: 9px;
+            color: #666;
+        }
+
+        .checkbox-row {
+            display: flex;
+            gap: 15px;
+            margin-top: 4px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 10px;
+        }
+
+        .checkbox {
+            width: 12px;
+            height: 12px;
+            border: 1px solid #000;
+        }
+
+        .notes-box {
+            margin-top: 8px;
+            border: 1px solid #000;
+            min-height: 40px;
+            padding: 4px;
+        }
+
+        .notes-label {
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .threshold-info {
+            font-size: 9px;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .instructions {
+            font-size: 9px;
+            color: #666;
+            margin-bottom: 8px;
+            padding: 6px;
+            background: #fffbe6;
+            border: 1px solid #e6d985;
+        }
+
+        @media print {
+            body {
+                padding: 0;
+            }
+            .page {
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Page 1: Catching & Baserunning -->
+<div class="page">
+    <div class="header">
+        <h1>GC Softball Tryouts - Scoring Form</h1>
+        <p>Circle or write scores in boxes. Score 1-5 unless otherwise noted.</p>
+    </div>
+
+    <div class="player-info">
+        <div><label>Player Name:</label> <input type="text"></div>
+        <div><label>Jersey #:</label> <input type="text" style="width: 50px;"></div>
+        <div><label>Coach:</label> <input type="text"></div>
+        <div><label>Date:</label> <input type="text" style="width: 80px;"></div>
+    </div>
+
+    <!-- CATCHING SECTION -->
+    <div class="section">
+        <div class="section-title">CATCHING (29 points max)</div>
+
+        <div class="drill">
+            <div class="drill-name">Pop Time (2 attempts)</div>
+            <div class="scoring-row">
+                <div class="time-input">
+                    <label>Attempt 1:</label>
+                    <div class="box"></div>
+                    <span class="unit">sec</span>
+                </div>
+                <div class="time-input">
+                    <label>Attempt 2:</label>
+                    <div class="box"></div>
+                    <span class="unit">sec</span>
+                </div>
+            </div>
+            <div class="threshold-info">Scoring: ≤1.9s=5, ≤2.1s=4, ≤2.3s=3, ≤2.5s=2, >2.5s=1</div>
+        </div>
+
+        <div class="drill">
+            <div class="drill-name">Throw Accuracy (3 throws, score 0-3 each)</div>
+            <div class="scoring-row">
+                <div class="score-item">
+                    <label>Throw 1:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">0</div>
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Throw 2:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">0</div>
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Throw 3:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">0</div>
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="drill">
+            <div class="drill-name">Skills (score 0-3 each)</div>
+            <div class="scoring-row">
+                <div class="score-item">
+                    <label>Blocking:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">0</div>
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Footwork:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">0</div>
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Mobility:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">0</div>
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Expl. Throwing:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">0</div>
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Expl. Bunts:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">0</div>
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="notes-label">Catching Notes:</div>
+        <div class="notes-box"></div>
+    </div>
+
+    <!-- BASERUNNING SECTION -->
+    <div class="section">
+        <div class="section-title">BASERUNNING (30 points max)</div>
+
+        <div class="two-column">
+            <div class="drill">
+                <div class="drill-name">H→1B (2 attempts)</div>
+                <div class="scoring-row">
+                    <div class="time-input">
+                        <label>Att 1:</label>
+                        <div class="box"></div>
+                        <span class="unit">sec</span>
+                    </div>
+                    <div class="time-input">
+                        <label>Att 2:</label>
+                        <div class="box"></div>
+                        <span class="unit">sec</span>
+                    </div>
+                </div>
+                <div class="checkbox-row">
+                    <div class="checkbox-item"><div class="checkbox"></div> Att 1 missed bag (+0.5s)</div>
+                    <div class="checkbox-item"><div class="checkbox"></div> Att 2 missed bag (+0.5s)</div>
+                </div>
+                <div class="threshold-info">≤2.9s=5, ≤3.1s=4, ≤3.3s=3, ≤3.5s=2, >3.5s=1</div>
+            </div>
+
+            <div class="drill">
+                <div class="drill-name">2B→H (2 attempts)</div>
+                <div class="scoring-row">
+                    <div class="time-input">
+                        <label>Att 1:</label>
+                        <div class="box"></div>
+                        <span class="unit">sec</span>
+                    </div>
+                    <div class="time-input">
+                        <label>Att 2:</label>
+                        <div class="box"></div>
+                        <span class="unit">sec</span>
+                    </div>
+                </div>
+                <div class="checkbox-row">
+                    <div class="checkbox-item"><div class="checkbox"></div> Att 1 missed 3B (+0.5s)</div>
+                    <div class="checkbox-item"><div class="checkbox"></div> Att 2 missed 3B (+0.5s)</div>
+                </div>
+                <div class="threshold-info">≤5.5s=5, ≤6.0s=4, ≤6.5s=3, ≤7.0s=2, >7.0s=1</div>
+            </div>
+        </div>
+
+        <div class="two-column">
+            <div class="drill">
+                <div class="drill-name">Pro Agility (2 attempts)</div>
+                <div class="scoring-row">
+                    <div class="time-input">
+                        <label>Att 1:</label>
+                        <div class="box"></div>
+                        <span class="unit">sec</span>
+                    </div>
+                    <div class="time-input">
+                        <label>Att 2:</label>
+                        <div class="box"></div>
+                        <span class="unit">sec</span>
+                    </div>
+                </div>
+                <div class="threshold-info">≤5.0s=5, ≤5.3s=4, ≤5.6s=3, ≤5.9s=2, >5.9s=1</div>
+            </div>
+
+            <div class="drill">
+                <div class="drill-name">Broad Jump (2 attempts)</div>
+                <div class="scoring-row">
+                    <div class="time-input">
+                        <label>Att 1:</label>
+                        <div class="box" style="width: 30px;"></div>
+                        <span class="unit">ft</span>
+                        <div class="box" style="width: 30px;"></div>
+                        <span class="unit">in</span>
+                    </div>
+                    <div class="time-input">
+                        <label>Att 2:</label>
+                        <div class="box" style="width: 30px;"></div>
+                        <span class="unit">ft</span>
+                        <div class="box" style="width: 30px;"></div>
+                        <span class="unit">in</span>
+                    </div>
+                </div>
+                <div class="threshold-info">≥7'0"=5, ≥6'6"=4, ≥6'0"=3, ≥5'6"=2, <5'6"=1</div>
+            </div>
+        </div>
+
+        <div class="drill">
+            <div class="drill-name">Your Evaluation (score 1-5 each)</div>
+            <div class="scoring-row">
+                <div class="score-item">
+                    <label>Running Form:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Intangibles:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="notes-label">Baserunning Notes:</div>
+        <div class="notes-box"></div>
+    </div>
+
+    <!-- THROWING SECTION -->
+    <div class="section">
+        <div class="section-title">THROWING (5 points max)</div>
+        <div class="drill">
+            <div class="drill-name">Throwing Velocity (2 attempts - average is scored)</div>
+            <div class="scoring-row">
+                <div class="time-input">
+                    <label>Attempt 1:</label>
+                    <div class="box"></div>
+                    <span class="unit">mph</span>
+                </div>
+                <div class="time-input">
+                    <label>Attempt 2:</label>
+                    <div class="box"></div>
+                    <span class="unit">mph</span>
+                </div>
+            </div>
+            <div class="threshold-info">≥63mph=5, ≥59mph=4, ≥53mph=3, ≥48mph=2, <48mph=1</div>
+        </div>
+    </div>
+</div>
+
+<!-- Page 2: Fielding & Intangibles -->
+<div class="page">
+    <div class="header">
+        <h1>GC Softball Tryouts - Scoring Form (Page 2)</h1>
+        <p>Circle scores 1-5 for each category</p>
+    </div>
+
+    <div class="player-info">
+        <div><label>Player Name:</label> <input type="text"></div>
+        <div><label>Jersey #:</label> <input type="text" style="width: 50px;"></div>
+        <div><label>Coach:</label> <input type="text"></div>
+    </div>
+
+    <!-- FIELDING SECTION -->
+    <div class="section">
+        <div class="section-title">FIELDING (155 points max) - Your Evaluation</div>
+        <div class="instructions">Score each category 1-5. Multiple coaches can score - scores will be averaged.</div>
+
+        <div class="drill">
+            <div class="drill-name">Ground Balls (25 pts max)</div>
+            <div class="scoring-row">
+                <div class="score-item">
+                    <label>Footwork:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Technique:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Move Into Throw:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Strong Throw:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Intangibles:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="drill">
+            <div class="drill-name">Fly Ball (25 pts max)</div>
+            <div class="scoring-row">
+                <div class="score-item">
+                    <label>Footwork:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Technique:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Move Into Throw:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Strong Throw:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Intangibles:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="drill">
+            <div class="drill-name">Fly Ball Tagup (25 pts max)</div>
+            <div class="scoring-row">
+                <div class="score-item">
+                    <label>Footwork:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Technique:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Move Into Throw:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Strong Throw:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Intangibles:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="drill">
+            <div class="drill-name">3B → 1B Grounders (20 pts max)</div>
+            <div class="scoring-row">
+                <div class="score-item">
+                    <label>Footwork:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Fielding/Throwing Mechanics:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Strength/Accuracy:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Intangibles:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="drill">
+            <div class="drill-name">3B → 1B Bunt (20 pts max)</div>
+            <div class="scoring-row">
+                <div class="score-item">
+                    <label>Footwork:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Fielding/Throwing Mechanics:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Strength/Accuracy:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Intangibles:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="drill">
+            <div class="drill-name">SS → 1B (20 pts max)</div>
+            <div class="scoring-row">
+                <div class="score-item">
+                    <label>Footwork:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Fielding/Throwing Mechanics:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Strength/Accuracy:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Intangibles:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="drill">
+            <div class="drill-name">SS → 2B Feeds/Throws (20 pts max)</div>
+            <div class="scoring-row">
+                <div class="score-item">
+                    <label>Footwork:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Fielding/Throwing Mechanics:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Strength/Accuracy:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Intangibles:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="notes-label">Fielding Notes:</div>
+        <div class="notes-box"></div>
+    </div>
+
+    <!-- INTANGIBLES SECTION -->
+    <div class="section">
+        <div class="section-title">INTANGIBLES (15 points max) - Your Evaluation</div>
+
+        <div class="drill">
+            <div class="scoring-row">
+                <div class="score-item">
+                    <label>Game Situation Awareness:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Leadership:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+                <div class="score-item">
+                    <label>Enthusiasm:</label>
+                    <div class="score-boxes">
+                        <div class="score-box">1</div>
+                        <div class="score-box">2</div>
+                        <div class="score-box">3</div>
+                        <div class="score-box">4</div>
+                        <div class="score-box">5</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="notes-label">Intangibles Notes:</div>
+        <div class="notes-box"></div>
+    </div>
+
+    <div style="margin-top: 15px; padding: 10px; border: 2px solid #333; background: #f9f9f9;">
+        <strong>TOTALS (to be calculated later):</strong>
+        <div style="display: flex; gap: 20px; margin-top: 8px;">
+            <div>Catching: ___/29</div>
+            <div>Baserunning: ___/30</div>
+            <div>Fielding: ___/155</div>
+            <div>Throwing: ___/5</div>
+            <div>Intangibles: ___/15</div>
+            <div><strong>TOTAL: ___/234</strong></div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
