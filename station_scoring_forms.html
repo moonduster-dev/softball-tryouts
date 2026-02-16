@@ -57,20 +57,33 @@
             margin-bottom: 8px;
         }
 
-        .group-label {
+        .group-section {
+            page-break-inside: avoid;
+            break-inside: avoid;
+            margin-bottom: 10px;
+        }
+
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             background: #333;
             color: white;
             padding: 4px 8px;
             font-weight: bold;
             font-size: 12px;
-            margin-top: 10px;
             margin-bottom: 0;
+        }
+
+        .group-header .station-name {
+            font-size: 10px;
+            font-weight: normal;
+            opacity: 0.9;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 10px;
             font-size: 10px;
         }
 
@@ -118,31 +131,6 @@
             line-height: 1.1;
         }
 
-        .section-note {
-            font-size: 9px;
-            font-style: italic;
-            margin-bottom: 5px;
-            color: #666;
-        }
-
-        .rotated-header {
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            transform: rotate(180deg);
-            height: 60px;
-            font-size: 8px;
-            padding: 2px;
-        }
-
-        .eval-header {
-            background: #d4edda;
-        }
-
-        .total-row td {
-            background: #f0f0f0;
-            font-weight: bold;
-        }
-
         @media print {
             body {
                 -webkit-print-color-adjust: exact;
@@ -150,6 +138,10 @@
             }
             .page {
                 padding: 0.15in;
+            }
+            .group-section {
+                page-break-inside: avoid;
+                break-inside: avoid;
             }
         }
 
@@ -177,104 +169,110 @@
         <strong>Throw Accuracy:</strong> Score 0-3 per throw
     </div>
 
-    <div class="group-label">GROUP A</div>
-    <table>
-        <tr>
-            <th rowspan="2" style="width:100px">Player</th>
-            <th colspan="2">Pop Time (sec)</th>
-            <th colspan="3" class="small-header">Throw Acc (0-3)</th>
-            <th colspan="5">Skills (0-3)</th>
-            <th rowspan="2" style="width:70px">Notes</th>
-        </tr>
-        <tr>
-            <th class="time-cell">Att 1</th>
-            <th class="time-cell">Att 2</th>
-            <th class="score-cell">T1</th>
-            <th class="score-cell">T2</th>
-            <th class="score-cell">T3</th>
-            <th class="score-cell small-header">Block</th>
-            <th class="score-cell small-header">Foot</th>
-            <th class="score-cell small-header">Mobil</th>
-            <th class="score-cell small-header">Exp-Thr</th>
-            <th class="score-cell small-header">Exp-Bnt</th>
-        </tr>
-        <tr><td class="player-name">Sophia</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Clara</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Mairin</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Aubrey</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Autumn</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Ashley</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Louisa</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Molly</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Shana</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-    </table>
+    <div class="group-section">
+        <div class="group-header"><span>GROUP A</span><span class="station-name">CATCHING STATION</span></div>
+        <table>
+            <tr>
+                <th rowspan="2" style="width:100px">Player</th>
+                <th colspan="2">Pop Time (sec)</th>
+                <th colspan="3" class="small-header">Throw Acc (0-3)</th>
+                <th colspan="5">Skills (0-3)</th>
+                <th rowspan="2" style="width:70px">Notes</th>
+            </tr>
+            <tr>
+                <th class="time-cell">Att 1</th>
+                <th class="time-cell">Att 2</th>
+                <th class="score-cell">T1</th>
+                <th class="score-cell">T2</th>
+                <th class="score-cell">T3</th>
+                <th class="score-cell small-header">Block</th>
+                <th class="score-cell small-header">Foot</th>
+                <th class="score-cell small-header">Mobil</th>
+                <th class="score-cell small-header">Exp-Thr</th>
+                <th class="score-cell small-header">Exp-Bnt</th>
+            </tr>
+            <tr><td class="player-name">Sophia</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Clara</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Mairin</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Aubrey</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Autumn</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Ashley</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Louisa</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Molly</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Shana</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+        </table>
+    </div>
 
-    <div class="group-label">GROUP B</div>
-    <table>
-        <tr>
-            <th rowspan="2" style="width:100px">Player</th>
-            <th colspan="2">Pop Time (sec)</th>
-            <th colspan="3" class="small-header">Throw Acc (0-3)</th>
-            <th colspan="5">Skills (0-3)</th>
-            <th rowspan="2" style="width:70px">Notes</th>
-        </tr>
-        <tr>
-            <th class="time-cell">Att 1</th>
-            <th class="time-cell">Att 2</th>
-            <th class="score-cell">T1</th>
-            <th class="score-cell">T2</th>
-            <th class="score-cell">T3</th>
-            <th class="score-cell small-header">Block</th>
-            <th class="score-cell small-header">Foot</th>
-            <th class="score-cell small-header">Mobil</th>
-            <th class="score-cell small-header">Exp-Thr</th>
-            <th class="score-cell small-header">Exp-Bnt</th>
-        </tr>
-        <tr><td class="player-name">Maggie</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Kelsey</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Lodon</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Julia</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">MJ</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Rebecca</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Katelyn</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Kayla</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Natalie</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Annie</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Jolyn</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-    </table>
+    <div class="group-section">
+        <div class="group-header"><span>GROUP B</span><span class="station-name">CATCHING STATION</span></div>
+        <table>
+            <tr>
+                <th rowspan="2" style="width:100px">Player</th>
+                <th colspan="2">Pop Time (sec)</th>
+                <th colspan="3" class="small-header">Throw Acc (0-3)</th>
+                <th colspan="5">Skills (0-3)</th>
+                <th rowspan="2" style="width:70px">Notes</th>
+            </tr>
+            <tr>
+                <th class="time-cell">Att 1</th>
+                <th class="time-cell">Att 2</th>
+                <th class="score-cell">T1</th>
+                <th class="score-cell">T2</th>
+                <th class="score-cell">T3</th>
+                <th class="score-cell small-header">Block</th>
+                <th class="score-cell small-header">Foot</th>
+                <th class="score-cell small-header">Mobil</th>
+                <th class="score-cell small-header">Exp-Thr</th>
+                <th class="score-cell small-header">Exp-Bnt</th>
+            </tr>
+            <tr><td class="player-name">Maggie</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Kelsey</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Lodon</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Julia</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">MJ</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Rebecca</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Katelyn</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Kayla</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Natalie</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Annie</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Jolyn</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+        </table>
+    </div>
 
-    <div class="group-label">GROUP C</div>
-    <table>
-        <tr>
-            <th rowspan="2" style="width:100px">Player</th>
-            <th colspan="2">Pop Time (sec)</th>
-            <th colspan="3" class="small-header">Throw Acc (0-3)</th>
-            <th colspan="5">Skills (0-3)</th>
-            <th rowspan="2" style="width:70px">Notes</th>
-        </tr>
-        <tr>
-            <th class="time-cell">Att 1</th>
-            <th class="time-cell">Att 2</th>
-            <th class="score-cell">T1</th>
-            <th class="score-cell">T2</th>
-            <th class="score-cell">T3</th>
-            <th class="score-cell small-header">Block</th>
-            <th class="score-cell small-header">Foot</th>
-            <th class="score-cell small-header">Mobil</th>
-            <th class="score-cell small-header">Exp-Thr</th>
-            <th class="score-cell small-header">Exp-Bnt</th>
-        </tr>
-        <tr><td class="player-name">Paige</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Isabel</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">MDR</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Liv</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Cayla</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Meghan M</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Lauryn</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Giselle</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Lizze</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Claire</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-    </table>
+    <div class="group-section">
+        <div class="group-header"><span>GROUP C</span><span class="station-name">CATCHING STATION</span></div>
+        <table>
+            <tr>
+                <th rowspan="2" style="width:100px">Player</th>
+                <th colspan="2">Pop Time (sec)</th>
+                <th colspan="3" class="small-header">Throw Acc (0-3)</th>
+                <th colspan="5">Skills (0-3)</th>
+                <th rowspan="2" style="width:70px">Notes</th>
+            </tr>
+            <tr>
+                <th class="time-cell">Att 1</th>
+                <th class="time-cell">Att 2</th>
+                <th class="score-cell">T1</th>
+                <th class="score-cell">T2</th>
+                <th class="score-cell">T3</th>
+                <th class="score-cell small-header">Block</th>
+                <th class="score-cell small-header">Foot</th>
+                <th class="score-cell small-header">Mobil</th>
+                <th class="score-cell small-header">Exp-Thr</th>
+                <th class="score-cell small-header">Exp-Bnt</th>
+            </tr>
+            <tr><td class="player-name">Paige</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Isabel</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">MDR</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Liv</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Cayla</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Meghan M</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Lauryn</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Giselle</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Lizze</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Claire</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+        </table>
+    </div>
 </div>
 
 <!-- ==================== BASERUNNING SPEED STATION ==================== -->
@@ -293,95 +291,101 @@
         <strong>✓ = Missed bag (+0.5s penalty)</strong>
     </div>
 
-    <div class="group-label">GROUP A</div>
-    <table>
-        <tr>
-            <th rowspan="2" style="width:100px">Player</th>
-            <th colspan="4">H → 1B</th>
-            <th colspan="4">2B → H</th>
-            <th rowspan="2" style="width:80px">Notes</th>
-        </tr>
-        <tr>
-            <th class="time-cell">Att 1</th>
-            <th class="checkbox-cell">Miss?</th>
-            <th class="time-cell">Att 2</th>
-            <th class="checkbox-cell">Miss?</th>
-            <th class="time-cell">Att 1</th>
-            <th class="checkbox-cell">Miss?</th>
-            <th class="time-cell">Att 2</th>
-            <th class="checkbox-cell">Miss?</th>
-        </tr>
-        <tr><td class="player-name">Sophia</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Clara</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Mairin</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Aubrey</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Autumn</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Ashley</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Louisa</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Molly</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Shana</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-    </table>
+    <div class="group-section">
+        <div class="group-header"><span>GROUP A</span><span class="station-name">BASERUNNING SPEED</span></div>
+        <table>
+            <tr>
+                <th rowspan="2" style="width:100px">Player</th>
+                <th colspan="4">H → 1B</th>
+                <th colspan="4">2B → H</th>
+                <th rowspan="2" style="width:80px">Notes</th>
+            </tr>
+            <tr>
+                <th class="time-cell">Att 1</th>
+                <th class="checkbox-cell">Miss?</th>
+                <th class="time-cell">Att 2</th>
+                <th class="checkbox-cell">Miss?</th>
+                <th class="time-cell">Att 1</th>
+                <th class="checkbox-cell">Miss?</th>
+                <th class="time-cell">Att 2</th>
+                <th class="checkbox-cell">Miss?</th>
+            </tr>
+            <tr><td class="player-name">Sophia</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Clara</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Mairin</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Aubrey</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Autumn</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Ashley</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Louisa</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Molly</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Shana</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+        </table>
+    </div>
 
-    <div class="group-label">GROUP B</div>
-    <table>
-        <tr>
-            <th rowspan="2" style="width:100px">Player</th>
-            <th colspan="4">H → 1B</th>
-            <th colspan="4">2B → H</th>
-            <th rowspan="2" style="width:80px">Notes</th>
-        </tr>
-        <tr>
-            <th class="time-cell">Att 1</th>
-            <th class="checkbox-cell">Miss?</th>
-            <th class="time-cell">Att 2</th>
-            <th class="checkbox-cell">Miss?</th>
-            <th class="time-cell">Att 1</th>
-            <th class="checkbox-cell">Miss?</th>
-            <th class="time-cell">Att 2</th>
-            <th class="checkbox-cell">Miss?</th>
-        </tr>
-        <tr><td class="player-name">Maggie</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Kelsey</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Lodon</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Julia</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">MJ</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Rebecca</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Katelyn</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Kayla</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Natalie</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Annie</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Jolyn</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-    </table>
+    <div class="group-section">
+        <div class="group-header"><span>GROUP B</span><span class="station-name">BASERUNNING SPEED</span></div>
+        <table>
+            <tr>
+                <th rowspan="2" style="width:100px">Player</th>
+                <th colspan="4">H → 1B</th>
+                <th colspan="4">2B → H</th>
+                <th rowspan="2" style="width:80px">Notes</th>
+            </tr>
+            <tr>
+                <th class="time-cell">Att 1</th>
+                <th class="checkbox-cell">Miss?</th>
+                <th class="time-cell">Att 2</th>
+                <th class="checkbox-cell">Miss?</th>
+                <th class="time-cell">Att 1</th>
+                <th class="checkbox-cell">Miss?</th>
+                <th class="time-cell">Att 2</th>
+                <th class="checkbox-cell">Miss?</th>
+            </tr>
+            <tr><td class="player-name">Maggie</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Kelsey</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Lodon</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Julia</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">MJ</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Rebecca</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Katelyn</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Kayla</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Natalie</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Annie</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Jolyn</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+        </table>
+    </div>
 
-    <div class="group-label">GROUP C</div>
-    <table>
-        <tr>
-            <th rowspan="2" style="width:100px">Player</th>
-            <th colspan="4">H → 1B</th>
-            <th colspan="4">2B → H</th>
-            <th rowspan="2" style="width:80px">Notes</th>
-        </tr>
-        <tr>
-            <th class="time-cell">Att 1</th>
-            <th class="checkbox-cell">Miss?</th>
-            <th class="time-cell">Att 2</th>
-            <th class="checkbox-cell">Miss?</th>
-            <th class="time-cell">Att 1</th>
-            <th class="checkbox-cell">Miss?</th>
-            <th class="time-cell">Att 2</th>
-            <th class="checkbox-cell">Miss?</th>
-        </tr>
-        <tr><td class="player-name">Paige</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Isabel</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">MDR</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Liv</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Cayla</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Meghan M</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Lauryn</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Giselle</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Lizze</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Claire</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-    </table>
+    <div class="group-section">
+        <div class="group-header"><span>GROUP C</span><span class="station-name">BASERUNNING SPEED</span></div>
+        <table>
+            <tr>
+                <th rowspan="2" style="width:100px">Player</th>
+                <th colspan="4">H → 1B</th>
+                <th colspan="4">2B → H</th>
+                <th rowspan="2" style="width:80px">Notes</th>
+            </tr>
+            <tr>
+                <th class="time-cell">Att 1</th>
+                <th class="checkbox-cell">Miss?</th>
+                <th class="time-cell">Att 2</th>
+                <th class="checkbox-cell">Miss?</th>
+                <th class="time-cell">Att 1</th>
+                <th class="checkbox-cell">Miss?</th>
+                <th class="time-cell">Att 2</th>
+                <th class="checkbox-cell">Miss?</th>
+            </tr>
+            <tr><td class="player-name">Paige</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Isabel</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">MDR</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Liv</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Cayla</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Meghan M</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Lauryn</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Giselle</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Lizze</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Claire</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+        </table>
+    </div>
 </div>
 
 <!-- ==================== EXPLOSIVENESS STATION ==================== -->
@@ -398,83 +402,89 @@
         <strong>Broad Jump:</strong> ≥7'0" = 5 | ≥6'6" = 4 | ≥6'0" = 3 | ≥5'6" = 2 | <5'6" = 1
     </div>
 
-    <div class="group-label">GROUP A</div>
-    <table>
-        <tr>
-            <th rowspan="2" style="width:100px">Player</th>
-            <th colspan="2">Pro Agility (sec)</th>
-            <th colspan="2">Broad Jump</th>
-            <th rowspan="2" style="width:100px">Notes</th>
-        </tr>
-        <tr>
-            <th class="time-cell">Att 1</th>
-            <th class="time-cell">Att 2</th>
-            <th style="width:70px">Att 1 (ft'in")</th>
-            <th style="width:70px">Att 2 (ft'in")</th>
-        </tr>
-        <tr><td class="player-name">Sophia</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Clara</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Mairin</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Aubrey</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Autumn</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Ashley</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Louisa</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Molly</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Shana</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-    </table>
+    <div class="group-section">
+        <div class="group-header"><span>GROUP A</span><span class="station-name">EXPLOSIVENESS</span></div>
+        <table>
+            <tr>
+                <th rowspan="2" style="width:100px">Player</th>
+                <th colspan="2">Pro Agility (sec)</th>
+                <th colspan="2">Broad Jump</th>
+                <th rowspan="2" style="width:100px">Notes</th>
+            </tr>
+            <tr>
+                <th class="time-cell">Att 1</th>
+                <th class="time-cell">Att 2</th>
+                <th style="width:70px">Att 1 (ft'in")</th>
+                <th style="width:70px">Att 2 (ft'in")</th>
+            </tr>
+            <tr><td class="player-name">Sophia</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Clara</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Mairin</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Aubrey</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Autumn</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Ashley</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Louisa</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Molly</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Shana</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+        </table>
+    </div>
 
-    <div class="group-label">GROUP B</div>
-    <table>
-        <tr>
-            <th rowspan="2" style="width:100px">Player</th>
-            <th colspan="2">Pro Agility (sec)</th>
-            <th colspan="2">Broad Jump</th>
-            <th rowspan="2" style="width:100px">Notes</th>
-        </tr>
-        <tr>
-            <th class="time-cell">Att 1</th>
-            <th class="time-cell">Att 2</th>
-            <th style="width:70px">Att 1 (ft'in")</th>
-            <th style="width:70px">Att 2 (ft'in")</th>
-        </tr>
-        <tr><td class="player-name">Maggie</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Kelsey</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Lodon</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Julia</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">MJ</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Rebecca</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Katelyn</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Kayla</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Natalie</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Annie</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Jolyn</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-    </table>
+    <div class="group-section">
+        <div class="group-header"><span>GROUP B</span><span class="station-name">EXPLOSIVENESS</span></div>
+        <table>
+            <tr>
+                <th rowspan="2" style="width:100px">Player</th>
+                <th colspan="2">Pro Agility (sec)</th>
+                <th colspan="2">Broad Jump</th>
+                <th rowspan="2" style="width:100px">Notes</th>
+            </tr>
+            <tr>
+                <th class="time-cell">Att 1</th>
+                <th class="time-cell">Att 2</th>
+                <th style="width:70px">Att 1 (ft'in")</th>
+                <th style="width:70px">Att 2 (ft'in")</th>
+            </tr>
+            <tr><td class="player-name">Maggie</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Kelsey</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Lodon</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Julia</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">MJ</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Rebecca</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Katelyn</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Kayla</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Natalie</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Annie</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Jolyn</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+        </table>
+    </div>
 
-    <div class="group-label">GROUP C</div>
-    <table>
-        <tr>
-            <th rowspan="2" style="width:100px">Player</th>
-            <th colspan="2">Pro Agility (sec)</th>
-            <th colspan="2">Broad Jump</th>
-            <th rowspan="2" style="width:100px">Notes</th>
-        </tr>
-        <tr>
-            <th class="time-cell">Att 1</th>
-            <th class="time-cell">Att 2</th>
-            <th style="width:70px">Att 1 (ft'in")</th>
-            <th style="width:70px">Att 2 (ft'in")</th>
-        </tr>
-        <tr><td class="player-name">Paige</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Isabel</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">MDR</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Liv</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Cayla</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Meghan M</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Lauryn</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Giselle</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Lizze</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Claire</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-    </table>
+    <div class="group-section">
+        <div class="group-header"><span>GROUP C</span><span class="station-name">EXPLOSIVENESS</span></div>
+        <table>
+            <tr>
+                <th rowspan="2" style="width:100px">Player</th>
+                <th colspan="2">Pro Agility (sec)</th>
+                <th colspan="2">Broad Jump</th>
+                <th rowspan="2" style="width:100px">Notes</th>
+            </tr>
+            <tr>
+                <th class="time-cell">Att 1</th>
+                <th class="time-cell">Att 2</th>
+                <th style="width:70px">Att 1 (ft'in")</th>
+                <th style="width:70px">Att 2 (ft'in")</th>
+            </tr>
+            <tr><td class="player-name">Paige</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Isabel</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">MDR</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Liv</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Cayla</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Meghan M</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Lauryn</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Giselle</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Lizze</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Claire</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+        </table>
+    </div>
 </div>
 
 <!-- ==================== THROWING VELOCITY STATION ==================== -->
@@ -489,68 +499,74 @@
         <strong>Scoring (based on average):</strong> ≥63 mph = 5 | ≥59 mph = 4 | ≥53 mph = 3 | ≥48 mph = 2 | <48 mph = 1
     </div>
 
-    <div class="group-label">GROUP A</div>
-    <table>
-        <tr>
-            <th style="width:100px">Player</th>
-            <th style="width:80px">Attempt 1 (mph)</th>
-            <th style="width:80px">Attempt 2 (mph)</th>
-            <th style="width:80px">Average</th>
-            <th>Notes</th>
-        </tr>
-        <tr><td class="player-name">Sophia</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Clara</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Mairin</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Aubrey</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Autumn</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Ashley</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Louisa</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Molly</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Shana</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-    </table>
+    <div class="group-section">
+        <div class="group-header"><span>GROUP A</span><span class="station-name">THROWING VELOCITY</span></div>
+        <table>
+            <tr>
+                <th style="width:100px">Player</th>
+                <th style="width:80px">Attempt 1 (mph)</th>
+                <th style="width:80px">Attempt 2 (mph)</th>
+                <th style="width:80px">Average</th>
+                <th>Notes</th>
+            </tr>
+            <tr><td class="player-name">Sophia</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Clara</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Mairin</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Aubrey</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Autumn</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Ashley</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Louisa</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Molly</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Shana</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+        </table>
+    </div>
 
-    <div class="group-label">GROUP B</div>
-    <table>
-        <tr>
-            <th style="width:100px">Player</th>
-            <th style="width:80px">Attempt 1 (mph)</th>
-            <th style="width:80px">Attempt 2 (mph)</th>
-            <th style="width:80px">Average</th>
-            <th>Notes</th>
-        </tr>
-        <tr><td class="player-name">Maggie</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Kelsey</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Lodon</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Julia</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">MJ</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Rebecca</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Katelyn</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Kayla</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Natalie</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Annie</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Jolyn</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-    </table>
+    <div class="group-section">
+        <div class="group-header"><span>GROUP B</span><span class="station-name">THROWING VELOCITY</span></div>
+        <table>
+            <tr>
+                <th style="width:100px">Player</th>
+                <th style="width:80px">Attempt 1 (mph)</th>
+                <th style="width:80px">Attempt 2 (mph)</th>
+                <th style="width:80px">Average</th>
+                <th>Notes</th>
+            </tr>
+            <tr><td class="player-name">Maggie</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Kelsey</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Lodon</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Julia</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">MJ</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Rebecca</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Katelyn</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Kayla</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Natalie</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Annie</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Jolyn</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+        </table>
+    </div>
 
-    <div class="group-label">GROUP C</div>
-    <table>
-        <tr>
-            <th style="width:100px">Player</th>
-            <th style="width:80px">Attempt 1 (mph)</th>
-            <th style="width:80px">Attempt 2 (mph)</th>
-            <th style="width:80px">Average</th>
-            <th>Notes</th>
-        </tr>
-        <tr><td class="player-name">Paige</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Isabel</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">MDR</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Liv</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Cayla</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Meghan M</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Lauryn</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Giselle</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Lizze</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Claire</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-    </table>
+    <div class="group-section">
+        <div class="group-header"><span>GROUP C</span><span class="station-name">THROWING VELOCITY</span></div>
+        <table>
+            <tr>
+                <th style="width:100px">Player</th>
+                <th style="width:80px">Attempt 1 (mph)</th>
+                <th style="width:80px">Attempt 2 (mph)</th>
+                <th style="width:80px">Average</th>
+                <th>Notes</th>
+            </tr>
+            <tr><td class="player-name">Paige</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Isabel</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">MDR</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Liv</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Cayla</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Meghan M</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Lauryn</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Giselle</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Lizze</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Claire</td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+        </table>
+    </div>
 </div>
 
 <!-- ==================== GROUND BALLS STATION ==================== -->
@@ -565,77 +581,83 @@
         <strong>Score 1-5:</strong> 1 = Poor | 2 = Below Avg | 3 = Average | 4 = Above Avg | 5 = Excellent
     </div>
 
-    <div class="group-label">GROUP A</div>
-    <table>
-        <tr>
-            <th style="width:100px">Player</th>
-            <th class="score-cell">Footwork</th>
-            <th class="score-cell">Technique</th>
-            <th class="score-cell small-header">Move Into Throw</th>
-            <th class="score-cell small-header">Strong Throw</th>
-            <th class="score-cell">Intang.</th>
-            <th style="width:50px">Total /25</th>
-            <th>Notes</th>
-        </tr>
-        <tr><td class="player-name">Sophia</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Clara</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Mairin</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Aubrey</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Autumn</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Ashley</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Louisa</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Molly</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Shana</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-    </table>
+    <div class="group-section">
+        <div class="group-header"><span>GROUP A</span><span class="station-name">GROUND BALLS</span></div>
+        <table>
+            <tr>
+                <th style="width:100px">Player</th>
+                <th class="score-cell">Footwork</th>
+                <th class="score-cell">Technique</th>
+                <th class="score-cell small-header">Move Into Throw</th>
+                <th class="score-cell small-header">Strong Throw</th>
+                <th class="score-cell">Intang.</th>
+                <th style="width:50px">Total /25</th>
+                <th>Notes</th>
+            </tr>
+            <tr><td class="player-name">Sophia</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Clara</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Mairin</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Aubrey</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Autumn</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Ashley</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Louisa</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Molly</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Shana</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+        </table>
+    </div>
 
-    <div class="group-label">GROUP B</div>
-    <table>
-        <tr>
-            <th style="width:100px">Player</th>
-            <th class="score-cell">Footwork</th>
-            <th class="score-cell">Technique</th>
-            <th class="score-cell small-header">Move Into Throw</th>
-            <th class="score-cell small-header">Strong Throw</th>
-            <th class="score-cell">Intang.</th>
-            <th style="width:50px">Total /25</th>
-            <th>Notes</th>
-        </tr>
-        <tr><td class="player-name">Maggie</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Kelsey</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Lodon</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Julia</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">MJ</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Rebecca</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Katelyn</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Kayla</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Natalie</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Annie</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Jolyn</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-    </table>
+    <div class="group-section">
+        <div class="group-header"><span>GROUP B</span><span class="station-name">GROUND BALLS</span></div>
+        <table>
+            <tr>
+                <th style="width:100px">Player</th>
+                <th class="score-cell">Footwork</th>
+                <th class="score-cell">Technique</th>
+                <th class="score-cell small-header">Move Into Throw</th>
+                <th class="score-cell small-header">Strong Throw</th>
+                <th class="score-cell">Intang.</th>
+                <th style="width:50px">Total /25</th>
+                <th>Notes</th>
+            </tr>
+            <tr><td class="player-name">Maggie</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Kelsey</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Lodon</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Julia</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">MJ</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Rebecca</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Katelyn</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Kayla</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Natalie</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Annie</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Jolyn</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+        </table>
+    </div>
 
-    <div class="group-label">GROUP C</div>
-    <table>
-        <tr>
-            <th style="width:100px">Player</th>
-            <th class="score-cell">Footwork</th>
-            <th class="score-cell">Technique</th>
-            <th class="score-cell small-header">Move Into Throw</th>
-            <th class="score-cell small-header">Strong Throw</th>
-            <th class="score-cell">Intang.</th>
-            <th style="width:50px">Total /25</th>
-            <th>Notes</th>
-        </tr>
-        <tr><td class="player-name">Paige</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Isabel</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">MDR</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Liv</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Cayla</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Meghan M</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Lauryn</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Giselle</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Lizze</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Claire</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-    </table>
+    <div class="group-section">
+        <div class="group-header"><span>GROUP C</span><span class="station-name">GROUND BALLS</span></div>
+        <table>
+            <tr>
+                <th style="width:100px">Player</th>
+                <th class="score-cell">Footwork</th>
+                <th class="score-cell">Technique</th>
+                <th class="score-cell small-header">Move Into Throw</th>
+                <th class="score-cell small-header">Strong Throw</th>
+                <th class="score-cell">Intang.</th>
+                <th style="width:50px">Total /25</th>
+                <th>Notes</th>
+            </tr>
+            <tr><td class="player-name">Paige</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Isabel</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">MDR</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Liv</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Cayla</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Meghan M</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Lauryn</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Giselle</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Lizze</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Claire</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+        </table>
+    </div>
 </div>
 
 <!-- ==================== FLY BALL STATION ==================== -->
@@ -650,77 +672,83 @@
         <strong>Score 1-5:</strong> 1 = Poor | 2 = Below Avg | 3 = Average | 4 = Above Avg | 5 = Excellent
     </div>
 
-    <div class="group-label">GROUP A</div>
-    <table>
-        <tr>
-            <th style="width:100px">Player</th>
-            <th class="score-cell">Footwork</th>
-            <th class="score-cell">Technique</th>
-            <th class="score-cell small-header">Move Into Throw</th>
-            <th class="score-cell small-header">Strong Throw</th>
-            <th class="score-cell">Intang.</th>
-            <th style="width:50px">Total /25</th>
-            <th>Notes</th>
-        </tr>
-        <tr><td class="player-name">Sophia</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Clara</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Mairin</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Aubrey</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Autumn</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Ashley</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Louisa</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Molly</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Shana</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-    </table>
+    <div class="group-section">
+        <div class="group-header"><span>GROUP A</span><span class="station-name">FLY BALL</span></div>
+        <table>
+            <tr>
+                <th style="width:100px">Player</th>
+                <th class="score-cell">Footwork</th>
+                <th class="score-cell">Technique</th>
+                <th class="score-cell small-header">Move Into Throw</th>
+                <th class="score-cell small-header">Strong Throw</th>
+                <th class="score-cell">Intang.</th>
+                <th style="width:50px">Total /25</th>
+                <th>Notes</th>
+            </tr>
+            <tr><td class="player-name">Sophia</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Clara</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Mairin</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Aubrey</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Autumn</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Ashley</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Louisa</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Molly</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Shana</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+        </table>
+    </div>
 
-    <div class="group-label">GROUP B</div>
-    <table>
-        <tr>
-            <th style="width:100px">Player</th>
-            <th class="score-cell">Footwork</th>
-            <th class="score-cell">Technique</th>
-            <th class="score-cell small-header">Move Into Throw</th>
-            <th class="score-cell small-header">Strong Throw</th>
-            <th class="score-cell">Intang.</th>
-            <th style="width:50px">Total /25</th>
-            <th>Notes</th>
-        </tr>
-        <tr><td class="player-name">Maggie</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Kelsey</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Lodon</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Julia</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">MJ</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Rebecca</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Katelyn</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Kayla</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Natalie</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Annie</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Jolyn</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-    </table>
+    <div class="group-section">
+        <div class="group-header"><span>GROUP B</span><span class="station-name">FLY BALL</span></div>
+        <table>
+            <tr>
+                <th style="width:100px">Player</th>
+                <th class="score-cell">Footwork</th>
+                <th class="score-cell">Technique</th>
+                <th class="score-cell small-header">Move Into Throw</th>
+                <th class="score-cell small-header">Strong Throw</th>
+                <th class="score-cell">Intang.</th>
+                <th style="width:50px">Total /25</th>
+                <th>Notes</th>
+            </tr>
+            <tr><td class="player-name">Maggie</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Kelsey</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Lodon</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Julia</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">MJ</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Rebecca</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Katelyn</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Kayla</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Natalie</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Annie</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Jolyn</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+        </table>
+    </div>
 
-    <div class="group-label">GROUP C</div>
-    <table>
-        <tr>
-            <th style="width:100px">Player</th>
-            <th class="score-cell">Footwork</th>
-            <th class="score-cell">Technique</th>
-            <th class="score-cell small-header">Move Into Throw</th>
-            <th class="score-cell small-header">Strong Throw</th>
-            <th class="score-cell">Intang.</th>
-            <th style="width:50px">Total /25</th>
-            <th>Notes</th>
-        </tr>
-        <tr><td class="player-name">Paige</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Isabel</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">MDR</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Liv</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Cayla</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Meghan M</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Lauryn</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Giselle</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Lizze</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Claire</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-    </table>
+    <div class="group-section">
+        <div class="group-header"><span>GROUP C</span><span class="station-name">FLY BALL</span></div>
+        <table>
+            <tr>
+                <th style="width:100px">Player</th>
+                <th class="score-cell">Footwork</th>
+                <th class="score-cell">Technique</th>
+                <th class="score-cell small-header">Move Into Throw</th>
+                <th class="score-cell small-header">Strong Throw</th>
+                <th class="score-cell">Intang.</th>
+                <th style="width:50px">Total /25</th>
+                <th>Notes</th>
+            </tr>
+            <tr><td class="player-name">Paige</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Isabel</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">MDR</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Liv</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Cayla</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Meghan M</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Lauryn</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Giselle</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Lizze</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Claire</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+        </table>
+    </div>
 </div>
 
 <!-- ==================== FLY BALL TAGUP STATION ==================== -->
@@ -735,77 +763,83 @@
         <strong>Score 1-5:</strong> 1 = Poor | 2 = Below Avg | 3 = Average | 4 = Above Avg | 5 = Excellent
     </div>
 
-    <div class="group-label">GROUP A</div>
-    <table>
-        <tr>
-            <th style="width:100px">Player</th>
-            <th class="score-cell">Footwork</th>
-            <th class="score-cell">Technique</th>
-            <th class="score-cell small-header">Move Into Throw</th>
-            <th class="score-cell small-header">Strong Throw</th>
-            <th class="score-cell">Intang.</th>
-            <th style="width:50px">Total /25</th>
-            <th>Notes</th>
-        </tr>
-        <tr><td class="player-name">Sophia</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Clara</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Mairin</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Aubrey</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Autumn</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Ashley</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Louisa</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Molly</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Shana</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-    </table>
+    <div class="group-section">
+        <div class="group-header"><span>GROUP A</span><span class="station-name">FLY BALL TAGUP</span></div>
+        <table>
+            <tr>
+                <th style="width:100px">Player</th>
+                <th class="score-cell">Footwork</th>
+                <th class="score-cell">Technique</th>
+                <th class="score-cell small-header">Move Into Throw</th>
+                <th class="score-cell small-header">Strong Throw</th>
+                <th class="score-cell">Intang.</th>
+                <th style="width:50px">Total /25</th>
+                <th>Notes</th>
+            </tr>
+            <tr><td class="player-name">Sophia</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Clara</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Mairin</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Aubrey</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Autumn</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Ashley</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Louisa</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Molly</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Shana</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+        </table>
+    </div>
 
-    <div class="group-label">GROUP B</div>
-    <table>
-        <tr>
-            <th style="width:100px">Player</th>
-            <th class="score-cell">Footwork</th>
-            <th class="score-cell">Technique</th>
-            <th class="score-cell small-header">Move Into Throw</th>
-            <th class="score-cell small-header">Strong Throw</th>
-            <th class="score-cell">Intang.</th>
-            <th style="width:50px">Total /25</th>
-            <th>Notes</th>
-        </tr>
-        <tr><td class="player-name">Maggie</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Kelsey</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Lodon</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Julia</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">MJ</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Rebecca</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Katelyn</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Kayla</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Natalie</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Annie</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Jolyn</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-    </table>
+    <div class="group-section">
+        <div class="group-header"><span>GROUP B</span><span class="station-name">FLY BALL TAGUP</span></div>
+        <table>
+            <tr>
+                <th style="width:100px">Player</th>
+                <th class="score-cell">Footwork</th>
+                <th class="score-cell">Technique</th>
+                <th class="score-cell small-header">Move Into Throw</th>
+                <th class="score-cell small-header">Strong Throw</th>
+                <th class="score-cell">Intang.</th>
+                <th style="width:50px">Total /25</th>
+                <th>Notes</th>
+            </tr>
+            <tr><td class="player-name">Maggie</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Kelsey</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Lodon</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Julia</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">MJ</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Rebecca</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Katelyn</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Kayla</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Natalie</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Annie</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Jolyn</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+        </table>
+    </div>
 
-    <div class="group-label">GROUP C</div>
-    <table>
-        <tr>
-            <th style="width:100px">Player</th>
-            <th class="score-cell">Footwork</th>
-            <th class="score-cell">Technique</th>
-            <th class="score-cell small-header">Move Into Throw</th>
-            <th class="score-cell small-header">Strong Throw</th>
-            <th class="score-cell">Intang.</th>
-            <th style="width:50px">Total /25</th>
-            <th>Notes</th>
-        </tr>
-        <tr><td class="player-name">Paige</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Isabel</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">MDR</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Liv</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Cayla</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Meghan M</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Lauryn</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Giselle</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Lizze</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Claire</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-    </table>
+    <div class="group-section">
+        <div class="group-header"><span>GROUP C</span><span class="station-name">FLY BALL TAGUP</span></div>
+        <table>
+            <tr>
+                <th style="width:100px">Player</th>
+                <th class="score-cell">Footwork</th>
+                <th class="score-cell">Technique</th>
+                <th class="score-cell small-header">Move Into Throw</th>
+                <th class="score-cell small-header">Strong Throw</th>
+                <th class="score-cell">Intang.</th>
+                <th style="width:50px">Total /25</th>
+                <th>Notes</th>
+            </tr>
+            <tr><td class="player-name">Paige</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Isabel</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">MDR</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Liv</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Cayla</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Meghan M</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Lauryn</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Giselle</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Lizze</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Claire</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+        </table>
+    </div>
 </div>
 
 <!-- ==================== INFIELD STATION ==================== -->
@@ -817,128 +851,133 @@
     </div>
 
     <div class="threshold-info">
-        <strong>Categories:</strong> Footwork | Fielding/Throwing Mechanics | Strength/Accuracy | Intangibles
+        <strong>Categories:</strong> Ft=Footwork | Mc=Fielding/Throwing Mechanics | St=Strength/Accuracy | In=Intangibles
         &nbsp;&nbsp;|&nbsp;&nbsp;
         <strong>Score 1-5 each</strong>
     </div>
 
-    <div class="group-label">GROUP A</div>
-    <table>
-        <tr>
-            <th rowspan="2" style="width:80px">Player</th>
-            <th colspan="4" style="background:#d4edda">3B→1B Grounders</th>
-            <th colspan="4" style="background:#fff3cd">3B→1B Bunt</th>
-            <th colspan="4" style="background:#d1ecf1">SS→1B</th>
-            <th colspan="4" style="background:#f8d7da">SS→2B Feeds</th>
-        </tr>
-        <tr>
-            <th class="small-header" style="width:25px;background:#d4edda">Ft</th>
-            <th class="small-header" style="width:25px;background:#d4edda">Mc</th>
-            <th class="small-header" style="width:25px;background:#d4edda">St</th>
-            <th class="small-header" style="width:25px;background:#d4edda">In</th>
-            <th class="small-header" style="width:25px;background:#fff3cd">Ft</th>
-            <th class="small-header" style="width:25px;background:#fff3cd">Mc</th>
-            <th class="small-header" style="width:25px;background:#fff3cd">St</th>
-            <th class="small-header" style="width:25px;background:#fff3cd">In</th>
-            <th class="small-header" style="width:25px;background:#d1ecf1">Ft</th>
-            <th class="small-header" style="width:25px;background:#d1ecf1">Mc</th>
-            <th class="small-header" style="width:25px;background:#d1ecf1">St</th>
-            <th class="small-header" style="width:25px;background:#d1ecf1">In</th>
-            <th class="small-header" style="width:25px;background:#f8d7da">Ft</th>
-            <th class="small-header" style="width:25px;background:#f8d7da">Mc</th>
-            <th class="small-header" style="width:25px;background:#f8d7da">St</th>
-            <th class="small-header" style="width:25px;background:#f8d7da">In</th>
-        </tr>
-        <tr><td class="player-name">Sophia</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr><td class="player-name">Clara</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr><td class="player-name">Mairin</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr><td class="player-name">Aubrey</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr><td class="player-name">Autumn</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr><td class="player-name">Ashley</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr><td class="player-name">Louisa</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr><td class="player-name">Molly</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr><td class="player-name">Shana</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-    </table>
+    <div class="group-section">
+        <div class="group-header"><span>GROUP A</span><span class="station-name">INFIELD STATION</span></div>
+        <table>
+            <tr>
+                <th rowspan="2" style="width:80px">Player</th>
+                <th colspan="4" style="background:#d4edda">3B→1B Grounders</th>
+                <th colspan="4" style="background:#fff3cd">3B→1B Bunt</th>
+                <th colspan="4" style="background:#d1ecf1">SS→1B</th>
+                <th colspan="4" style="background:#f8d7da">SS→2B Feeds</th>
+            </tr>
+            <tr>
+                <th class="small-header" style="width:25px;background:#d4edda">Ft</th>
+                <th class="small-header" style="width:25px;background:#d4edda">Mc</th>
+                <th class="small-header" style="width:25px;background:#d4edda">St</th>
+                <th class="small-header" style="width:25px;background:#d4edda">In</th>
+                <th class="small-header" style="width:25px;background:#fff3cd">Ft</th>
+                <th class="small-header" style="width:25px;background:#fff3cd">Mc</th>
+                <th class="small-header" style="width:25px;background:#fff3cd">St</th>
+                <th class="small-header" style="width:25px;background:#fff3cd">In</th>
+                <th class="small-header" style="width:25px;background:#d1ecf1">Ft</th>
+                <th class="small-header" style="width:25px;background:#d1ecf1">Mc</th>
+                <th class="small-header" style="width:25px;background:#d1ecf1">St</th>
+                <th class="small-header" style="width:25px;background:#d1ecf1">In</th>
+                <th class="small-header" style="width:25px;background:#f8d7da">Ft</th>
+                <th class="small-header" style="width:25px;background:#f8d7da">Mc</th>
+                <th class="small-header" style="width:25px;background:#f8d7da">St</th>
+                <th class="small-header" style="width:25px;background:#f8d7da">In</th>
+            </tr>
+            <tr><td class="player-name">Sophia</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="player-name">Clara</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="player-name">Mairin</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="player-name">Aubrey</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="player-name">Autumn</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="player-name">Ashley</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="player-name">Louisa</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="player-name">Molly</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="player-name">Shana</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        </table>
+    </div>
 
-    <div class="group-label">GROUP B</div>
-    <table>
-        <tr>
-            <th rowspan="2" style="width:80px">Player</th>
-            <th colspan="4" style="background:#d4edda">3B→1B Grounders</th>
-            <th colspan="4" style="background:#fff3cd">3B→1B Bunt</th>
-            <th colspan="4" style="background:#d1ecf1">SS→1B</th>
-            <th colspan="4" style="background:#f8d7da">SS→2B Feeds</th>
-        </tr>
-        <tr>
-            <th class="small-header" style="width:25px;background:#d4edda">Ft</th>
-            <th class="small-header" style="width:25px;background:#d4edda">Mc</th>
-            <th class="small-header" style="width:25px;background:#d4edda">St</th>
-            <th class="small-header" style="width:25px;background:#d4edda">In</th>
-            <th class="small-header" style="width:25px;background:#fff3cd">Ft</th>
-            <th class="small-header" style="width:25px;background:#fff3cd">Mc</th>
-            <th class="small-header" style="width:25px;background:#fff3cd">St</th>
-            <th class="small-header" style="width:25px;background:#fff3cd">In</th>
-            <th class="small-header" style="width:25px;background:#d1ecf1">Ft</th>
-            <th class="small-header" style="width:25px;background:#d1ecf1">Mc</th>
-            <th class="small-header" style="width:25px;background:#d1ecf1">St</th>
-            <th class="small-header" style="width:25px;background:#d1ecf1">In</th>
-            <th class="small-header" style="width:25px;background:#f8d7da">Ft</th>
-            <th class="small-header" style="width:25px;background:#f8d7da">Mc</th>
-            <th class="small-header" style="width:25px;background:#f8d7da">St</th>
-            <th class="small-header" style="width:25px;background:#f8d7da">In</th>
-        </tr>
-        <tr><td class="player-name">Maggie</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr><td class="player-name">Kelsey</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr><td class="player-name">Lodon</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr><td class="player-name">Julia</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr><td class="player-name">MJ</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr><td class="player-name">Rebecca</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr><td class="player-name">Katelyn</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr><td class="player-name">Kayla</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr><td class="player-name">Natalie</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr><td class="player-name">Annie</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr><td class="player-name">Jolyn</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-    </table>
+    <div class="group-section">
+        <div class="group-header"><span>GROUP B</span><span class="station-name">INFIELD STATION</span></div>
+        <table>
+            <tr>
+                <th rowspan="2" style="width:80px">Player</th>
+                <th colspan="4" style="background:#d4edda">3B→1B Grounders</th>
+                <th colspan="4" style="background:#fff3cd">3B→1B Bunt</th>
+                <th colspan="4" style="background:#d1ecf1">SS→1B</th>
+                <th colspan="4" style="background:#f8d7da">SS→2B Feeds</th>
+            </tr>
+            <tr>
+                <th class="small-header" style="width:25px;background:#d4edda">Ft</th>
+                <th class="small-header" style="width:25px;background:#d4edda">Mc</th>
+                <th class="small-header" style="width:25px;background:#d4edda">St</th>
+                <th class="small-header" style="width:25px;background:#d4edda">In</th>
+                <th class="small-header" style="width:25px;background:#fff3cd">Ft</th>
+                <th class="small-header" style="width:25px;background:#fff3cd">Mc</th>
+                <th class="small-header" style="width:25px;background:#fff3cd">St</th>
+                <th class="small-header" style="width:25px;background:#fff3cd">In</th>
+                <th class="small-header" style="width:25px;background:#d1ecf1">Ft</th>
+                <th class="small-header" style="width:25px;background:#d1ecf1">Mc</th>
+                <th class="small-header" style="width:25px;background:#d1ecf1">St</th>
+                <th class="small-header" style="width:25px;background:#d1ecf1">In</th>
+                <th class="small-header" style="width:25px;background:#f8d7da">Ft</th>
+                <th class="small-header" style="width:25px;background:#f8d7da">Mc</th>
+                <th class="small-header" style="width:25px;background:#f8d7da">St</th>
+                <th class="small-header" style="width:25px;background:#f8d7da">In</th>
+            </tr>
+            <tr><td class="player-name">Maggie</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="player-name">Kelsey</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="player-name">Lodon</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="player-name">Julia</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="player-name">MJ</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="player-name">Rebecca</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="player-name">Katelyn</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="player-name">Kayla</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="player-name">Natalie</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="player-name">Annie</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="player-name">Jolyn</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        </table>
+    </div>
 
-    <div class="group-label">GROUP C</div>
-    <table>
-        <tr>
-            <th rowspan="2" style="width:80px">Player</th>
-            <th colspan="4" style="background:#d4edda">3B→1B Grounders</th>
-            <th colspan="4" style="background:#fff3cd">3B→1B Bunt</th>
-            <th colspan="4" style="background:#d1ecf1">SS→1B</th>
-            <th colspan="4" style="background:#f8d7da">SS→2B Feeds</th>
-        </tr>
-        <tr>
-            <th class="small-header" style="width:25px;background:#d4edda">Ft</th>
-            <th class="small-header" style="width:25px;background:#d4edda">Mc</th>
-            <th class="small-header" style="width:25px;background:#d4edda">St</th>
-            <th class="small-header" style="width:25px;background:#d4edda">In</th>
-            <th class="small-header" style="width:25px;background:#fff3cd">Ft</th>
-            <th class="small-header" style="width:25px;background:#fff3cd">Mc</th>
-            <th class="small-header" style="width:25px;background:#fff3cd">St</th>
-            <th class="small-header" style="width:25px;background:#fff3cd">In</th>
-            <th class="small-header" style="width:25px;background:#d1ecf1">Ft</th>
-            <th class="small-header" style="width:25px;background:#d1ecf1">Mc</th>
-            <th class="small-header" style="width:25px;background:#d1ecf1">St</th>
-            <th class="small-header" style="width:25px;background:#d1ecf1">In</th>
-            <th class="small-header" style="width:25px;background:#f8d7da">Ft</th>
-            <th class="small-header" style="width:25px;background:#f8d7da">Mc</th>
-            <th class="small-header" style="width:25px;background:#f8d7da">St</th>
-            <th class="small-header" style="width:25px;background:#f8d7da">In</th>
-        </tr>
-        <tr><td class="player-name">Paige</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr><td class="player-name">Isabel</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr><td class="player-name">MDR</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr><td class="player-name">Liv</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr><td class="player-name">Cayla</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr><td class="player-name">Meghan M</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr><td class="player-name">Lauryn</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr><td class="player-name">Giselle</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr><td class="player-name">Lizze</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr><td class="player-name">Claire</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-    </table>
-    <div style="margin-top:8px;font-size:9px"><strong>Legend:</strong> Ft=Footwork | Mc=Mechanics | St=Strength/Accuracy | In=Intangibles</div>
+    <div class="group-section">
+        <div class="group-header"><span>GROUP C</span><span class="station-name">INFIELD STATION</span></div>
+        <table>
+            <tr>
+                <th rowspan="2" style="width:80px">Player</th>
+                <th colspan="4" style="background:#d4edda">3B→1B Grounders</th>
+                <th colspan="4" style="background:#fff3cd">3B→1B Bunt</th>
+                <th colspan="4" style="background:#d1ecf1">SS→1B</th>
+                <th colspan="4" style="background:#f8d7da">SS→2B Feeds</th>
+            </tr>
+            <tr>
+                <th class="small-header" style="width:25px;background:#d4edda">Ft</th>
+                <th class="small-header" style="width:25px;background:#d4edda">Mc</th>
+                <th class="small-header" style="width:25px;background:#d4edda">St</th>
+                <th class="small-header" style="width:25px;background:#d4edda">In</th>
+                <th class="small-header" style="width:25px;background:#fff3cd">Ft</th>
+                <th class="small-header" style="width:25px;background:#fff3cd">Mc</th>
+                <th class="small-header" style="width:25px;background:#fff3cd">St</th>
+                <th class="small-header" style="width:25px;background:#fff3cd">In</th>
+                <th class="small-header" style="width:25px;background:#d1ecf1">Ft</th>
+                <th class="small-header" style="width:25px;background:#d1ecf1">Mc</th>
+                <th class="small-header" style="width:25px;background:#d1ecf1">St</th>
+                <th class="small-header" style="width:25px;background:#d1ecf1">In</th>
+                <th class="small-header" style="width:25px;background:#f8d7da">Ft</th>
+                <th class="small-header" style="width:25px;background:#f8d7da">Mc</th>
+                <th class="small-header" style="width:25px;background:#f8d7da">St</th>
+                <th class="small-header" style="width:25px;background:#f8d7da">In</th>
+            </tr>
+            <tr><td class="player-name">Paige</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="player-name">Isabel</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="player-name">MDR</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="player-name">Liv</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="player-name">Cayla</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="player-name">Meghan M</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="player-name">Lauryn</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="player-name">Giselle</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="player-name">Lizze</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="player-name">Claire</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        </table>
+    </div>
 </div>
 
 <!-- ==================== INTANGIBLES (ALL COACHES) ==================== -->
@@ -957,71 +996,77 @@
         <strong>Enthusiasm:</strong> Cheers, communicates, hustles between drills
     </div>
 
-    <div class="group-label">GROUP A</div>
-    <table>
-        <tr>
-            <th style="width:100px">Player</th>
-            <th style="width:60px">Awareness (1-5)</th>
-            <th style="width:60px">Leadership (1-5)</th>
-            <th style="width:60px">Enthusiasm (1-5)</th>
-            <th style="width:50px">Total /15</th>
-            <th>Notes</th>
-        </tr>
-        <tr><td class="player-name">Sophia</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Clara</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Mairin</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Aubrey</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Autumn</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Ashley</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Louisa</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Molly</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Shana</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-    </table>
+    <div class="group-section">
+        <div class="group-header"><span>GROUP A</span><span class="station-name">INTANGIBLES</span></div>
+        <table>
+            <tr>
+                <th style="width:100px">Player</th>
+                <th style="width:60px">Awareness (1-5)</th>
+                <th style="width:60px">Leadership (1-5)</th>
+                <th style="width:60px">Enthusiasm (1-5)</th>
+                <th style="width:50px">Total /15</th>
+                <th>Notes</th>
+            </tr>
+            <tr><td class="player-name">Sophia</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Clara</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Mairin</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Aubrey</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Autumn</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Ashley</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Louisa</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Molly</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Shana</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+        </table>
+    </div>
 
-    <div class="group-label">GROUP B</div>
-    <table>
-        <tr>
-            <th style="width:100px">Player</th>
-            <th style="width:60px">Awareness (1-5)</th>
-            <th style="width:60px">Leadership (1-5)</th>
-            <th style="width:60px">Enthusiasm (1-5)</th>
-            <th style="width:50px">Total /15</th>
-            <th>Notes</th>
-        </tr>
-        <tr><td class="player-name">Maggie</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Kelsey</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Lodon</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Julia</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">MJ</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Rebecca</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Katelyn</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Kayla</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Natalie</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Annie</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Jolyn</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-    </table>
+    <div class="group-section">
+        <div class="group-header"><span>GROUP B</span><span class="station-name">INTANGIBLES</span></div>
+        <table>
+            <tr>
+                <th style="width:100px">Player</th>
+                <th style="width:60px">Awareness (1-5)</th>
+                <th style="width:60px">Leadership (1-5)</th>
+                <th style="width:60px">Enthusiasm (1-5)</th>
+                <th style="width:50px">Total /15</th>
+                <th>Notes</th>
+            </tr>
+            <tr><td class="player-name">Maggie</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Kelsey</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Lodon</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Julia</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">MJ</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Rebecca</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Katelyn</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Kayla</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Natalie</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Annie</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Jolyn</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+        </table>
+    </div>
 
-    <div class="group-label">GROUP C</div>
-    <table>
-        <tr>
-            <th style="width:100px">Player</th>
-            <th style="width:60px">Awareness (1-5)</th>
-            <th style="width:60px">Leadership (1-5)</th>
-            <th style="width:60px">Enthusiasm (1-5)</th>
-            <th style="width:50px">Total /15</th>
-            <th>Notes</th>
-        </tr>
-        <tr><td class="player-name">Paige</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Isabel</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">MDR</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Liv</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Cayla</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Meghan M</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Lauryn</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Giselle</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Lizze</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-        <tr><td class="player-name">Claire</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
-    </table>
+    <div class="group-section">
+        <div class="group-header"><span>GROUP C</span><span class="station-name">INTANGIBLES</span></div>
+        <table>
+            <tr>
+                <th style="width:100px">Player</th>
+                <th style="width:60px">Awareness (1-5)</th>
+                <th style="width:60px">Leadership (1-5)</th>
+                <th style="width:60px">Enthusiasm (1-5)</th>
+                <th style="width:50px">Total /15</th>
+                <th>Notes</th>
+            </tr>
+            <tr><td class="player-name">Paige</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Isabel</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">MDR</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Liv</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Cayla</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Meghan M</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Lauryn</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Giselle</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Lizze</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+            <tr><td class="player-name">Claire</td><td></td><td></td><td></td><td></td><td class="notes-cell"></td></tr>
+        </table>
+    </div>
 </div>
 
 </body>
