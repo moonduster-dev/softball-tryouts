@@ -181,70 +181,6 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- H→3B -->
-                            <div class="bg-white p-3 rounded border">
-                                <label class="text-sm font-medium mb-2 block">H→3B (seconds)</label>
-                                <div class="grid grid-cols-5 gap-2 text-xs">
-                                    <div>
-                                        <div class="text-center font-semibold text-green-600 mb-1">5 pts</div>
-                                        <input type="number" step="0.1" id="h3b_t5" class="px-2 py-1 border rounded w-full text-center">
-                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
-                                    </div>
-                                    <div>
-                                        <div class="text-center font-semibold text-blue-600 mb-1">4 pts</div>
-                                        <input type="number" step="0.1" id="h3b_t4" class="px-2 py-1 border rounded w-full text-center">
-                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
-                                    </div>
-                                    <div>
-                                        <div class="text-center font-semibold text-yellow-600 mb-1">3 pts</div>
-                                        <input type="number" step="0.1" id="h3b_t3" class="px-2 py-1 border rounded w-full text-center">
-                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
-                                    </div>
-                                    <div>
-                                        <div class="text-center font-semibold text-orange-600 mb-1">2 pts</div>
-                                        <input type="number" step="0.1" id="h3b_t2" class="px-2 py-1 border rounded w-full text-center">
-                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
-                                    </div>
-                                    <div>
-                                        <div class="text-center font-semibold text-red-600 mb-1">1 pt</div>
-                                        <input type="number" step="0.1" id="h3b_t1" class="px-2 py-1 border rounded w-full text-center">
-                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≥ this</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- H→H -->
-                            <div class="bg-white p-3 rounded border">
-                                <label class="text-sm font-medium mb-2 block">H→H (seconds)</label>
-                                <div class="grid grid-cols-5 gap-2 text-xs">
-                                    <div>
-                                        <div class="text-center font-semibold text-green-600 mb-1">5 pts</div>
-                                        <input type="number" step="0.1" id="hh_t5" class="px-2 py-1 border rounded w-full text-center">
-                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
-                                    </div>
-                                    <div>
-                                        <div class="text-center font-semibold text-blue-600 mb-1">4 pts</div>
-                                        <input type="number" step="0.1" id="hh_t4" class="px-2 py-1 border rounded w-full text-center">
-                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
-                                    </div>
-                                    <div>
-                                        <div class="text-center font-semibold text-yellow-600 mb-1">3 pts</div>
-                                        <input type="number" step="0.1" id="hh_t3" class="px-2 py-1 border rounded w-full text-center">
-                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
-                                    </div>
-                                    <div>
-                                        <div class="text-center font-semibold text-orange-600 mb-1">2 pts</div>
-                                        <input type="number" step="0.1" id="hh_t2" class="px-2 py-1 border rounded w-full text-center">
-                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
-                                    </div>
-                                    <div>
-                                        <div class="text-center font-semibold text-red-600 mb-1">1 pt</div>
-                                        <input type="number" step="0.1" id="hh_t1" class="px-2 py-1 border rounded w-full text-center">
-                                        <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≥ this</div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
 
@@ -519,8 +455,6 @@
             // Speed metrics (lower is better) - t5 is fastest (5pts), t1 is slowest (1pt)
             h1b: { t5: 3.1, t4: 3.8, t3: 4.6, t2: 5.2, t1: 6.0 },
             '2bh': { t5: 5.75, t4: 6.25, t3: 7, t2: 8, t1: 9 },  // 2B to Home
-            h3b: { t5: 8.6, t4: 9.4, t3: 10.5, t2: 12, t1: 14 },
-            hh: { t5: 11.8, t4: 13.3, t3: 15.0, t2: 17.0, t1: 19.0 },
             // Pop time (lower is better)
             poptime: { t5: 2.3, t4: 2.5, t3: 2.7, t2: 3.0, t1: 3.5 },
             // Pro Agility (lower is better)
@@ -540,8 +474,6 @@
             return {
                 h1b: { t5: 3.1, t4: 3.8, t3: 4.6, t2: 5.2, t1: 6.0 },
                 '2bh': { t5: 5.75, t4: 6.25, t3: 7, t2: 8, t1: 9 },
-                h3b: { t5: 8.6, t4: 9.4, t3: 10.5, t2: 12, t1: 14 },
-                hh: { t5: 11.8, t4: 13.3, t3: 15.0, t2: 17.0, t1: 19.0 },
                 poptime: { t5: 2.3, t4: 2.5, t3: 2.7, t2: 3.0, t1: 3.5 },
                 proagility: { t5: 4.3, t4: 4.6, t3: 5.0, t2: 5.5, t1: 6.0 },
                 broadjump: {
@@ -571,7 +503,7 @@
         function saveScoringConfig() {
             try {
                 // Read all values from inputs for time-based drills
-                const timeDrills = ['h1b', '2bh', 'h3b', 'hh', 'poptime', 'proagility'];
+                const timeDrills = ['h1b', '2bh', 'poptime', 'proagility'];
 
                 timeDrills.forEach(drill => {
                     const cfg = scoringConfig[drill];
@@ -619,7 +551,7 @@
         // Populate input fields with current config values
         function populateScoringInputs() {
             // Populate time-based drills
-            const timeDrills = ['h1b', '2bh', 'h3b', 'hh', 'poptime', 'proagility'];
+            const timeDrills = ['h1b', '2bh', 'poptime', 'proagility'];
             timeDrills.forEach(drill => {
                 const cfg = scoringConfig[drill];
                 if (cfg) {
@@ -802,8 +734,6 @@
                 // Speed metrics
                 h1b: { times: [null, null], missed1b: [false, false] },
                 '2bh': { times: [null, null], missed3b: [false, false] },
-                h3b: { time: null, nostick: false },
-                hh: { time: null, missedbase: false },
                 // Explosiveness
                 proagility: [null, null],
                 broadjump: [{ feet: null, inches: null }, { feet: null, inches: null }],
@@ -1082,49 +1012,6 @@
                             </div>
                         </div>
 
-                        <!-- H to 3B -->
-                        <div class="mb-4 p-4 bg-blue-50 rounded-lg">
-                            <h4 class="font-semibold mb-2">H → 3B (1 attempt)</h4>
-                            <div class="flex gap-4 items-end">
-                                <div class="flex-1">
-                                    <label class="text-sm text-gray-600">Time</label>
-                                    <input type="number" step="0.01" value="${b.h3b.time || ''}"
-                                        onchange="updateH3B(${player.id}, 'time', this.value)"
-                                        class="w-full px-3 py-2 border rounded-lg" placeholder="seconds">
-                                </div>
-                                <label class="flex items-center gap-2 text-sm pb-2">
-                                    <input type="checkbox" ${b.h3b.nostick ? 'checked' : ''}
-                                        onchange="updateH3B(${player.id}, 'nostick', this.checked)">
-                                    No Stick (+1s)
-                                </label>
-                            </div>
-                            <div class="mt-2 text-sm">
-                                Adjusted: <strong>${getAdjustedH3B(b.h3b)}s</strong> |
-                                Score: <strong>${calculateSpeedScore('h3b', getAdjustedH3B(b.h3b))}</strong>/5
-                            </div>
-                        </div>
-
-                        <!-- H to H -->
-                        <div class="mb-4 p-4 bg-blue-50 rounded-lg">
-                            <h4 class="font-semibold mb-2">H → H (1 attempt)</h4>
-                            <div class="flex gap-4 items-end">
-                                <div class="flex-1">
-                                    <label class="text-sm text-gray-600">Time</label>
-                                    <input type="number" step="0.01" value="${b.hh.time || ''}"
-                                        onchange="updateHH(${player.id}, 'time', this.value)"
-                                        class="w-full px-3 py-2 border rounded-lg" placeholder="seconds">
-                                </div>
-                                <label class="flex items-center gap-2 text-sm pb-2">
-                                    <input type="checkbox" ${b.hh.missedbase ? 'checked' : ''}
-                                        onchange="updateHH(${player.id}, 'missedbase', this.checked)">
-                                    Any Base Missed (+1s)
-                                </label>
-                            </div>
-                            <div class="mt-2 text-sm">
-                                Adjusted: <strong>${getAdjustedHH(b.hh)}s</strong> |
-                                Score: <strong>${calculateSpeedScore('hh', getAdjustedHH(b.hh))}</strong>/5
-                            </div>
-                        </div>
                     </div>
 
                     <!-- Explosiveness -->
@@ -1187,7 +1074,7 @@
                     </div>
 
                     <div class="mt-4 p-3 bg-green-100 rounded-lg">
-                        <strong>Baserunning Total:</strong> ${calculateBaserunningTotal(player)}/35
+                        <strong>Baserunning Total:</strong> ${calculateBaserunningTotal(player)}/30
                     </div>
 
                     <!-- Notes Section -->
@@ -1201,11 +1088,8 @@
             const myScores = scrimmage[currentUser] || {};
 
             const drills = [
-                { id: 'chopstep', name: 'Chop Step Ability', max: 3 },
-                { id: 'rounding', name: 'Rounding Bases', max: 3 },
-                { id: 'sliding', name: 'Sliding', max: 3 },
-                { id: 'softballiq', name: 'General Softball IQ', max: 3 },
-                { id: 'aggressiveness', name: 'Aggressiveness', max: 3 }
+                { id: 'runningform', name: 'Running Form', max: 5 },
+                { id: 'intangibles', name: 'Intangibles', max: 5 }
             ];
 
             return `
@@ -1214,7 +1098,7 @@
                         <div class="p-3 bg-green-50 rounded-lg">
                             <h4 class="font-medium mb-2">${drill.name}</h4>
                             <div class="flex gap-2">
-                                ${[1, 2, 3].map(v => `
+                                ${[1, 2, 3, 4, 5].map(v => `
                                     <button onclick="updateScrimmageScore(${player.id}, '${drill.id}', ${v})"
                                         class="score-btn flex-1 py-2 rounded-lg ${myScores[drill.id] == v ? 'bg-green-600 text-white' : 'bg-white border hover:bg-green-100'}">
                                         ${v}
@@ -1422,34 +1306,6 @@
             renderScoringArea();
         }
 
-        function updateH3B(playerId, field, value) {
-            const player = players.find(p => p.id === playerId);
-            if (!player) return;
-            if (!player.baserunning) player.baserunning = createBaserunningData();
-
-            if (field === 'time') {
-                player.baserunning.h3b.time = value === '' ? null : parseFloat(value);
-            } else {
-                player.baserunning.h3b.nostick = value;
-            }
-            saveData();
-            renderScoringArea();
-        }
-
-        function updateHH(playerId, field, value) {
-            const player = players.find(p => p.id === playerId);
-            if (!player) return;
-            if (!player.baserunning) player.baserunning = createBaserunningData();
-
-            if (field === 'time') {
-                player.baserunning.hh.time = value === '' ? null : parseFloat(value);
-            } else {
-                player.baserunning.hh.missedbase = value;
-            }
-            saveData();
-            renderScoringArea();
-        }
-
         function updateExplosiveness(playerId, drill, index, value) {
             const player = players.find(p => p.id === playerId);
             if (!player) return;
@@ -1567,16 +1423,6 @@
             if (adjusted.length === 0) return 'N/A';
             const avg = adjusted.reduce((sum, t) => sum + t, 0) / adjusted.length;
             return avg.toFixed(2);
-        }
-
-        function getAdjustedH3B(data) {
-            if (data.time === null) return 'N/A';
-            return (data.time + (data.nostick ? 1 : 0)).toFixed(2);
-        }
-
-        function getAdjustedHH(data) {
-            if (data.time === null) return 'N/A';
-            return (data.time + (data.missedbase ? 1 : 0)).toFixed(2);
         }
 
         function calculateSpeedScore(drill, time) {
@@ -1750,19 +1596,17 @@
             const b = player.baserunning || {};
             let total = 0;
 
-            // Speed metrics (20 points max) - using averages
+            // Speed metrics (10 points max) - using averages
             total += calculateSpeedScore('h1b', getAdjustedAvgH1B(b.h1b || { times: [null, null], missed1b: [false, false] }));
             total += calculateSpeedScore('2bh', getAdjustedAvg2BH(b['2bh'] || { times: [null, null], missed3b: [false, false] }));
-            total += calculateSpeedScore('h3b', getAdjustedH3B(b.h3b || { time: null, nostick: false }));
-            total += calculateSpeedScore('hh', getAdjustedHH(b.hh || { time: null, missedbase: false }));
 
             // Explosiveness (10 points max)
             total += calculateProAgilityScore(b.proagility || []);
             total += calculateBroadJumpScore(b.broadjump || []);
 
-            // Scrimmage (15 points max averaged)
+            // Scrimmage (10 points max averaged)
             const scrimmage = b.scrimmage || {};
-            const scrimmgeDrills = ['chopstep', 'rounding', 'sliding', 'softballiq', 'aggressiveness'];
+            const scrimmgeDrills = ['runningform', 'intangibles'];
             scrimmgeDrills.forEach(drill => {
                 total += calculateAverageScore(scrimmage, drill);
             });
@@ -1943,8 +1787,6 @@
                         <tr><td><strong>Pop Time</strong></td><td>≤${cfg.poptime.t5}s</td><td>≤${cfg.poptime.t4}s</td><td>≤${cfg.poptime.t3}s</td><td>≤${cfg.poptime.t2}s</td><td>>${cfg.poptime.t2}s</td></tr>
                         <tr><td><strong>H→1B</strong></td><td>≤${cfg.h1b.t5}s</td><td>≤${cfg.h1b.t4}s</td><td>≤${cfg.h1b.t3}s</td><td>≤${cfg.h1b.t2}s</td><td>>${cfg.h1b.t2}s</td></tr>
                         <tr><td><strong>2B→H</strong></td><td>≤${cfg['2bh'].t5}s</td><td>≤${cfg['2bh'].t4}s</td><td>≤${cfg['2bh'].t3}s</td><td>≤${cfg['2bh'].t2}s</td><td>>${cfg['2bh'].t2}s</td></tr>
-                        <tr><td><strong>H→3B</strong></td><td>≤${cfg.h3b.t5}s</td><td>≤${cfg.h3b.t4}s</td><td>≤${cfg.h3b.t3}s</td><td>≤${cfg.h3b.t2}s</td><td>>${cfg.h3b.t2}s</td></tr>
-                        <tr><td><strong>H→H</strong></td><td>≤${cfg.hh.t5}s</td><td>≤${cfg.hh.t4}s</td><td>≤${cfg.hh.t3}s</td><td>≤${cfg.hh.t2}s</td><td>>${cfg.hh.t2}s</td></tr>
                         <tr><td><strong>Pro Agility</strong></td><td>≤${cfg.proagility.t5}s</td><td>≤${cfg.proagility.t4}s</td><td>≤${cfg.proagility.t3}s</td><td>≤${cfg.proagility.t2}s</td><td>>${cfg.proagility.t2}s</td></tr>
                     </table>
 
@@ -2174,18 +2016,13 @@
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
                             <div><span class="text-gray-500">H→1B (Avg):</span> ${getAdjustedAvgH1B(b.h1b || { times: [null, null], missed1b: [false, false] }) || 'N/A'}s (${calculateSpeedScore('h1b', getAdjustedAvgH1B(b.h1b || { times: [null, null], missed1b: [false, false] }))}/5)</div>
                             <div><span class="text-gray-500">2B→H (Avg):</span> ${getAdjustedAvg2BH(b['2bh'] || { times: [null, null], missed3b: [false, false] }) || 'N/A'}s (${calculateSpeedScore('2bh', getAdjustedAvg2BH(b['2bh'] || { times: [null, null], missed3b: [false, false] }))}/5)</div>
-                            <div><span class="text-gray-500">H→3B:</span> ${getAdjustedH3B(b.h3b || { time: null, nostick: false }) || 'N/A'}s (${calculateSpeedScore('h3b', getAdjustedH3B(b.h3b || { time: null, nostick: false }))}/5)</div>
-                            <div><span class="text-gray-500">H→H:</span> ${getAdjustedHH(b.hh || { time: null, missedbase: false }) || 'N/A'}s (${calculateSpeedScore('hh', getAdjustedHH(b.hh || { time: null, missedbase: false }))}/5)</div>
                             <div><span class="text-gray-500">Pro Agility (Avg):</span> ${getAverageTime(b.proagility || []) || 'N/A'}s (${calculateProAgilityScore(b.proagility || [])}/5)</div>
                             <div><span class="text-gray-500">Broad Jump (Avg):</span> ${getAverageBroadJump(b.broadjump || []) || 'N/A'} (${calculateBroadJumpScore(b.broadjump || [])}/5)</div>
                         </div>
                         <div class="mt-2 text-sm">
                             <span class="text-gray-500">Scrimmage Scores (Avg):</span>
-                            Chop Step: ${calculateAverageScore(b.scrimmage || {}, 'chopstep').toFixed(1)} |
-                            Rounding: ${calculateAverageScore(b.scrimmage || {}, 'rounding').toFixed(1)} |
-                            Sliding: ${calculateAverageScore(b.scrimmage || {}, 'sliding').toFixed(1)} |
-                            IQ: ${calculateAverageScore(b.scrimmage || {}, 'softballiq').toFixed(1)} |
-                            Aggression: ${calculateAverageScore(b.scrimmage || {}, 'aggressiveness').toFixed(1)}
+                            Running Form: ${calculateAverageScore(b.scrimmage || {}, 'runningform').toFixed(1)} |
+                            Intangibles: ${calculateAverageScore(b.scrimmage || {}, 'intangibles').toFixed(1)}
                         </div>
                         ${baserunningNotes.length > 0 ? `
                             <div class="mt-2 p-2 bg-blue-50 rounded text-sm">
