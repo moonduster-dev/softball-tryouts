@@ -766,6 +766,14 @@
                     { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null },
                     { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null }
                 ],
+                // 3B -> 1B Grounders (4 scoring categories)
+                thirdToFirstGrounders: { footwork: null, mechanics: null, strength: null, intangibles: null },
+                // 3B -> 1B Bunt (4 scoring categories)
+                thirdToFirstBunt: { footwork: null, mechanics: null, strength: null, intangibles: null },
+                // SS -> 1B (4 scoring categories)
+                ssToFirst: { footwork: null, mechanics: null, strength: null, intangibles: null },
+                // SS -> 2B Feeds/Throws (4 scoring categories)
+                ssToSecond: { footwork: null, mechanics: null, strength: null, intangibles: null },
                 notes: []
             };
         }
@@ -1316,12 +1324,55 @@
                         </div>
                     </div>
 
+                    <!-- Infield Drills -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold mb-3 text-green-700">Infield Drills</h3>
+
+                        ${renderInfieldDrill(player, f, 'thirdToFirstGrounders', '3B → 1B Grounders')}
+                        ${renderInfieldDrill(player, f, 'thirdToFirstBunt', '3B → 1B Bunt')}
+                        ${renderInfieldDrill(player, f, 'ssToFirst', 'SS → 1B')}
+                        ${renderInfieldDrill(player, f, 'ssToSecond', 'SS → 2B Feeds/Throws')}
+                    </div>
+
                     <div class="mt-4 p-3 bg-green-100 rounded-lg">
-                        <strong>Fielding Total:</strong> ${calculateFieldingTotal(player).toFixed(1)}/75
+                        <strong>Fielding Total:</strong> ${calculateFieldingTotal(player).toFixed(1)}/155
                     </div>
 
                     <!-- Notes Section -->
                     ${renderNotesSection(player, 'fielding')}
+                </div>
+            `;
+        }
+
+        function renderInfieldDrill(player, f, drillId, drillName) {
+            const infieldCategories = [
+                { id: 'footwork', name: 'Footwork' },
+                { id: 'mechanics', name: 'Fielding/Throwing Mechanics' },
+                { id: 'strength', name: 'Strength/Accuracy of Throws' },
+                { id: 'intangibles', name: 'Intangibles' }
+            ];
+
+            return `
+                <div class="mb-4 p-4 bg-green-50 rounded-lg">
+                    <h4 class="font-semibold mb-3">${drillName}</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                        ${infieldCategories.map(cat => `
+                            <div class="p-2 bg-white rounded border">
+                                <label class="text-xs font-medium text-gray-600 block mb-1">${cat.name}</label>
+                                <div class="flex gap-1">
+                                    ${[1, 2, 3, 4, 5].map(v => `
+                                        <button onclick="updateInfieldDrill(${player.id}, '${drillId}', '${cat.id}', ${v})"
+                                            class="flex-1 py-1 text-sm rounded ${f[drillId]?.[cat.id] == v ? 'bg-green-600 text-white' : 'bg-gray-100 hover:bg-green-100'}">
+                                            ${v}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="mt-2 text-sm text-gray-600">
+                        Total: <strong>${calculateInfieldDrillTotal(f[drillId])}</strong>/20
+                    </div>
                 </div>
             `;
         }
@@ -1642,6 +1693,18 @@
             renderScoringArea();
         }
 
+        function updateInfieldDrill(playerId, drillId, category, value) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+            if (!player.fielding) player.fielding = createFieldingData();
+            if (!player.fielding[drillId]) {
+                player.fielding[drillId] = { footwork: null, mechanics: null, strength: null, intangibles: null };
+            }
+            player.fielding[drillId][category] = value;
+            saveData();
+            renderScoringArea();
+        }
+
         // ============================================
         // THROWING UPDATE FUNCTIONS
         // ============================================
@@ -1720,12 +1783,29 @@
             return 1;
         }
 
+        function calculateInfieldDrillTotal(drill) {
+            if (!drill) return 0;
+            const categories = ['footwork', 'mechanics', 'strength', 'intangibles'];
+            let total = 0;
+            for (const cat of categories) {
+                if (drill[cat] !== null && drill[cat] !== undefined) {
+                    total += drill[cat];
+                }
+            }
+            return total;
+        }
+
         function calculateFieldingTotal(player) {
             const f = player.fielding || {};
             const groundBallsAvg = calculateGroundBallsAverage(f.groundballs || []);
             const flyBallAvg = calculateFlyBallAverage(f.flyball || []);
             const flyBallTagupAvg = calculateFlyBallTagupAverage(f.flyballtagup || []);
-            return groundBallsAvg + flyBallAvg + flyBallTagupAvg;
+            // Add infield drill totals (4 drills × max 20 points each = 80 points)
+            const infieldTotal = calculateInfieldDrillTotal(f.thirdToFirstGrounders) +
+                                 calculateInfieldDrillTotal(f.thirdToFirstBunt) +
+                                 calculateInfieldDrillTotal(f.ssToFirst) +
+                                 calculateInfieldDrillTotal(f.ssToSecond);
+            return groundBallsAvg + flyBallAvg + flyBallTagupAvg + infieldTotal;
         }
 
         function calculateThrowingTotal(player) {
@@ -2429,6 +2509,13 @@
                             <div><span class="text-gray-500">Ground Balls (Avg):</span> ${calculateGroundBallsAverage(f.groundballs || []).toFixed(1)}/25</div>
                             <div><span class="text-gray-500">Fly Ball (Avg):</span> ${calculateFlyBallAverage(f.flyball || []).toFixed(1)}/25</div>
                             <div><span class="text-gray-500">Fly Ball Tagup (Avg):</span> ${calculateFlyBallTagupAverage(f.flyballtagup || []).toFixed(1)}/25</div>
+                        </div>
+                        <div class="mt-2 text-sm text-gray-600 font-medium">Infield Drills:</div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm mt-1">
+                            <div><span class="text-gray-500">3B→1B Grounders:</span> ${calculateInfieldDrillTotal(f.thirdToFirstGrounders)}/20</div>
+                            <div><span class="text-gray-500">3B→1B Bunt:</span> ${calculateInfieldDrillTotal(f.thirdToFirstBunt)}/20</div>
+                            <div><span class="text-gray-500">SS→1B:</span> ${calculateInfieldDrillTotal(f.ssToFirst)}/20</div>
+                            <div><span class="text-gray-500">SS→2B Feeds:</span> ${calculateInfieldDrillTotal(f.ssToSecond)}/20</div>
                         </div>
                         ${fieldingNotes.length > 0 ? `
                             <div class="mt-2 p-2 bg-green-50 rounded text-sm">
