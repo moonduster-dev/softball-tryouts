@@ -314,7 +314,7 @@
 
                         <div class="bg-white p-3 rounded border">
                             <label class="text-sm font-medium mb-2 block">Bat Speed (mph)</label>
-                            <div class="grid grid-cols-4 gap-2 text-xs">
+                            <div class="grid grid-cols-5 gap-2 text-xs">
                                 <div>
                                     <div class="text-center font-semibold text-green-600 mb-1">5 pts</div>
                                     <input type="number" step="1" id="batspeed_t5" class="px-2 py-1 border rounded w-full text-center">
@@ -333,7 +333,12 @@
                                 <div>
                                     <div class="text-center font-semibold text-orange-600 mb-1">2 pts</div>
                                     <input type="number" step="1" id="batspeed_t2" class="px-2 py-1 border rounded w-full text-center">
-                                    <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≥ this, &lt;1 pt</div>
+                                    <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≥ this</div>
+                                </div>
+                                <div>
+                                    <div class="text-center font-semibold text-red-600 mb-1">1 pt</div>
+                                    <input type="number" step="1" id="batspeed_t1" class="px-2 py-1 border rounded w-full text-center">
+                                    <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">&lt; this</div>
                                 </div>
                             </div>
                         </div>
@@ -516,7 +521,7 @@
                 t5: { feet: 7, inches: 0 }    // >= this = 5 pts
             },
             // Bat speed (higher is better) - mph
-            batspeed: { t5: 70, t4: 63, t3: 55, t2: 48 }
+            batspeed: { t5: 70, t4: 63, t3: 55, t2: 48, t1: 48 }
         };
 
         // Get default scoring config
@@ -533,7 +538,7 @@
                     t4: { feet: 6, inches: 0 },
                     t5: { feet: 7, inches: 0 }
                 },
-                batspeed: { t5: 70, t4: 63, t3: 55, t2: 48 }
+                batspeed: { t5: 70, t4: 63, t3: 55, t2: 48, t1: 48 }
             };
         }
 
@@ -579,9 +584,9 @@
                     }
                 });
 
-                // Handle bat speed (higher is better, only t5, t4, t3, t2)
+                // Handle bat speed (higher is better)
                 if (!scoringConfig.batspeed) scoringConfig.batspeed = {};
-                ['t5', 't4', 't3', 't2'].forEach(threshold => {
+                ['t5', 't4', 't3', 't2', 't1'].forEach(threshold => {
                     const input = document.getElementById(`batspeed_${threshold}`);
                     if (input && input.value !== '') {
                         scoringConfig.batspeed[threshold] = parseFloat(input.value);
@@ -648,7 +653,7 @@
             // Populate bat speed
             const bsCfg = scoringConfig.batspeed;
             if (bsCfg) {
-                ['t5', 't4', 't3', 't2'].forEach(threshold => {
+                ['t5', 't4', 't3', 't2', 't1'].forEach(threshold => {
                     const input = document.getElementById(`batspeed_${threshold}`);
                     if (input && bsCfg[threshold] !== undefined) {
                         input.value = bsCfg[threshold];
@@ -1983,7 +1988,7 @@
         function calculateBatSpeedScore(batSpeed) {
             const avg = getAverageBatSpeed(batSpeed);
             if (avg === null) return 0;
-            const cfg = scoringConfig.batspeed || { t5: 70, t4: 63, t3: 55, t2: 48 };
+            const cfg = scoringConfig.batspeed || { t5: 70, t4: 63, t3: 55, t2: 48, t1: 48 };
             if (avg >= cfg.t5) return 5;
             if (avg >= cfg.t4) return 4;
             if (avg >= cfg.t3) return 3;
