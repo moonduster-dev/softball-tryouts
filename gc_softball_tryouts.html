@@ -308,6 +308,37 @@
                         </div>
                     </div>
 
+                    <!-- Hitting Drills Configuration -->
+                    <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-semibold text-md mb-3">🏏 Hitting Drills (mph) - Higher is better</h4>
+
+                        <div class="bg-white p-3 rounded border">
+                            <label class="text-sm font-medium mb-2 block">Bat Speed (mph)</label>
+                            <div class="grid grid-cols-4 gap-2 text-xs">
+                                <div>
+                                    <div class="text-center font-semibold text-green-600 mb-1">5 pts</div>
+                                    <input type="number" step="1" id="batspeed_t5" class="px-2 py-1 border rounded w-full text-center">
+                                    <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≥ this</div>
+                                </div>
+                                <div>
+                                    <div class="text-center font-semibold text-blue-600 mb-1">4 pts</div>
+                                    <input type="number" step="1" id="batspeed_t4" class="px-2 py-1 border rounded w-full text-center">
+                                    <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≥ this</div>
+                                </div>
+                                <div>
+                                    <div class="text-center font-semibold text-yellow-600 mb-1">3 pts</div>
+                                    <input type="number" step="1" id="batspeed_t3" class="px-2 py-1 border rounded w-full text-center">
+                                    <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≥ this</div>
+                                </div>
+                                <div>
+                                    <div class="text-center font-semibold text-orange-600 mb-1">2 pts</div>
+                                    <input type="number" step="1" id="batspeed_t2" class="px-2 py-1 border rounded w-full text-center">
+                                    <div class="text-center text-gray-500 mt-1" style="font-size: 0.65em;">≥ this, &lt;1 pt</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Action Buttons -->
                     <div class="flex gap-2 justify-center">
                         <button onclick="loadScoringDefaults()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
@@ -483,7 +514,9 @@
                 t3: { feet: 5, inches: 0 },   // >= this = 3 pts
                 t4: { feet: 6, inches: 0 },   // >= this = 4 pts
                 t5: { feet: 7, inches: 0 }    // >= this = 5 pts
-            }
+            },
+            // Bat speed (higher is better) - mph
+            batspeed: { t5: 70, t4: 63, t3: 55, t2: 48 }
         };
 
         // Get default scoring config
@@ -499,7 +532,8 @@
                     t3: { feet: 5, inches: 0 },
                     t4: { feet: 6, inches: 0 },
                     t5: { feet: 7, inches: 0 }
-                }
+                },
+                batspeed: { t5: 70, t4: 63, t3: 55, t2: 48 }
             };
         }
 
@@ -542,6 +576,15 @@
                             feet: feetInput && feetInput.value !== '' ? parseInt(feetInput.value) : 0,
                             inches: inchesInput && inchesInput.value !== '' ? parseInt(inchesInput.value) : 0
                         };
+                    }
+                });
+
+                // Handle bat speed (higher is better, only t5, t4, t3, t2)
+                if (!scoringConfig.batspeed) scoringConfig.batspeed = {};
+                ['t5', 't4', 't3', 't2'].forEach(threshold => {
+                    const input = document.getElementById(`batspeed_${threshold}`);
+                    if (input && input.value !== '') {
+                        scoringConfig.batspeed[threshold] = parseFloat(input.value);
                     }
                 });
 
@@ -598,6 +641,17 @@
                             if (feetInput) feetInput.value = Math.floor(val);
                             if (inchesInput) inchesInput.value = Math.round((val - Math.floor(val)) * 12);
                         }
+                    }
+                });
+            }
+
+            // Populate bat speed
+            const bsCfg = scoringConfig.batspeed;
+            if (bsCfg) {
+                ['t5', 't4', 't3', 't2'].forEach(threshold => {
+                    const input = document.getElementById(`batspeed_${threshold}`);
+                    if (input && bsCfg[threshold] !== undefined) {
+                        input.value = bsCfg[threshold];
                     }
                 });
             }
@@ -1929,10 +1983,11 @@
         function calculateBatSpeedScore(batSpeed) {
             const avg = getAverageBatSpeed(batSpeed);
             if (avg === null) return 0;
-            if (avg >= 70) return 5;
-            if (avg >= 63) return 4;
-            if (avg >= 55) return 3;
-            if (avg >= 48) return 2;
+            const cfg = scoringConfig.batspeed || { t5: 70, t4: 63, t3: 55, t2: 48 };
+            if (avg >= cfg.t5) return 5;
+            if (avg >= cfg.t4) return 4;
+            if (avg >= cfg.t3) return 3;
+            if (avg >= cfg.t2) return 2;
             return 1;
         }
 
