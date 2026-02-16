@@ -853,18 +853,29 @@
         const TRYOUT_GROUPS = {
             'A': ['Maggie', 'Sophia', 'Clara', 'Mairin', 'Aubrey', 'Autumn', 'Ashley', 'Louisa', 'Molly', 'London'],
             'B': ['Rebecca', 'Julia', 'MJ', 'Shana', 'Kelsey', 'Katelyn', 'Kayla', 'Natalie', 'Annie', 'Jolyn'],
-            'C': ['Paige', 'Isabel', 'MDR', 'Liv', 'Cayla', 'Meghan M', 'Lauryn', 'Giselle', 'Lizzie', 'Claire']
+            'C': ['Paige', 'Isabel', 'MDR', 'Liv', 'Cayla', 'Meghan M', 'Lauryn', 'Giselle', 'Lizzie', 'Claire'],
+            'Pitchers': ['Autumn', 'Maddy', 'MDR', 'Ashley', 'Cayla'],
+            'Catchers': ['Isabel', 'Sophia', 'Claire', 'Lauryn', 'Katelyn']
         };
 
-        // Get player's group based on name
+        // Get player's group based on name (for A/B/C groups)
         function getPlayerGroup(playerName) {
-            for (const [group, names] of Object.entries(TRYOUT_GROUPS)) {
+            const letterGroups = ['A', 'B', 'C'];
+            for (const group of letterGroups) {
+                const names = TRYOUT_GROUPS[group];
                 if (names.some(name => playerName.toLowerCase().includes(name.toLowerCase()) ||
                                name.toLowerCase().includes(playerName.toLowerCase()))) {
                     return group;
                 }
             }
             return null; // Unassigned
+        }
+
+        // Check if player is in a special group (Pitchers/Catchers)
+        function isPlayerInGroup(playerName, groupName) {
+            const names = TRYOUT_GROUPS[groupName] || [];
+            return names.some(name => playerName.toLowerCase().includes(name.toLowerCase()) ||
+                                     name.toLowerCase().includes(playerName.toLowerCase()));
         }
 
         // ============================================
@@ -1365,8 +1376,8 @@
             select.innerHTML = '<option value="">-- Select a player --</option>';
 
             if (playerSelectMode === 'groups') {
-                // Group mode: organize by groups A, B, C, then Unassigned
-                const groups = { 'A': [], 'B': [], 'C': [], 'Unassigned': [] };
+                // Group mode: organize by groups A, B, C, Pitchers, Catchers, then Unassigned
+                const groups = { 'A': [], 'B': [], 'C': [], 'Pitchers': [], 'Catchers': [], 'Unassigned': [] };
 
                 players.forEach(p => {
                     const group = getPlayerGroup(p.name);
@@ -1374,6 +1385,13 @@
                         groups[group].push(p);
                     } else {
                         groups['Unassigned'].push(p);
+                    }
+                    // Also add to Pitchers/Catchers if applicable
+                    if (isPlayerInGroup(p.name, 'Pitchers')) {
+                        groups['Pitchers'].push(p);
+                    }
+                    if (isPlayerInGroup(p.name, 'Catchers')) {
+                        groups['Catchers'].push(p);
                     }
                 });
 
@@ -1383,10 +1401,16 @@
                 });
 
                 // Add optgroups
-                ['A', 'B', 'C', 'Unassigned'].forEach(groupName => {
+                ['A', 'B', 'C', 'Pitchers', 'Catchers', 'Unassigned'].forEach(groupName => {
                     if (groups[groupName].length > 0) {
                         const optgroup = document.createElement('optgroup');
-                        optgroup.label = groupName === 'Unassigned' ? '— Unassigned —' : `Group ${groupName}`;
+                        if (groupName === 'Unassigned') {
+                            optgroup.label = '— Unassigned —';
+                        } else if (groupName === 'Pitchers' || groupName === 'Catchers') {
+                            optgroup.label = `⚾ ${groupName}`;
+                        } else {
+                            optgroup.label = `Group ${groupName}`;
+                        }
 
                         groups[groupName].forEach(p => {
                             const opt = document.createElement('option');
