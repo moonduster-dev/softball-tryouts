@@ -3821,7 +3821,7 @@
             // =====================
             // ALL PLAYERS SECTION (ordered by score, no catching/pitching)
             // =====================
-            csv += '=== ALL PLAYERS (Ranked by Score) ===\n';
+            csv += '--- ALL PLAYERS (Ranked by Score) ---\n';
             csv += 'Rank,Name,Grand Total,';
             // Baserunning columns
             csv += 'H-1B Avg,H-1B Score,2B-H Avg,2B-H Score,Pro Agility Avg,Pro Agility Score,Broad Jump Avg,Broad Jump Score,Baserunning Total,';
@@ -3921,7 +3921,7 @@
             // =====================
             // CATCHERS SECTION
             // =====================
-            csv += '\n\n=== CATCHERS (Ranked by Total with Catching) ===\n';
+            csv += '\n\n--- CATCHERS (Ranked by Total with Catching) ---\n';
             csv += 'Rank,Name,Pop Time Avg,Pop Time Score,Setup/Stance,Arm Str/Acc,Block/Popups,Framing,Foot/Agility,High Motor,Catching Total,Baserunning,Hitting,Infield,Outfield,Throwing,Intangibles,Grand Total\n';
 
             const catchers = players.filter(p => CATCHERS.includes(p.name)).sort((a, b) => {
@@ -3955,7 +3955,7 @@
             // =====================
             // PITCHERS SECTION
             // =====================
-            csv += '\n\n=== PITCHERS (Ranked by Total with Pitching) ===\n';
+            csv += '\n\n--- PITCHERS (Ranked by Total with Pitching) ---\n';
             csv += 'Rank,Name,Mechanics,Athleticism,# Pitches,Pitching Total,Baserunning,Hitting,Infield,Outfield,Throwing,Intangibles,Grand Total\n';
 
             const pitchers = players.filter(p => PITCHERS.includes(p.name)).sort((a, b) => {
@@ -3984,7 +3984,7 @@
             // =====================
             // PITCHER PITCH-BY-PITCH DETAILS
             // =====================
-            csv += '\n\n=== PITCHER PITCH DETAILS ===\n';
+            csv += '\n\n--- PITCHER PITCH DETAILS ---\n';
 
             pitchers.forEach(p => {
                 const pt = p.pitching || {};
@@ -4006,7 +4006,7 @@
             // =====================
             // BASERUNNING DETAILS
             // =====================
-            csv += '\n\n=== BASERUNNING DETAILS ===\n';
+            csv += '\n\n--- BASERUNNING DETAILS ---\n';
             csv += 'Name,H-1B Att1,H-1B Att2,H-1B Avg,H-1B Score,2B-H Att1,2B-H Att2,2B-H Avg,2B-H Score,Pro Agility 1,Pro Agility 2,Pro Agility Avg,Pro Agility Score,Broad Jump 1,Broad Jump 2,Broad Jump Avg,Broad Jump Score,Total\n';
 
             sortedAll.forEach(p => {
@@ -4055,7 +4055,7 @@
             // =====================
             // HITTING DETAILS
             // =====================
-            csv += '\n\n=== HITTING DETAILS ===\n';
+            csv += '\n\n--- HITTING DETAILS ---\n';
             csv += 'Name,Bat Speed 1,Bat Speed 2,Bat Speed Avg,Bat Speed Score,Balance,Bat Path,Contact,Timing,High Motor,Total\n';
 
             sortedAll.forEach(p => {
@@ -4081,7 +4081,7 @@
             // =====================
             // INFIELD DETAILS
             // =====================
-            csv += '\n\n=== INFIELD DETAILS ===\n';
+            csv += '\n\n--- INFIELD DETAILS ---\n';
             csv += 'Name,Fielding Mech,Arm Str/Acc,Receiving Mech,MI Feed Mech,Agility/Expl,High Motor,Total\n';
 
             sortedAll.forEach(p => {
@@ -4101,7 +4101,7 @@
             // =====================
             // OUTFIELD DETAILS
             // =====================
-            csv += '\n\n=== OUTFIELD DETAILS ===\n';
+            csv += '\n\n--- OUTFIELD DETAILS ---\n';
             csv += 'Name,Fielding Mech,Arm Str/Acc,Range/Agility,Fly Ball Pos/Trans,High Motor,Total\n';
 
             sortedAll.forEach(p => {
@@ -4120,7 +4120,7 @@
             // =====================
             // THROWING DETAILS
             // =====================
-            csv += '\n\n=== THROWING DETAILS ===\n';
+            csv += '\n\n--- THROWING DETAILS ---\n';
             csv += 'Name,Velocity 1,Velocity 2,Velocity Avg,Score\n';
 
             sortedAll.forEach(p => {
@@ -4138,7 +4138,7 @@
             // =====================
             // INTANGIBLES DETAILS
             // =====================
-            csv += '\n\n=== INTANGIBLES DETAILS ===\n';
+            csv += '\n\n--- INTANGIBLES DETAILS ---\n';
             csv += 'Name,Awareness,Leadership,Enthusiasm,Total\n';
 
             sortedAll.forEach(p => {
@@ -4155,7 +4155,7 @@
             // =====================
             // COACH NOTES SECTION
             // =====================
-            csv += '\n\n=== COACH NOTES ===\n';
+            csv += '\n\n--- COACH NOTES ---\n';
             csv += 'Player,Category,Coach,Note\n';
 
             players.forEach(p => {
