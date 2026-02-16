@@ -2921,8 +2921,8 @@
                 if (Array.isArray(data) && data.length > 0) {
                     // Log catching data specifically
                     data.forEach(p => {
-                        if (p.catching && p.catching.evaluation) {
-                            console.log(`📥 ${p.name} catching evaluation:`, p.catching.evaluation);
+                        if (p.catching && p.catching.evaluation && Object.keys(p.catching.evaluation).length > 0) {
+                            console.log(`📥 ${p.name} catching evaluation:`, JSON.stringify(p.catching.evaluation, null, 2));
                         }
                     });
                     players = data;
