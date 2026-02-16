@@ -441,7 +441,9 @@
         let selectedCategory = 'catching';
         let isSyncing = false;
         let autoUploadTimer = null;
-        const AUTO_UPLOAD_DELAY = 1000; // 1 second delay before auto-sync
+        let pendingChanges = false;  // Track if changes happened during upload
+        let lastSaveTimestamp = 0;   // Track when data was last saved
+        const AUTO_UPLOAD_DELAY = 500; // 0.5 second delay before auto-sync (reduced for faster saves)
 
         // ============================================
         // SCORING THRESHOLDS
@@ -732,6 +734,8 @@
         function saveData() {
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
+                lastSaveTimestamp = Date.now();
+                pendingChanges = true;  // Mark that we have unsaved changes
                 showSaveStatus('✓ Saved locally');
                 scheduleAutoUpload();
             } catch (e) {
@@ -2837,15 +2841,22 @@
         }
 
         async function autoUploadToSheets() {
-            if (GOOGLE_SCRIPT_URL.includes('YOUR_NEW') || isSyncing) return;
+            if (GOOGLE_SCRIPT_URL.includes('YOUR_NEW')) return;
+
+            // If already syncing, don't start another sync - it will be handled by pendingChanges
+            if (isSyncing) {
+                console.log('📤 Sync in progress, changes will be uploaded after');
+                return;
+            }
 
             isSyncing = true;
+            pendingChanges = false;  // Reset pending flag before upload
+            const uploadStartTime = Date.now();
             showSaveStatus('⏳ Auto-syncing...');
 
             try {
                 const dataToSend = JSON.stringify(players);
                 console.log('📤 Uploading to Sheets:', dataToSend.length, 'chars');
-                console.log('📤 Players data:', JSON.parse(dataToSend));
 
                 const formData = new FormData();
                 formData.append('data', dataToSend);
@@ -2857,10 +2868,25 @@
 
                 const result = await response.json();
                 console.log('📤 Upload response:', result);
+
+                // Check if new changes happened during upload
+                if (pendingChanges || lastSaveTimestamp > uploadStartTime) {
+                    console.log('📤 Changes occurred during upload, re-uploading...');
+                    showSaveStatus('⏳ Re-syncing new changes...');
+                    isSyncing = false;
+                    // Schedule immediate re-upload
+                    setTimeout(() => autoUploadToSheets(), 100);
+                    return;
+                }
+
                 showSaveStatus(result.success ? '✓ Auto-synced' : '⚠️ Sync failed');
             } catch (error) {
                 console.error('Auto-upload error:', error);
                 showSaveStatus('⚠️ Sync failed');
+                // If failed and there are pending changes, retry
+                if (pendingChanges) {
+                    setTimeout(() => autoUploadToSheets(), 2000);
+                }
             } finally {
                 isSyncing = false;
             }
