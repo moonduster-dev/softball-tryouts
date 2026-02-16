@@ -337,8 +337,11 @@
                 <button onclick="selectCategory('pitching')" id="cat-pitching" class="category-btn px-4 py-2 bg-pink-100 text-pink-700 rounded-lg hover:bg-pink-200 font-medium flex items-center gap-1">
                     <img src="pitching.jpg" alt="Pitching" class="w-5 h-5 object-contain"> Pitching
                 </button>
-                <button onclick="selectCategory('fielding')" id="cat-fielding" class="category-btn px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 font-medium flex items-center gap-1">
-                    <img src="fielding.jpg" alt="Fielding" class="w-5 h-5 object-contain"> Fielding
+                <button onclick="selectCategory('infield')" id="cat-infield" class="category-btn px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 font-medium flex items-center gap-1">
+                    <img src="fielding.jpg" alt="Infield" class="w-5 h-5 object-contain"> Infield
+                </button>
+                <button onclick="selectCategory('outfield')" id="cat-outfield" class="category-btn px-4 py-2 bg-teal-100 text-teal-700 rounded-lg hover:bg-teal-200 font-medium flex items-center gap-1">
+                    <img src="fielding.jpg" alt="Outfield" class="w-5 h-5 object-contain"> Outfield
                 </button>
                 <button onclick="selectCategory('throwing')" id="cat-throwing" class="category-btn px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 font-medium flex items-center gap-1">
                     <img src="softball fielding.JPG" alt="Throwing" class="w-5 h-5 object-contain"> Throwing
@@ -681,20 +684,32 @@
         function migratePlayerData() {
             let needsSave = false;
             players.forEach(player => {
-                // Migrate old fielding format to new simple evaluation format
-                if (player.fielding) {
+                // Migrate fielding to infield (rename)
+                if (player.fielding && !player.infield) {
+                    // Copy fielding data to infield
+                    player.infield = player.fielding;
+                    delete player.fielding;
+                    needsSave = true;
+                }
+                // Migrate old infield format to new simple evaluation format
+                if (player.infield) {
                     // If using old complex format (has groundballs, flyball, etc.), reset to new format
-                    if (player.fielding.groundballs !== undefined ||
-                        player.fielding.flyball !== undefined ||
-                        player.fielding.thirdToFirstGrounders !== undefined) {
-                        player.fielding = createFieldingData();
+                    if (player.infield.groundballs !== undefined ||
+                        player.infield.flyball !== undefined ||
+                        player.infield.thirdToFirstGrounders !== undefined) {
+                        player.infield = createInfieldData();
                         needsSave = true;
                     }
                     // Ensure evaluation object exists
-                    if (!player.fielding.evaluation) {
-                        player.fielding.evaluation = {};
+                    if (!player.infield.evaluation) {
+                        player.infield.evaluation = {};
                         needsSave = true;
                     }
+                }
+                // Initialize outfield if missing
+                if (!player.outfield) {
+                    player.outfield = createOutfieldData();
+                    needsSave = true;
                 }
                 // Migrate old catching format to new simple evaluation format
                 if (player.catching) {
@@ -828,10 +843,18 @@
             };
         }
 
-        function createFieldingData() {
+        function createInfieldData() {
             return {
                 // Simple evaluation categories - coach-keyed scoring: { coachName: { category: score, ... }, ... }
                 evaluation: {},  // 6 categories: fieldingMechanics, armStrength, receivingMechanics, miFeed, agility, highMotor
+                notes: []
+            };
+        }
+
+        function createOutfieldData() {
+            return {
+                // Simple evaluation categories - coach-keyed scoring: { coachName: { category: score, ... }, ... }
+                evaluation: {},  // 5 categories: fieldingMechanics, armStrength, rangeAgility, flyBallMechanics, highMotor
                 notes: []
             };
         }
@@ -929,7 +952,8 @@
             if (!player.catching) { player.catching = createCatchingData(); needsSave = true; }
             if (!player.baserunning) { player.baserunning = createBaserunningData(); needsSave = true; }
             if (!player.intangibles) { player.intangibles = {}; needsSave = true; }
-            if (!player.fielding) { player.fielding = createFieldingData(); needsSave = true; }
+            if (!player.infield) { player.infield = createInfieldData(); needsSave = true; }
+            if (!player.outfield) { player.outfield = createOutfieldData(); needsSave = true; }
             if (!player.throwing) { player.throwing = createThrowingData(); needsSave = true; }
             if (!player.pitching) { player.pitching = createPitchingData(); needsSave = true; }
             if (needsSave) saveData();
@@ -944,8 +968,11 @@
                 case 'intangibles':
                     area.innerHTML = renderIntangiblesSection(player);
                     break;
-                case 'fielding':
-                    area.innerHTML = renderFieldingSection(player);
+                case 'infield':
+                    area.innerHTML = renderInfieldSection(player);
+                    break;
+                case 'outfield':
+                    area.innerHTML = renderOutfieldSection(player);
                     break;
                 case 'throwing':
                     area.innerHTML = renderThrowingSection(player);
@@ -1318,13 +1345,13 @@
         }
 
         // ============================================
-        // FIELDING SECTION
+        // INFIELD SECTION
         // ============================================
-        function renderFieldingSection(player) {
-            if (!player.fielding) player.fielding = createFieldingData();
-            const f = player.fielding;
+        function renderInfieldSection(player) {
+            if (!player.infield) player.infield = createInfieldData();
+            const f = player.infield;
 
-            const fieldingCategories = [
+            const infieldCategories = [
                 { id: 'fieldingMechanics', name: 'Fielding Mechanics' },
                 { id: 'armStrength', name: 'Arm Strength/Accuracy' },
                 { id: 'receivingMechanics', name: 'Receiving Mechanics' },
@@ -1341,7 +1368,7 @@
             return `
                 <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
                     <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
-                        <img src="fielding.jpg" alt="Fielding" class="w-6 h-6 object-contain"> Fielding - ${player.name}
+                        <img src="fielding.jpg" alt="Infield" class="w-6 h-6 object-contain"> Infield - ${player.name}
                     </h2>
 
                     <div class="mb-4">
@@ -1351,12 +1378,12 @@
 
                     <div class="p-4 bg-green-50 rounded-lg mb-4">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            ${fieldingCategories.map(cat => `
+                            ${infieldCategories.map(cat => `
                                 <div class="p-3 bg-white rounded border">
                                     <label class="text-sm font-medium text-gray-700 block mb-2">${cat.name}</label>
                                     <div class="flex gap-1 mb-2">
                                         ${[1, 2, 3, 4, 5].map(v => `
-                                            <button onclick="updateFieldingEvaluation(${player.id}, '${cat.id}', ${v})"
+                                            <button onclick="updateInfieldEvaluation(${player.id}, '${cat.id}', ${v})"
                                                 class="flex-1 py-2 text-sm rounded font-medium ${myScores[cat.id] == v ? 'bg-green-600 text-white' : 'bg-gray-100 hover:bg-green-100'}">
                                                 ${v}
                                             </button>
@@ -1371,27 +1398,105 @@
                     </div>
 
                     <div class="mt-4 p-3 bg-green-100 rounded-lg">
-                        <strong>Fielding Total:</strong> ${calculateFieldingTotal(player).toFixed(1)}/30
+                        <strong>Infield Total:</strong> ${calculateInfieldTotal(player).toFixed(1)}/30
                     </div>
 
                     <!-- Notes Section -->
-                    ${renderNotesSection(player, 'fielding')}
+                    ${renderNotesSection(player, 'infield')}
                 </div>
             `;
         }
 
-        // Update fielding evaluation score
-        function updateFieldingEvaluation(playerId, category, value) {
+        // Update infield evaluation score
+        function updateInfieldEvaluation(playerId, category, value) {
             const player = players.find(p => p.id === playerId);
             if (!player) return;
-            if (!player.fielding) player.fielding = createFieldingData();
-            if (!player.fielding.evaluation || typeof player.fielding.evaluation !== 'object') {
-                player.fielding.evaluation = {};
+            if (!player.infield) player.infield = createInfieldData();
+            if (!player.infield.evaluation || typeof player.infield.evaluation !== 'object') {
+                player.infield.evaluation = {};
             }
-            if (!player.fielding.evaluation[currentUser]) {
-                player.fielding.evaluation[currentUser] = {};
+            if (!player.infield.evaluation[currentUser]) {
+                player.infield.evaluation[currentUser] = {};
             }
-            player.fielding.evaluation[currentUser][category] = value;
+            player.infield.evaluation[currentUser][category] = value;
+            saveData();
+            renderScoringArea();
+        }
+
+        // ============================================
+        // OUTFIELD SECTION
+        // ============================================
+        function renderOutfieldSection(player) {
+            if (!player.outfield) player.outfield = createOutfieldData();
+            const o = player.outfield;
+
+            const outfieldCategories = [
+                { id: 'fieldingMechanics', name: 'Fielding Mechanics' },
+                { id: 'armStrength', name: 'Arm Strength/Accuracy' },
+                { id: 'rangeAgility', name: 'Range/Agility' },
+                { id: 'flyBallMechanics', name: 'Fly Ball Pos/Trans' },
+                { id: 'highMotor', name: 'High Motor' }
+            ];
+
+            // Handle migration from old format
+            let evalData = o.evaluation || {};
+            if (typeof evalData !== 'object' || Array.isArray(evalData)) evalData = {};
+            const myScores = evalData[currentUser] || {};
+
+            return `
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                        <img src="fielding.jpg" alt="Outfield" class="w-6 h-6 object-contain"> Outfield - ${player.name}
+                    </h2>
+
+                    <div class="mb-4">
+                        <h3 class="text-lg font-semibold mb-2 flex items-center gap-2">📋 Your Evaluation</h3>
+                        <p class="text-sm text-gray-500 mb-3">All coaches evaluate these - scores are averaged</p>
+                    </div>
+
+                    <div class="p-4 bg-teal-50 rounded-lg mb-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            ${outfieldCategories.map(cat => `
+                                <div class="p-3 bg-white rounded border">
+                                    <label class="text-sm font-medium text-gray-700 block mb-2">${cat.name}</label>
+                                    <div class="flex gap-1 mb-2">
+                                        ${[1, 2, 3, 4, 5].map(v => `
+                                            <button onclick="updateOutfieldEvaluation(${player.id}, '${cat.id}', ${v})"
+                                                class="flex-1 py-2 text-sm rounded font-medium ${myScores[cat.id] == v ? 'bg-teal-600 text-white' : 'bg-gray-100 hover:bg-teal-100'}">
+                                                ${v}
+                                            </button>
+                                        `).join('')}
+                                    </div>
+                                    <div class="text-xs text-gray-500">
+                                        Avg: ${calculateAverageScore(evalData, cat.id).toFixed(1)} (${countCoachScores(evalData, cat.id)} coaches)
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="mt-4 p-3 bg-teal-100 rounded-lg">
+                        <strong>Outfield Total:</strong> ${calculateOutfieldTotal(player).toFixed(1)}/25
+                    </div>
+
+                    <!-- Notes Section -->
+                    ${renderNotesSection(player, 'outfield')}
+                </div>
+            `;
+        }
+
+        // Update outfield evaluation score
+        function updateOutfieldEvaluation(playerId, category, value) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+            if (!player.outfield) player.outfield = createOutfieldData();
+            if (!player.outfield.evaluation || typeof player.outfield.evaluation !== 'object') {
+                player.outfield.evaluation = {};
+            }
+            if (!player.outfield.evaluation[currentUser]) {
+                player.outfield.evaluation[currentUser] = {};
+            }
+            player.outfield.evaluation[currentUser][category] = value;
             saveData();
             renderScoringArea();
         }
@@ -1688,8 +1793,10 @@
                 notes = player.baserunning.notes || [];
             } else if (category === 'intangibles') {
                 notes = player.intangibles?.notes || [];
-            } else if (category === 'fielding' && player.fielding) {
-                notes = player.fielding.notes || [];
+            } else if (category === 'infield' && player.infield) {
+                notes = player.infield.notes || [];
+            } else if (category === 'outfield' && player.outfield) {
+                notes = player.outfield.notes || [];
             } else if (category === 'throwing' && player.throwing) {
                 notes = player.throwing.notes || [];
             } else if (category === 'pitching' && player.pitching) {
@@ -1700,7 +1807,8 @@
                 catching: 'purple',
                 baserunning: 'blue',
                 intangibles: 'yellow',
-                fielding: 'green',
+                infield: 'green',
+                outfield: 'teal',
                 throwing: 'red',
                 pitching: 'pink'
             };
@@ -1776,10 +1884,14 @@
                 if (!player.intangibles) player.intangibles = createIntangiblesData();
                 if (!player.intangibles.notes) player.intangibles.notes = [];
                 player.intangibles.notes.push(note);
-            } else if (category === 'fielding') {
-                if (!player.fielding) player.fielding = createFieldingData();
-                if (!player.fielding.notes) player.fielding.notes = [];
-                player.fielding.notes.push(note);
+            } else if (category === 'infield') {
+                if (!player.infield) player.infield = createInfieldData();
+                if (!player.infield.notes) player.infield.notes = [];
+                player.infield.notes.push(note);
+            } else if (category === 'outfield') {
+                if (!player.outfield) player.outfield = createOutfieldData();
+                if (!player.outfield.notes) player.outfield.notes = [];
+                player.outfield.notes.push(note);
             } else if (category === 'throwing') {
                 if (!player.throwing) player.throwing = createThrowingData();
                 if (!player.throwing.notes) player.throwing.notes = [];
@@ -1806,8 +1918,10 @@
                 notes = player.baserunning.notes;
             } else if (category === 'intangibles' && player.intangibles) {
                 notes = player.intangibles.notes;
-            } else if (category === 'fielding' && player.fielding) {
-                notes = player.fielding.notes;
+            } else if (category === 'infield' && player.infield) {
+                notes = player.infield.notes;
+            } else if (category === 'outfield' && player.outfield) {
+                notes = player.outfield.notes;
             } else if (category === 'throwing' && player.throwing) {
                 notes = player.throwing.notes;
             } else if (category === 'pitching' && player.pitching) {
@@ -1943,12 +2057,20 @@
             return 1;
         }
 
-        function calculateFieldingTotal(player) {
-            const f = player.fielding || {};
-            const fieldingCategories = ['fieldingMechanics', 'armStrength', 'receivingMechanics', 'miFeed', 'agility', 'highMotor'];
+        function calculateInfieldTotal(player) {
+            const f = player.infield || {};
+            const infieldCategories = ['fieldingMechanics', 'armStrength', 'receivingMechanics', 'miFeed', 'agility', 'highMotor'];
 
             // 6 categories × 5 max each = 30 max
-            return calculateFieldingDrillAverage(f.evaluation || {}, fieldingCategories);
+            return calculateFieldingDrillAverage(f.evaluation || {}, infieldCategories);
+        }
+
+        function calculateOutfieldTotal(player) {
+            const o = player.outfield || {};
+            const outfieldCategories = ['fieldingMechanics', 'armStrength', 'rangeAgility', 'flyBallMechanics', 'highMotor'];
+
+            // 5 categories × 5 max each = 25 max
+            return calculateFieldingDrillAverage(o.evaluation || {}, outfieldCategories);
         }
 
         function calculateThrowingTotal(player) {
@@ -2535,8 +2657,8 @@
             }
 
             const sortedPlayers = [...players].sort((a, b) => {
-                const totalA = calculateCatchingTotal(a) + calculateBaserunningTotal(a) + calculateIntangiblesTotal(a) + calculateFieldingTotal(a) + calculateThrowingTotal(a);
-                const totalB = calculateCatchingTotal(b) + calculateBaserunningTotal(b) + calculateIntangiblesTotal(b) + calculateFieldingTotal(b) + calculateThrowingTotal(b);
+                const totalA = calculateCatchingTotal(a) + calculateBaserunningTotal(a) + calculateIntangiblesTotal(a) + calculateInfieldTotal(a) + calculateOutfieldTotal(a) + calculateThrowingTotal(a);
+                const totalB = calculateCatchingTotal(b) + calculateBaserunningTotal(b) + calculateIntangiblesTotal(b) + calculateInfieldTotal(b) + calculateOutfieldTotal(b) + calculateThrowingTotal(b);
                 return totalB - totalA;
             });
 
@@ -2549,21 +2671,24 @@
             const c = player.catching || {};
             const b = player.baserunning || {};
             const intang = player.intangibles || {};
-            const f = player.fielding || {};
+            const inf = player.infield || {};
+            const outf = player.outfield || {};
             const t = player.throwing || {};
 
             const catchingTotal = calculateCatchingTotal(player);
             const baserunningTotal = calculateBaserunningTotal(player);
             const intangiblesTotal = calculateIntangiblesTotal(player);
-            const fieldingTotal = calculateFieldingTotal(player);
+            const infieldTotal = calculateInfieldTotal(player);
+            const outfieldTotal = calculateOutfieldTotal(player);
             const throwingTotal = calculateThrowingTotal(player);
-            const grandTotal = catchingTotal + baserunningTotal + intangiblesTotal + fieldingTotal + throwingTotal;
+            const grandTotal = catchingTotal + baserunningTotal + intangiblesTotal + infieldTotal + outfieldTotal + throwingTotal;
 
             // Get all notes
             const catchingNotes = c.notes || [];
             const baserunningNotes = b.notes || [];
             const intangiblesNotes = intang.notes || [];
-            const fieldingNotes = f.notes || [];
+            const infieldNotes = inf.notes || [];
+            const outfieldNotes = outf.notes || [];
             const throwingNotes = t.notes || [];
 
             return `
@@ -2571,7 +2696,6 @@
                     <div class="flex justify-between items-start mb-4">
                         <div>
                             <h3 class="text-2xl font-bold text-gray-800">${player.name}</h3>
-                            <p class="text-gray-600">Jersey #${player.number || 'N/A'}</p>
                         </div>
                         <div class="text-right">
                             ${rank ? `<div class="text-lg font-semibold text-indigo-600">Rank #${rank}</div>` : ''}
@@ -2581,7 +2705,7 @@
                     </div>
 
                     <!-- Score Summary Bar -->
-                    <div class="grid grid-cols-5 gap-2 mb-6">
+                    <div class="grid grid-cols-6 gap-2 mb-6">
                         <div class="bg-purple-100 p-3 rounded-lg text-center">
                             <div class="text-xl font-bold text-purple-700">${catchingTotal}</div>
                             <div class="text-xs text-purple-600">Catching</div>
@@ -2591,8 +2715,12 @@
                             <div class="text-xs text-blue-600">Baserunning</div>
                         </div>
                         <div class="bg-green-100 p-3 rounded-lg text-center">
-                            <div class="text-xl font-bold text-green-700">${fieldingTotal.toFixed(1)}</div>
-                            <div class="text-xs text-green-600">Fielding</div>
+                            <div class="text-xl font-bold text-green-700">${infieldTotal.toFixed(1)}</div>
+                            <div class="text-xs text-green-600">Infield</div>
+                        </div>
+                        <div class="bg-teal-100 p-3 rounded-lg text-center">
+                            <div class="text-xl font-bold text-teal-700">${outfieldTotal.toFixed(1)}</div>
+                            <div class="text-xs text-teal-600">Outfield</div>
                         </div>
                         <div class="bg-red-100 p-3 rounded-lg text-center">
                             <div class="text-xl font-bold text-red-700">${throwingTotal.toFixed(1)}</div>
@@ -2646,21 +2774,39 @@
                         ` : ''}
                     </div>
 
-                    <!-- Fielding Details -->
+                    <!-- Infield Details -->
                     <div class="mb-4">
-                        <h4 class="font-semibold text-green-700 border-b border-green-200 pb-1 mb-2">Fielding Details</h4>
+                        <h4 class="font-semibold text-green-700 border-b border-green-200 pb-1 mb-2">Infield Details</h4>
                         <div class="grid grid-cols-3 gap-2 text-sm">
-                            <div><span class="text-gray-500">Fielding Mechanics:</span> ${calculateAverageScore(f.evaluation || {}, 'fieldingMechanics').toFixed(1)}/5</div>
-                            <div><span class="text-gray-500">Arm Strength/Accuracy:</span> ${calculateAverageScore(f.evaluation || {}, 'armStrength').toFixed(1)}/5</div>
-                            <div><span class="text-gray-500">Receiving Mechanics:</span> ${calculateAverageScore(f.evaluation || {}, 'receivingMechanics').toFixed(1)}/5</div>
-                            <div><span class="text-gray-500">MI Feed Mechanics:</span> ${calculateAverageScore(f.evaluation || {}, 'miFeed').toFixed(1)}/5</div>
-                            <div><span class="text-gray-500">Agility/Explosiveness:</span> ${calculateAverageScore(f.evaluation || {}, 'agility').toFixed(1)}/5</div>
-                            <div><span class="text-gray-500">High Motor:</span> ${calculateAverageScore(f.evaluation || {}, 'highMotor').toFixed(1)}/5</div>
+                            <div><span class="text-gray-500">Fielding Mechanics:</span> ${calculateAverageScore(inf.evaluation || {}, 'fieldingMechanics').toFixed(1)}/5</div>
+                            <div><span class="text-gray-500">Arm Strength/Accuracy:</span> ${calculateAverageScore(inf.evaluation || {}, 'armStrength').toFixed(1)}/5</div>
+                            <div><span class="text-gray-500">Receiving Mechanics:</span> ${calculateAverageScore(inf.evaluation || {}, 'receivingMechanics').toFixed(1)}/5</div>
+                            <div><span class="text-gray-500">MI Feed Mechanics:</span> ${calculateAverageScore(inf.evaluation || {}, 'miFeed').toFixed(1)}/5</div>
+                            <div><span class="text-gray-500">Agility/Explosiveness:</span> ${calculateAverageScore(inf.evaluation || {}, 'agility').toFixed(1)}/5</div>
+                            <div><span class="text-gray-500">High Motor:</span> ${calculateAverageScore(inf.evaluation || {}, 'highMotor').toFixed(1)}/5</div>
                         </div>
-                        ${fieldingNotes.length > 0 ? `
+                        ${infieldNotes.length > 0 ? `
                             <div class="mt-2 p-2 bg-green-50 rounded text-sm">
                                 <strong>Notes:</strong>
-                                ${fieldingNotes.map(n => `<div class="ml-2"><em>${n.coach}:</em> ${n.text}</div>`).join('')}
+                                ${infieldNotes.map(n => `<div class="ml-2"><em>${n.coach}:</em> ${n.text}</div>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- Outfield Details -->
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-teal-700 border-b border-teal-200 pb-1 mb-2">Outfield Details</h4>
+                        <div class="grid grid-cols-3 gap-2 text-sm">
+                            <div><span class="text-gray-500">Fielding Mechanics:</span> ${calculateAverageScore(outf.evaluation || {}, 'fieldingMechanics').toFixed(1)}/5</div>
+                            <div><span class="text-gray-500">Arm Strength/Accuracy:</span> ${calculateAverageScore(outf.evaluation || {}, 'armStrength').toFixed(1)}/5</div>
+                            <div><span class="text-gray-500">Range/Agility:</span> ${calculateAverageScore(outf.evaluation || {}, 'rangeAgility').toFixed(1)}/5</div>
+                            <div><span class="text-gray-500">Fly Ball Pos/Trans:</span> ${calculateAverageScore(outf.evaluation || {}, 'flyBallMechanics').toFixed(1)}/5</div>
+                            <div><span class="text-gray-500">High Motor:</span> ${calculateAverageScore(outf.evaluation || {}, 'highMotor').toFixed(1)}/5</div>
+                        </div>
+                        ${outfieldNotes.length > 0 ? `
+                            <div class="mt-2 p-2 bg-teal-50 rounded text-sm">
+                                <strong>Notes:</strong>
+                                ${outfieldNotes.map(n => `<div class="ml-2"><em>${n.coach}:</em> ${n.text}</div>`).join('')}
                             </div>
                         ` : ''}
                     </div>
@@ -2784,10 +2930,10 @@
 
             // Sort by total score
             const sortedPlayers = filteredPlayers.sort((a, b) => {
-                const totalA = calculateBaserunningTotal(a) + calculateIntangiblesTotal(a) + calculateFieldingTotal(a) + calculateThrowingTotal(a) +
+                const totalA = calculateBaserunningTotal(a) + calculateIntangiblesTotal(a) + calculateInfieldTotal(a) + calculateOutfieldTotal(a) + calculateThrowingTotal(a) +
                     (playerViewFilter === 'catchers' ? calculateCatchingTotal(a) : 0) +
                     (playerViewFilter === 'pitchers' ? calculatePitchingTotal(a) : 0);
-                const totalB = calculateBaserunningTotal(b) + calculateIntangiblesTotal(b) + calculateFieldingTotal(b) + calculateThrowingTotal(b) +
+                const totalB = calculateBaserunningTotal(b) + calculateIntangiblesTotal(b) + calculateInfieldTotal(b) + calculateOutfieldTotal(b) + calculateThrowingTotal(b) +
                     (playerViewFilter === 'catchers' ? calculateCatchingTotal(b) : 0) +
                     (playerViewFilter === 'pitchers' ? calculatePitchingTotal(b) : 0);
                 return totalB - totalA;
@@ -2796,8 +2942,7 @@
             // Build headers based on filter
             let headers = `
                 <th class="px-3 py-2 text-left">Rank</th>
-                <th class="px-3 py-2 text-left">Name</th>
-                <th class="px-3 py-2 text-center">#</th>`;
+                <th class="px-3 py-2 text-left">Name</th>`;
 
             if (playerViewFilter === 'catchers') {
                 headers += `<th class="px-3 py-2 text-center bg-purple-50">Catching</th>`;
@@ -2808,14 +2953,15 @@
 
             headers += `
                 <th class="px-3 py-2 text-center">Baserunning</th>
-                <th class="px-3 py-2 text-center">Fielding</th>
+                <th class="px-3 py-2 text-center">Infield</th>
+                <th class="px-3 py-2 text-center">Outfield</th>
                 <th class="px-3 py-2 text-center">Throwing</th>
                 <th class="px-3 py-2 text-center">Intangibles</th>
                 <th class="px-3 py-2 text-center">Total</th>
                 <th class="px-3 py-2 text-center">Actions</th>`;
 
             // Calculate max total based on filter
-            let maxTotal = 80; // Baserunning 30 + Fielding 30 + Throwing 5 + Intangibles 15
+            let maxTotal = 105; // Baserunning 30 + Infield 30 + Outfield 25 + Throwing 5 + Intangibles 15
             if (playerViewFilter === 'catchers') maxTotal += 35;
             if (playerViewFilter === 'pitchers') maxTotal += 15; // Approximate pitching max
 
@@ -2830,18 +2976,18 @@
                                 const catching = calculateCatchingTotal(p);
                                 const pitching = calculatePitchingTotal(p);
                                 const baserunning = calculateBaserunningTotal(p);
-                                const fielding = calculateFieldingTotal(p);
+                                const infield = calculateInfieldTotal(p);
+                                const outfield = calculateOutfieldTotal(p);
                                 const throwing = calculateThrowingTotal(p);
                                 const intangibles = calculateIntangiblesTotal(p);
 
-                                let total = baserunning + fielding + throwing + intangibles;
+                                let total = baserunning + infield + outfield + throwing + intangibles;
                                 if (playerViewFilter === 'catchers') total += catching;
                                 if (playerViewFilter === 'pitchers') total += pitching;
 
                                 let cells = `
                                     <td class="px-3 py-2 font-bold">${idx + 1}</td>
-                                    <td class="px-3 py-2">${p.name}</td>
-                                    <td class="px-3 py-2 text-center">${p.number || '-'}</td>`;
+                                    <td class="px-3 py-2">${p.name}</td>`;
 
                                 if (playerViewFilter === 'catchers') {
                                     cells += `<td class="px-3 py-2 text-center bg-purple-50">${catching}/35</td>`;
@@ -2852,7 +2998,8 @@
 
                                 cells += `
                                     <td class="px-3 py-2 text-center">${baserunning.toFixed(1)}/30</td>
-                                    <td class="px-3 py-2 text-center">${fielding.toFixed(1)}/30</td>
+                                    <td class="px-3 py-2 text-center">${infield.toFixed(1)}/30</td>
+                                    <td class="px-3 py-2 text-center">${outfield.toFixed(1)}/25</td>
                                     <td class="px-3 py-2 text-center">${throwing.toFixed(1)}/5</td>
                                     <td class="px-3 py-2 text-center">${intangibles.toFixed(1)}/15</td>
                                     <td class="px-3 py-2 text-center font-bold">${total.toFixed(1)}</td>
@@ -3055,32 +3202,33 @@
             // ALL PLAYERS SECTION (ordered by score, no catching/pitching)
             // =====================
             csv += '=== ALL PLAYERS (Ranked by Score) ===\n';
-            csv += 'Rank,Name,Number,Baserunning,Fielding,Throwing,Intangibles,Total\n';
+            csv += 'Rank,Name,Baserunning,Infield,Outfield,Throwing,Intangibles,Total\n';
 
             const sortedAll = [...players].sort((a, b) => {
-                const totalA = calculateBaserunningTotal(a) + calculateFieldingTotal(a) + calculateThrowingTotal(a) + calculateIntangiblesTotal(a);
-                const totalB = calculateBaserunningTotal(b) + calculateFieldingTotal(b) + calculateThrowingTotal(b) + calculateIntangiblesTotal(b);
+                const totalA = calculateBaserunningTotal(a) + calculateInfieldTotal(a) + calculateOutfieldTotal(a) + calculateThrowingTotal(a) + calculateIntangiblesTotal(a);
+                const totalB = calculateBaserunningTotal(b) + calculateInfieldTotal(b) + calculateOutfieldTotal(b) + calculateThrowingTotal(b) + calculateIntangiblesTotal(b);
                 return totalB - totalA;
             });
 
             sortedAll.forEach((p, idx) => {
                 const baserunning = calculateBaserunningTotal(p);
-                const fielding = calculateFieldingTotal(p);
+                const infield = calculateInfieldTotal(p);
+                const outfield = calculateOutfieldTotal(p);
                 const throwing = calculateThrowingTotal(p);
                 const intangibles = calculateIntangiblesTotal(p);
-                const total = baserunning + fielding + throwing + intangibles;
-                csv += `${idx + 1},"${p.name}","${p.number || ''}",${baserunning.toFixed(1)},${fielding.toFixed(1)},${throwing.toFixed(1)},${intangibles.toFixed(1)},${total.toFixed(1)}\n`;
+                const total = baserunning + infield + outfield + throwing + intangibles;
+                csv += `${idx + 1},"${p.name}",${baserunning.toFixed(1)},${infield.toFixed(1)},${outfield.toFixed(1)},${throwing.toFixed(1)},${intangibles.toFixed(1)},${total.toFixed(1)}\n`;
             });
 
             // =====================
             // CATCHERS SECTION
             // =====================
             csv += '\n\n=== CATCHERS (Ranked by Total with Catching) ===\n';
-            csv += 'Rank,Name,Pop Time Avg,Pop Time Score,Setup/Stance,Arm Str/Acc,Block/Popups,Framing,Foot/Agility,High Motor,Catching Total,Baserunning,Fielding,Throwing,Intangibles,Grand Total\n';
+            csv += 'Rank,Name,Pop Time Avg,Pop Time Score,Setup/Stance,Arm Str/Acc,Block/Popups,Framing,Foot/Agility,High Motor,Catching Total,Baserunning,Infield,Outfield,Throwing,Intangibles,Grand Total\n';
 
             const catchers = players.filter(p => CATCHERS.includes(p.name)).sort((a, b) => {
-                const totalA = calculateCatchingTotal(a) + calculateBaserunningTotal(a) + calculateFieldingTotal(a) + calculateThrowingTotal(a) + calculateIntangiblesTotal(a);
-                const totalB = calculateCatchingTotal(b) + calculateBaserunningTotal(b) + calculateFieldingTotal(b) + calculateThrowingTotal(b) + calculateIntangiblesTotal(b);
+                const totalA = calculateCatchingTotal(a) + calculateBaserunningTotal(a) + calculateInfieldTotal(a) + calculateOutfieldTotal(a) + calculateThrowingTotal(a) + calculateIntangiblesTotal(a);
+                const totalB = calculateCatchingTotal(b) + calculateBaserunningTotal(b) + calculateInfieldTotal(b) + calculateOutfieldTotal(b) + calculateThrowingTotal(b) + calculateIntangiblesTotal(b);
                 return totalB - totalA;
             });
 
@@ -3096,23 +3244,24 @@
                 const highMotor = calculateAverageScore(c.evaluation || {}, 'highMotor').toFixed(1);
                 const catchingTotal = calculateCatchingTotal(p);
                 const baserunning = calculateBaserunningTotal(p);
-                const fielding = calculateFieldingTotal(p);
+                const infield = calculateInfieldTotal(p);
+                const outfield = calculateOutfieldTotal(p);
                 const throwing = calculateThrowingTotal(p);
                 const intangibles = calculateIntangiblesTotal(p);
-                const grandTotal = catchingTotal + baserunning + fielding + throwing + intangibles;
+                const grandTotal = catchingTotal + baserunning + infield + outfield + throwing + intangibles;
 
-                csv += `${idx + 1},"${p.name}",${popTimeAvg},${popTimeScore},${setupStance},${armStrength},${blockingPopups},${framing},${footworkAgility},${highMotor},${catchingTotal.toFixed(1)},${baserunning.toFixed(1)},${fielding.toFixed(1)},${throwing.toFixed(1)},${intangibles.toFixed(1)},${grandTotal.toFixed(1)}\n`;
+                csv += `${idx + 1},"${p.name}",${popTimeAvg},${popTimeScore},${setupStance},${armStrength},${blockingPopups},${framing},${footworkAgility},${highMotor},${catchingTotal.toFixed(1)},${baserunning.toFixed(1)},${infield.toFixed(1)},${outfield.toFixed(1)},${throwing.toFixed(1)},${intangibles.toFixed(1)},${grandTotal.toFixed(1)}\n`;
             });
 
             // =====================
             // PITCHERS SECTION
             // =====================
             csv += '\n\n=== PITCHERS (Ranked by Total with Pitching) ===\n';
-            csv += 'Rank,Name,Mechanics,Athleticism,# Pitches,Pitching Total,Baserunning,Fielding,Throwing,Intangibles,Grand Total\n';
+            csv += 'Rank,Name,Mechanics,Athleticism,# Pitches,Pitching Total,Baserunning,Infield,Outfield,Throwing,Intangibles,Grand Total\n';
 
             const pitchers = players.filter(p => PITCHERS.includes(p.name)).sort((a, b) => {
-                const totalA = calculatePitchingTotal(a) + calculateBaserunningTotal(a) + calculateFieldingTotal(a) + calculateThrowingTotal(a) + calculateIntangiblesTotal(a);
-                const totalB = calculatePitchingTotal(b) + calculateBaserunningTotal(b) + calculateFieldingTotal(b) + calculateThrowingTotal(b) + calculateIntangiblesTotal(b);
+                const totalA = calculatePitchingTotal(a) + calculateBaserunningTotal(a) + calculateInfieldTotal(a) + calculateOutfieldTotal(a) + calculateThrowingTotal(a) + calculateIntangiblesTotal(a);
+                const totalB = calculatePitchingTotal(b) + calculateBaserunningTotal(b) + calculateInfieldTotal(b) + calculateOutfieldTotal(b) + calculateThrowingTotal(b) + calculateIntangiblesTotal(b);
                 return totalB - totalA;
             });
 
@@ -3123,12 +3272,13 @@
                 const numPitches = pt.numPitches || 0;
                 const pitchingTotal = calculatePitchingTotal(p);
                 const baserunning = calculateBaserunningTotal(p);
-                const fielding = calculateFieldingTotal(p);
+                const infield = calculateInfieldTotal(p);
+                const outfield = calculateOutfieldTotal(p);
                 const throwing = calculateThrowingTotal(p);
                 const intangibles = calculateIntangiblesTotal(p);
-                const grandTotal = pitchingTotal + baserunning + fielding + throwing + intangibles;
+                const grandTotal = pitchingTotal + baserunning + infield + outfield + throwing + intangibles;
 
-                csv += `${idx + 1},"${p.name}",${mechanics},${athleticism},${numPitches},${pitchingTotal.toFixed(1)},${baserunning.toFixed(1)},${fielding.toFixed(1)},${throwing.toFixed(1)},${intangibles.toFixed(1)},${grandTotal.toFixed(1)}\n`;
+                csv += `${idx + 1},"${p.name}",${mechanics},${athleticism},${numPitches},${pitchingTotal.toFixed(1)},${baserunning.toFixed(1)},${infield.toFixed(1)},${outfield.toFixed(1)},${throwing.toFixed(1)},${intangibles.toFixed(1)},${grandTotal.toFixed(1)}\n`;
             });
 
             // =====================
