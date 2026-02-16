@@ -756,8 +756,16 @@
                     { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null },
                     { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null }
                 ],
-                // Fly Ball drill (5 scoring categories)
-                flyball: { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null },
+                // Fly Ball drill (2 attempts, each with 5 scoring categories)
+                flyball: [
+                    { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null },
+                    { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null }
+                ],
+                // Fly Ball Tagup drill (2 attempts, each with 5 scoring categories)
+                flyballtagup: [
+                    { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null },
+                    { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null }
+                ],
                 notes: []
             };
         }
@@ -766,8 +774,6 @@
             return {
                 // Throwing Velocity (single value in mph)
                 velocity: null,
-                // Fly Ball Tagup Throw drill (5 scoring categories)
-                flyballtagup: { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null },
                 notes: []
             };
         }
@@ -1248,33 +1254,70 @@
                         </div>
                     </div>
 
-                    <!-- Fly Ball -->
+                    <!-- Fly Ball (2 attempts) -->
                     <div class="mb-6">
-                        <h3 class="text-lg font-semibold mb-3 text-green-700">Fly Ball</h3>
-                        <div class="p-4 bg-green-50 rounded-lg">
-                            <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
-                                ${scoreCategories.map(cat => `
-                                    <div class="p-2 bg-white rounded border">
-                                        <label class="text-xs font-medium text-gray-600 block mb-1">${cat.name}</label>
-                                        <div class="flex gap-1">
-                                            ${[1, 2, 3, 4, 5].map(v => `
-                                                <button onclick="updateFlyBall(${player.id}, '${cat.id}', ${v})"
-                                                    class="flex-1 py-1 text-sm rounded ${f.flyball?.[cat.id] == v ? 'bg-green-600 text-white' : 'bg-gray-100 hover:bg-green-100'}">
-                                                    ${v}
-                                                </button>
-                                            `).join('')}
+                        <h3 class="text-lg font-semibold mb-3 text-green-700">Fly Ball (2 attempts)</h3>
+                        ${[0, 1].map(attemptIdx => `
+                            <div class="mb-4 p-4 bg-green-50 rounded-lg">
+                                <h4 class="font-semibold mb-3">Attempt ${attemptIdx + 1}</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                                    ${scoreCategories.map(cat => `
+                                        <div class="p-2 bg-white rounded border">
+                                            <label class="text-xs font-medium text-gray-600 block mb-1">${cat.name}</label>
+                                            <div class="flex gap-1">
+                                                ${[1, 2, 3, 4, 5].map(v => `
+                                                    <button onclick="updateFlyBall(${player.id}, ${attemptIdx}, '${cat.id}', ${v})"
+                                                        class="flex-1 py-1 text-sm rounded ${f.flyball?.[attemptIdx]?.[cat.id] == v ? 'bg-green-600 text-white' : 'bg-gray-100 hover:bg-green-100'}">
+                                                        ${v}
+                                                    </button>
+                                                `).join('')}
+                                            </div>
                                         </div>
-                                    </div>
-                                `).join('')}
+                                    `).join('')}
+                                </div>
+                                <div class="mt-2 text-sm text-gray-600">
+                                    Attempt ${attemptIdx + 1} Total: <strong>${calculateFlyBallAttemptTotal(f.flyball?.[attemptIdx])}</strong>/25
+                                </div>
                             </div>
-                            <div class="mt-2 text-sm text-gray-600">
-                                Fly Ball Total: <strong>${calculateFlyBallTotal(f.flyball)}</strong>/25
+                        `).join('')}
+                        <div class="p-3 bg-green-100 rounded-lg">
+                            <strong>Fly Ball Average:</strong> ${calculateFlyBallAverage(f.flyball).toFixed(1)}/25
+                        </div>
+                    </div>
+
+                    <!-- Fly Ball Tagup (2 attempts) -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold mb-3 text-green-700">Fly Ball Tagup (2 attempts)</h3>
+                        ${[0, 1].map(attemptIdx => `
+                            <div class="mb-4 p-4 bg-green-50 rounded-lg">
+                                <h4 class="font-semibold mb-3">Attempt ${attemptIdx + 1}</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                                    ${scoreCategories.map(cat => `
+                                        <div class="p-2 bg-white rounded border">
+                                            <label class="text-xs font-medium text-gray-600 block mb-1">${cat.name}</label>
+                                            <div class="flex gap-1">
+                                                ${[1, 2, 3, 4, 5].map(v => `
+                                                    <button onclick="updateFlyBallTagup(${player.id}, ${attemptIdx}, '${cat.id}', ${v})"
+                                                        class="flex-1 py-1 text-sm rounded ${f.flyballtagup?.[attemptIdx]?.[cat.id] == v ? 'bg-green-600 text-white' : 'bg-gray-100 hover:bg-green-100'}">
+                                                        ${v}
+                                                    </button>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                <div class="mt-2 text-sm text-gray-600">
+                                    Attempt ${attemptIdx + 1} Total: <strong>${calculateFlyBallTagupAttemptTotal(f.flyballtagup?.[attemptIdx])}</strong>/25
+                                </div>
                             </div>
+                        `).join('')}
+                        <div class="p-3 bg-green-100 rounded-lg">
+                            <strong>Fly Ball Tagup Average:</strong> ${calculateFlyBallTagupAverage(f.flyballtagup).toFixed(1)}/25
                         </div>
                     </div>
 
                     <div class="mt-4 p-3 bg-green-100 rounded-lg">
-                        <strong>Fielding Total:</strong> ${calculateFieldingTotal(player).toFixed(1)}/50
+                        <strong>Fielding Total:</strong> ${calculateFieldingTotal(player).toFixed(1)}/75
                     </div>
 
                     <!-- Notes Section -->
@@ -1289,14 +1332,6 @@
         function renderThrowingSection(player) {
             if (!player.throwing) player.throwing = createThrowingData();
             const t = player.throwing;
-
-            const scoreCategories = [
-                { id: 'footwork', name: 'Footwork' },
-                { id: 'technique', name: 'Fielding Technique' },
-                { id: 'moveintothrow', name: 'Move Into the Throw' },
-                { id: 'strongthrow', name: 'Strong Accurate Throw' },
-                { id: 'intangibles', name: 'Intangibles' }
-            ];
 
             return `
                 <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
@@ -1324,33 +1359,8 @@
                         </div>
                     </div>
 
-                    <!-- Fly Ball Tagup Throw -->
-                    <div class="mb-6">
-                        <h3 class="text-lg font-semibold mb-3 text-red-700">Fly Ball Tagup Throw</h3>
-                        <div class="p-4 bg-red-50 rounded-lg">
-                            <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
-                                ${scoreCategories.map(cat => `
-                                    <div class="p-2 bg-white rounded border">
-                                        <label class="text-xs font-medium text-gray-600 block mb-1">${cat.name}</label>
-                                        <div class="flex gap-1">
-                                            ${[1, 2, 3, 4, 5].map(v => `
-                                                <button onclick="updateFlyBallTagup(${player.id}, '${cat.id}', ${v})"
-                                                    class="flex-1 py-1 text-sm rounded ${t.flyballtagup?.[cat.id] == v ? 'bg-red-600 text-white' : 'bg-gray-100 hover:bg-red-100'}">
-                                                    ${v}
-                                                </button>
-                                            `).join('')}
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                            <div class="mt-2 text-sm text-gray-600">
-                                Fly Ball Tagup Total: <strong>${calculateFlyBallTagupTotal(t.flyballtagup)}</strong>/25
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="mt-4 p-3 bg-red-100 rounded-lg">
-                        <strong>Throwing Total:</strong> ${calculateThrowingTotal(player).toFixed(1)}/30
+                        <strong>Throwing Total:</strong> ${calculateThrowingTotal(player).toFixed(1)}/5
                     </div>
 
                     <!-- Notes Section -->
@@ -1589,14 +1599,38 @@
             renderScoringArea();
         }
 
-        function updateFlyBall(playerId, category, value) {
+        function updateFlyBall(playerId, attemptIdx, category, value) {
             const player = players.find(p => p.id === playerId);
             if (!player) return;
             if (!player.fielding) player.fielding = createFieldingData();
-            if (!player.fielding.flyball) {
-                player.fielding.flyball = { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null };
+            if (!player.fielding.flyball || !Array.isArray(player.fielding.flyball)) {
+                player.fielding.flyball = [
+                    { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null },
+                    { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null }
+                ];
             }
-            player.fielding.flyball[category] = value;
+            if (!player.fielding.flyball[attemptIdx]) {
+                player.fielding.flyball[attemptIdx] = { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null };
+            }
+            player.fielding.flyball[attemptIdx][category] = value;
+            saveData();
+            renderScoringArea();
+        }
+
+        function updateFlyBallTagup(playerId, attemptIdx, category, value) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+            if (!player.fielding) player.fielding = createFieldingData();
+            if (!player.fielding.flyballtagup || !Array.isArray(player.fielding.flyballtagup)) {
+                player.fielding.flyballtagup = [
+                    { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null },
+                    { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null }
+                ];
+            }
+            if (!player.fielding.flyballtagup[attemptIdx]) {
+                player.fielding.flyballtagup[attemptIdx] = { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null };
+            }
+            player.fielding.flyballtagup[attemptIdx][category] = value;
             saveData();
             renderScoringArea();
         }
@@ -1609,18 +1643,6 @@
             if (!player) return;
             if (!player.throwing) player.throwing = createThrowingData();
             player.throwing.velocity = value === '' ? null : parseFloat(value);
-            saveData();
-            renderScoringArea();
-        }
-
-        function updateFlyBallTagup(playerId, category, value) {
-            const player = players.find(p => p.id === playerId);
-            if (!player) return;
-            if (!player.throwing) player.throwing = createThrowingData();
-            if (!player.throwing.flyballtagup) {
-                player.throwing.flyballtagup = { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null };
-            }
-            player.throwing.flyballtagup[category] = value;
             saveData();
             renderScoringArea();
         }
@@ -1642,16 +1664,32 @@
             return validTotals.reduce((sum, t) => sum + t, 0) / validTotals.length;
         }
 
-        function calculateFlyBallTotal(flyball) {
-            if (!flyball) return 0;
+        function calculateFlyBallAttemptTotal(attempt) {
+            if (!attempt) return 0;
             const categories = ['footwork', 'technique', 'moveintothrow', 'strongthrow', 'intangibles'];
-            return categories.reduce((sum, cat) => sum + (flyball[cat] || 0), 0);
+            return categories.reduce((sum, cat) => sum + (attempt[cat] || 0), 0);
         }
 
-        function calculateFlyBallTagupTotal(flyballtagup) {
-            if (!flyballtagup) return 0;
+        function calculateFlyBallAverage(flyball) {
+            if (!flyball || !Array.isArray(flyball)) return 0;
+            const totals = flyball.map(attempt => calculateFlyBallAttemptTotal(attempt));
+            const validTotals = totals.filter(t => t > 0);
+            if (validTotals.length === 0) return 0;
+            return validTotals.reduce((sum, t) => sum + t, 0) / validTotals.length;
+        }
+
+        function calculateFlyBallTagupAttemptTotal(attempt) {
+            if (!attempt) return 0;
             const categories = ['footwork', 'technique', 'moveintothrow', 'strongthrow', 'intangibles'];
-            return categories.reduce((sum, cat) => sum + (flyballtagup[cat] || 0), 0);
+            return categories.reduce((sum, cat) => sum + (attempt[cat] || 0), 0);
+        }
+
+        function calculateFlyBallTagupAverage(flyballtagup) {
+            if (!flyballtagup || !Array.isArray(flyballtagup)) return 0;
+            const totals = flyballtagup.map(attempt => calculateFlyBallTagupAttemptTotal(attempt));
+            const validTotals = totals.filter(t => t > 0);
+            if (validTotals.length === 0) return 0;
+            return validTotals.reduce((sum, t) => sum + t, 0) / validTotals.length;
         }
 
         function calculateVelocityScore(velocity) {
@@ -1668,15 +1706,14 @@
         function calculateFieldingTotal(player) {
             const f = player.fielding || {};
             const groundBallsAvg = calculateGroundBallsAverage(f.groundballs || []);
-            const flyBallTotal = calculateFlyBallTotal(f.flyball);
-            return groundBallsAvg + flyBallTotal;
+            const flyBallAvg = calculateFlyBallAverage(f.flyball || []);
+            const flyBallTagupAvg = calculateFlyBallTagupAverage(f.flyballtagup || []);
+            return groundBallsAvg + flyBallAvg + flyBallTagupAvg;
         }
 
         function calculateThrowingTotal(player) {
             const t = player.throwing || {};
-            const velocityScore = calculateVelocityScore(t.velocity);
-            const flyBallTagupTotal = calculateFlyBallTagupTotal(t.flyballtagup);
-            return velocityScore + flyBallTagupTotal;
+            return calculateVelocityScore(t.velocity);
         }
 
         // ============================================
@@ -2371,9 +2408,10 @@
                     <!-- Fielding Details -->
                     <div class="mb-4">
                         <h4 class="font-semibold text-green-700 border-b border-green-200 pb-1 mb-2">Fielding Details</h4>
-                        <div class="grid grid-cols-2 gap-2 text-sm">
+                        <div class="grid grid-cols-3 gap-2 text-sm">
                             <div><span class="text-gray-500">Ground Balls (Avg):</span> ${calculateGroundBallsAverage(f.groundballs || []).toFixed(1)}/25</div>
-                            <div><span class="text-gray-500">Fly Ball:</span> ${calculateFlyBallTotal(f.flyball)}/25</div>
+                            <div><span class="text-gray-500">Fly Ball (Avg):</span> ${calculateFlyBallAverage(f.flyball || []).toFixed(1)}/25</div>
+                            <div><span class="text-gray-500">Fly Ball Tagup (Avg):</span> ${calculateFlyBallTagupAverage(f.flyballtagup || []).toFixed(1)}/25</div>
                         </div>
                         ${fieldingNotes.length > 0 ? `
                             <div class="mt-2 p-2 bg-green-50 rounded text-sm">
@@ -2386,9 +2424,8 @@
                     <!-- Throwing Details -->
                     <div class="mb-4">
                         <h4 class="font-semibold text-red-700 border-b border-red-200 pb-1 mb-2">Throwing Details</h4>
-                        <div class="grid grid-cols-2 gap-2 text-sm">
+                        <div class="text-sm">
                             <div><span class="text-gray-500">Velocity:</span> ${t.velocity || 'N/A'} mph (${calculateVelocityScore(t.velocity)}/5)</div>
-                            <div><span class="text-gray-500">Fly Ball Tagup:</span> ${calculateFlyBallTagupTotal(t.flyballtagup)}/25</div>
                         </div>
                         ${throwingNotes.length > 0 ? `
                             <div class="mt-2 p-2 bg-red-50 rounded text-sm">
@@ -2516,8 +2553,8 @@
                                         <td class="px-3 py-2 text-center">${p.number || '-'}</td>
                                         <td class="px-3 py-2 text-center">${catching}/30</td>
                                         <td class="px-3 py-2 text-center">${baserunning.toFixed(1)}/30</td>
-                                        <td class="px-3 py-2 text-center">${fielding.toFixed(1)}/50</td>
-                                        <td class="px-3 py-2 text-center">${throwing.toFixed(1)}/30</td>
+                                        <td class="px-3 py-2 text-center">${fielding.toFixed(1)}/75</td>
+                                        <td class="px-3 py-2 text-center">${throwing.toFixed(1)}/5</td>
                                         <td class="px-3 py-2 text-center">${intangibles.toFixed(1)}/15</td>
                                         <td class="px-3 py-2 text-center font-bold">${total.toFixed(1)}/155</td>
                                         <td class="px-3 py-2 text-center">
