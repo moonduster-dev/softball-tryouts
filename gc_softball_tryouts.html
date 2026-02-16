@@ -3513,6 +3513,62 @@
                 }
             });
 
+            // =====================
+            // COACH NOTES SECTION
+            // =====================
+            csv += '\n\n=== COACH NOTES ===\n';
+            csv += 'Player,Category,Coach,Note\n';
+
+            players.forEach(p => {
+                // Catching notes
+                const catchingNotes = p.catching?.notes || [];
+                catchingNotes.forEach(n => {
+                    csv += `"${p.name}","Catching","${n.coach}","${(n.text || '').replace(/"/g, '""')}"\n`;
+                });
+
+                // Baserunning notes
+                const baserunningNotes = p.baserunning?.notes || [];
+                baserunningNotes.forEach(n => {
+                    csv += `"${p.name}","Baserunning","${n.coach}","${(n.text || '').replace(/"/g, '""')}"\n`;
+                });
+
+                // Hitting notes
+                const hittingNotes = p.hitting?.notes || [];
+                hittingNotes.forEach(n => {
+                    csv += `"${p.name}","Hitting","${n.coach}","${(n.text || '').replace(/"/g, '""')}"\n`;
+                });
+
+                // Infield notes
+                const infieldNotes = p.infield?.notes || [];
+                infieldNotes.forEach(n => {
+                    csv += `"${p.name}","Infield","${n.coach}","${(n.text || '').replace(/"/g, '""')}"\n`;
+                });
+
+                // Outfield notes
+                const outfieldNotes = p.outfield?.notes || [];
+                outfieldNotes.forEach(n => {
+                    csv += `"${p.name}","Outfield","${n.coach}","${(n.text || '').replace(/"/g, '""')}"\n`;
+                });
+
+                // Throwing notes
+                const throwingNotes = p.throwing?.notes || [];
+                throwingNotes.forEach(n => {
+                    csv += `"${p.name}","Throwing","${n.coach}","${(n.text || '').replace(/"/g, '""')}"\n`;
+                });
+
+                // Pitching notes
+                const pitchingNotes = p.pitching?.notes || [];
+                pitchingNotes.forEach(n => {
+                    csv += `"${p.name}","Pitching","${n.coach}","${(n.text || '').replace(/"/g, '""')}"\n`;
+                });
+
+                // Intangibles notes
+                const intangiblesNotes = p.intangibles?.notes || [];
+                intangiblesNotes.forEach(n => {
+                    csv += `"${p.name}","Intangibles","${n.coach}","${(n.text || '').replace(/"/g, '""')}"\n`;
+                });
+            });
+
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
