@@ -2843,8 +2843,12 @@
             showSaveStatus('⏳ Auto-syncing...');
 
             try {
+                const dataToSend = JSON.stringify(players);
+                console.log('📤 Uploading to Sheets:', dataToSend.length, 'chars');
+                console.log('📤 Players data:', JSON.parse(dataToSend));
+
                 const formData = new FormData();
-                formData.append('data', JSON.stringify(players));
+                formData.append('data', dataToSend);
 
                 const response = await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
@@ -2852,6 +2856,7 @@
                 });
 
                 const result = await response.json();
+                console.log('📤 Upload response:', result);
                 showSaveStatus(result.success ? '✓ Auto-synced' : '⚠️ Sync failed');
             } catch (error) {
                 console.error('Auto-upload error:', error);
@@ -2907,9 +2912,19 @@
             try {
                 showSaveStatus('⏳ Loading from Sheets...');
                 const response = await fetch(GOOGLE_SCRIPT_URL);
-                const data = await response.json();
+                const rawText = await response.text();
+                console.log('📥 Raw response length:', rawText.length, 'chars');
+
+                const data = JSON.parse(rawText);
+                console.log('📥 Downloaded from Sheets:', data);
 
                 if (Array.isArray(data) && data.length > 0) {
+                    // Log catching data specifically
+                    data.forEach(p => {
+                        if (p.catching && p.catching.evaluation) {
+                            console.log(`📥 ${p.name} catching evaluation:`, p.catching.evaluation);
+                        }
+                    });
                     players = data;
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
                     showSaveStatus('✓ Loaded from Sheets');
