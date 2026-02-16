@@ -682,6 +682,29 @@
                         needsSave = true;
                     }
                 }
+                // Migrate old catching format to new simple evaluation format
+                if (player.catching) {
+                    // If using old complex format (has throwaccuracy, blocking, etc.), reset to new format
+                    if (player.catching.throwaccuracy !== undefined ||
+                        player.catching.blocking !== undefined ||
+                        player.catching.footwork !== undefined ||
+                        player.catching.mobility !== undefined ||
+                        player.catching.explosiveness_throwing !== undefined ||
+                        player.catching.explosiveness_bunts !== undefined) {
+                        // Keep poptime, reset everything else
+                        const oldPoptime = player.catching.poptime;
+                        const oldNotes = player.catching.notes;
+                        player.catching = createCatchingData();
+                        player.catching.poptime = oldPoptime || [null, null];
+                        player.catching.notes = oldNotes || [];
+                        needsSave = true;
+                    }
+                    // Ensure evaluation object exists
+                    if (!player.catching.evaluation) {
+                        player.catching.evaluation = {};
+                        needsSave = true;
+                    }
+                }
                 // Migrate baserunning scrimmage to evaluation
                 if (player.baserunning && player.baserunning.scrimmage && !player.baserunning.evaluation) {
                     player.baserunning.evaluation = player.baserunning.scrimmage;
@@ -763,12 +786,8 @@
         function createCatchingData() {
             return {
                 poptime: [null, null],
-                throwaccuracy: [null, null, null],
-                blocking: null,
-                footwork: null,
-                mobility: null,
-                explosiveness_throwing: null,
-                explosiveness_bunts: null,
+                // Simple evaluation categories - coach-keyed scoring: { coachName: { category: score, ... }, ... }
+                evaluation: {},  // 6 categories: setupStance, armStrength, blockingPopups, framing, footworkAgility, highMotor
                 notes: []  // Array of { coach: string, text: string, timestamp: string }
             };
         }
@@ -914,6 +933,16 @@
             if (!player.catching) player.catching = createCatchingData();
             const c = player.catching;
 
+            // Define the 6 evaluation categories
+            const catchingCategories = [
+                { id: 'setupStance', name: 'Setup/Stance' },
+                { id: 'armStrength', name: 'Arm Strength/Accuracy' },
+                { id: 'blockingPopups', name: 'Blocking/Popups' },
+                { id: 'framing', name: 'Framing' },
+                { id: 'footworkAgility', name: 'Footwork/Agility' },
+                { id: 'highMotor', name: 'High Motor' }
+            ];
+
             return `
                 <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
                     <h2 class="text-xl font-semibold mb-4 flex items-center gap-2"><img src="catcher.jpg" alt="Catcher" class="w-6 h-6 object-contain"> Catching - ${player.name}</h2>
@@ -937,38 +966,37 @@
                         </div>
                     </div>
 
-                    <!-- Throwing Accuracy -->
+                    <!-- Your Evaluation -->
                     <div class="mb-6 p-4 bg-purple-50 rounded-lg">
-                        <h3 class="font-semibold mb-2">Throwing Accuracy</h3>
-                        <p class="text-xs text-gray-500 mb-3">3=On target (air/1-hop), 2=Right (air/1-hop), 1=Left (air/1-hop), 0=Off mark</p>
-                        <div class="grid grid-cols-3 gap-4">
-                            ${[0, 1, 2].map(i => `
-                                <div>
-                                    <label class="text-sm text-gray-600">Attempt ${i + 1}</label>
-                                    <select onchange="updateCatching(${player.id}, 'throwaccuracy', ${i}, this.value)"
-                                        class="w-full px-3 py-2 border rounded-lg">
-                                        <option value="">--</option>
-                                        ${[3, 2, 1, 0].map(v => `<option value="${v}" ${c.throwaccuracy[i] == v ? 'selected' : ''}>${v}</option>`).join('')}
-                                    </select>
-                                </div>
-                            `).join('')}
+                        <h3 class="font-semibold mb-3">Your Evaluation - ${currentUser}</h3>
+                        <p class="text-xs text-gray-500 mb-3">Score 1-5: 1=Poor, 2=Below Avg, 3=Average, 4=Above Avg, 5=Excellent</p>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            ${catchingCategories.map(cat => {
+                                const evaluation = c.evaluation || {};
+                                const coachScores = evaluation[currentUser] || {};
+                                const value = coachScores[cat.id];
+                                return `
+                                    <div class="p-3 bg-white rounded-lg border">
+                                        <label class="text-sm font-medium text-gray-700">${cat.name}</label>
+                                        <div class="flex gap-1 mt-2">
+                                            ${[1, 2, 3, 4, 5].map(v => `
+                                                <button onclick="updateCatchingEvaluation(${player.id}, '${cat.id}', ${v})"
+                                                    class="score-btn flex-1 py-1 rounded ${value == v ? 'bg-purple-600 text-white' : 'bg-gray-100 hover:bg-purple-100'}">
+                                                    ${v}
+                                                </button>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
                         </div>
-                        <div class="mt-2 text-sm text-gray-600">
-                            Total: <span class="font-bold">${sumScores(c.throwaccuracy)}</span>/9
+                        <div class="mt-3 text-sm text-gray-600">
+                            Your Total: <strong>${calculateCatchingEvalTotal(c.evaluation, currentUser)}</strong>/30
                         </div>
-                    </div>
-
-                    <!-- Other Catching Drills -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        ${renderCatchingDrill(player, 'blocking', 'Blocking', '3=Stays down, 2=Smothers ball, 1=Picks up quickly, 0=Doesn\'t block')}
-                        ${renderCatchingDrill(player, 'footwork', 'Footwork', '3=Limits steps before throwing')}
-                        ${renderCatchingDrill(player, 'mobility', 'Mobility', '3=Quick movement for plays')}
-                        ${renderCatchingDrill(player, 'explosiveness_throwing', 'Explosiveness (Throwing)', '3=Drives towards target when throwing')}
-                        ${renderCatchingDrill(player, 'explosiveness_bunts', 'Explosiveness (Bunts)', '3=Quick to retrieve bunts and throw to 1B')}
                     </div>
 
                     <div class="mt-4 p-3 bg-green-100 rounded-lg">
-                        <strong>Catching Total:</strong> ${calculateCatchingTotal(player)}/30
+                        <strong>Catching Total (Averaged):</strong> ${calculateCatchingTotal(player)}/35
                     </div>
 
                     <!-- Notes Section -->
@@ -977,23 +1005,30 @@
             `;
         }
 
-        function renderCatchingDrill(player, field, label, description) {
+        function updateCatchingEvaluation(playerId, category, value) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
             if (!player.catching) player.catching = createCatchingData();
-            const value = player.catching[field];
-            return `
-                <div class="p-4 bg-purple-50 rounded-lg">
-                    <h3 class="font-semibold mb-1">${label}</h3>
-                    <p class="text-xs text-gray-500 mb-2">${description}</p>
-                    <div class="flex gap-2">
-                        ${[0, 1, 2, 3].map(v => `
-                            <button onclick="updateCatchingDrill(${player.id}, '${field}', ${v})"
-                                class="score-btn flex-1 py-2 rounded-lg ${value == v ? 'bg-purple-600 text-white' : 'bg-white border hover:bg-purple-100'}">
-                                ${v}
-                            </button>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
+            if (!player.catching.evaluation || typeof player.catching.evaluation !== 'object') {
+                player.catching.evaluation = {};
+            }
+            if (!player.catching.evaluation[currentUser]) {
+                player.catching.evaluation[currentUser] = {};
+            }
+            player.catching.evaluation[currentUser][category] = value;
+            saveData();
+            renderScoringArea();
+        }
+
+        function calculateCatchingEvalTotal(evaluation, coach) {
+            if (!evaluation || !evaluation[coach]) return 0;
+            const coachScores = evaluation[coach];
+            const categories = ['setupStance', 'armStrength', 'blockingPopups', 'framing', 'footworkAgility', 'highMotor'];
+            let total = 0;
+            categories.forEach(cat => {
+                total += coachScores[cat] || 0;
+            });
+            return total;
         }
 
         function updateCatching(playerId, field, index, value) {
@@ -1007,14 +1042,28 @@
             renderScoringArea();
         }
 
-        function updateCatchingDrill(playerId, field, value) {
-            const player = players.find(p => p.id === playerId);
-            if (!player) return;
-            if (!player.catching) player.catching = createCatchingData();
+        function calculateCatchingDrillAverage(evaluation, categories) {
+            if (!evaluation || typeof evaluation !== 'object') return 0;
 
-            player.catching[field] = value;
-            saveData();
-            renderScoringArea();
+            const coaches = Object.keys(evaluation);
+            if (coaches.length === 0) return 0;
+
+            let totalScore = 0;
+            categories.forEach(cat => {
+                let catTotal = 0;
+                let catCount = 0;
+                coaches.forEach(coach => {
+                    if (evaluation[coach] && evaluation[coach][cat]) {
+                        catTotal += evaluation[coach][cat];
+                        catCount++;
+                    }
+                });
+                if (catCount > 0) {
+                    totalScore += catTotal / catCount;
+                }
+            });
+
+            return Math.round(totalScore * 10) / 10;
         }
 
         // ============================================
@@ -1863,14 +1912,12 @@
         function calculateCatchingTotal(player) {
             const c = player.catching || {};
             let total = 0;
+            // Pop Time score (5 points max)
             total += calculatePopTimeScore(c.poptime || []);
-            total += sumScores(c.throwaccuracy || []);
-            total += c.blocking || 0;
-            total += c.footwork || 0;
-            total += c.mobility || 0;
-            total += c.explosiveness_throwing || 0;
-            total += c.explosiveness_bunts || 0;
-            return total;
+            // Evaluation categories (30 points max averaged across coaches)
+            const catchingCategories = ['setupStance', 'armStrength', 'blockingPopups', 'framing', 'footworkAgility', 'highMotor'];
+            total += calculateCatchingDrillAverage(c.evaluation || {}, catchingCategories);
+            return Math.round(total * 10) / 10;
         }
 
         function calculateBaserunningTotal(player) {
@@ -1983,7 +2030,7 @@
                     <h2>📊 Scoring Players</h2>
                     <p>Click on any player's name to expand their scoring sections.</p>
 
-                    <h3>Catching (29 points max)</h3>
+                    <h3>Catching (35 points max)</h3>
                     <table class="guide-table">
                         <tr><th>Metric</th><th>How to Score</th></tr>
                         <tr><td><strong>Pop Time</strong></td><td>Enter time in seconds for 2 attempts. Average is scored 1-5.</td></tr>
@@ -2287,12 +2334,12 @@
                         <h4 class="font-semibold text-purple-700 border-b border-purple-200 pb-1 mb-2">Catching Details</h4>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
                             <div><span class="text-gray-500">Pop Time (Avg):</span> ${getAverageTime(c.poptime || []) || 'N/A'}s (${calculatePopTimeScore(c.poptime || [])}/5)</div>
-                            <div><span class="text-gray-500">Throw Accuracy:</span> ${sumScores(c.throwaccuracy || [])}/9</div>
-                            <div><span class="text-gray-500">Blocking:</span> ${c.blocking ?? 'N/A'}/3</div>
-                            <div><span class="text-gray-500">Footwork:</span> ${c.footwork ?? 'N/A'}/3</div>
-                            <div><span class="text-gray-500">Mobility:</span> ${c.mobility ?? 'N/A'}/3</div>
-                            <div><span class="text-gray-500">Expl. Throwing:</span> ${c.explosiveness_throwing ?? 'N/A'}/3</div>
-                            <div><span class="text-gray-500">Expl. Bunts:</span> ${c.explosiveness_bunts ?? 'N/A'}/3</div>
+                            <div><span class="text-gray-500">Setup/Stance:</span> ${calculateAverageScore(c.evaluation || {}, 'setupStance').toFixed(1)}/5</div>
+                            <div><span class="text-gray-500">Arm Strength/Accuracy:</span> ${calculateAverageScore(c.evaluation || {}, 'armStrength').toFixed(1)}/5</div>
+                            <div><span class="text-gray-500">Blocking/Popups:</span> ${calculateAverageScore(c.evaluation || {}, 'blockingPopups').toFixed(1)}/5</div>
+                            <div><span class="text-gray-500">Framing:</span> ${calculateAverageScore(c.evaluation || {}, 'framing').toFixed(1)}/5</div>
+                            <div><span class="text-gray-500">Footwork/Agility:</span> ${calculateAverageScore(c.evaluation || {}, 'footworkAgility').toFixed(1)}/5</div>
+                            <div><span class="text-gray-500">High Motor:</span> ${calculateAverageScore(c.evaluation || {}, 'highMotor').toFixed(1)}/5</div>
                         </div>
                         ${catchingNotes.length > 0 ? `
                             <div class="mt-2 p-2 bg-purple-50 rounded text-sm">
@@ -2473,12 +2520,12 @@
                                         <td class="px-3 py-2 font-bold">${idx + 1}</td>
                                         <td class="px-3 py-2">${p.name}</td>
                                         <td class="px-3 py-2 text-center">${p.number || '-'}</td>
-                                        <td class="px-3 py-2 text-center">${catching}/30</td>
+                                        <td class="px-3 py-2 text-center">${catching}/35</td>
                                         <td class="px-3 py-2 text-center">${baserunning.toFixed(1)}/30</td>
                                         <td class="px-3 py-2 text-center">${fielding.toFixed(1)}/30</td>
                                         <td class="px-3 py-2 text-center">${throwing.toFixed(1)}/5</td>
                                         <td class="px-3 py-2 text-center">${intangibles.toFixed(1)}/15</td>
-                                        <td class="px-3 py-2 text-center font-bold">${total.toFixed(1)}/110</td>
+                                        <td class="px-3 py-2 text-center font-bold">${total.toFixed(1)}/115</td>
                                         <td class="px-3 py-2 text-center">
                                             <button onclick="deletePlayer(${p.id})" class="text-red-600 hover:text-red-800">🗑️</button>
                                         </td>
