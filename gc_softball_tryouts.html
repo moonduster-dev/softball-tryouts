@@ -3580,6 +3580,155 @@
             });
 
             // =====================
+            // BASERUNNING DETAILS
+            // =====================
+            csv += '\n\n=== BASERUNNING DETAILS ===\n';
+            csv += 'Name,H-1B Att1,H-1B Att2,H-1B Avg,H-1B Score,2B-H Att1,2B-H Att2,2B-H Avg,2B-H Score,Pro Agility 1,Pro Agility 2,Pro Agility Avg,Pro Agility Score,Broad Jump 1,Broad Jump 2,Broad Jump Avg,Broad Jump Score,Total\n';
+
+            sortedAll.forEach(p => {
+                const b = p.baserunning || {};
+                const h1b = b.h1b || {};
+                const tbh = b['2bh'] || {};
+                const exp = b.explosiveness || {};
+
+                const h1bTimes = h1b.times || [null, null];
+                const h1bMissed = h1b.missedBag || [false, false];
+                const h1bAdj1 = h1bTimes[0] !== null ? (h1bTimes[0] + (h1bMissed[0] ? 0.5 : 0)) : '';
+                const h1bAdj2 = h1bTimes[1] !== null ? (h1bTimes[1] + (h1bMissed[1] ? 0.5 : 0)) : '';
+                const h1bAvg = getAverageTime([h1bAdj1 || null, h1bAdj2 || null]) || '';
+                const h1bScore = calculateH1BScore(h1b);
+
+                const tbhTimes = tbh.times || [null, null];
+                const tbhMissed = tbh.missedBag || [false, false];
+                const tbhAdj1 = tbhTimes[0] !== null ? (tbhTimes[0] + (tbhMissed[0] ? 1 : 0)) : '';
+                const tbhAdj2 = tbhTimes[1] !== null ? (tbhTimes[1] + (tbhMissed[1] ? 1 : 0)) : '';
+                const tbhAvg = getAverageTime([tbhAdj1 || null, tbhAdj2 || null]) || '';
+                const tbhScore = calculate2BHScore(tbh);
+
+                const proAgility = exp.proAgility || [null, null];
+                const proAg1 = proAgility[0] !== null ? proAgility[0] : '';
+                const proAg2 = proAgility[1] !== null ? proAgility[1] : '';
+                const proAgAvg = getAverageTime(proAgility) || '';
+                const proAgScore = calculateProAgilityScore(proAgility);
+
+                const broadJump = exp.broadJump || [null, null];
+                const formatBJValue = (val) => {
+                    if (!val) return '';
+                    if (typeof val === 'object') return `${val.feet || 0}'${val.inches || 0}"`;
+                    return val;
+                };
+                const bj1 = formatBJValue(broadJump[0]);
+                const bj2 = formatBJValue(broadJump[1]);
+                const bjAvg = getAverageBroadJump(broadJump);
+                const bjAvgStr = bjAvg ? `${bjAvg.feet}'${bjAvg.inches}"` : '';
+                const bjScore = calculateBroadJumpScore(broadJump);
+
+                const total = calculateBaserunningTotal(p);
+
+                csv += `"${p.name}",${h1bAdj1},${h1bAdj2},${h1bAvg},${h1bScore},${tbhAdj1},${tbhAdj2},${tbhAvg},${tbhScore},${proAg1},${proAg2},${proAgAvg},${proAgScore},${bj1},${bj2},${bjAvgStr},${bjScore},${total.toFixed(1)}\n`;
+            });
+
+            // =====================
+            // HITTING DETAILS
+            // =====================
+            csv += '\n\n=== HITTING DETAILS ===\n';
+            csv += 'Name,Bat Speed 1,Bat Speed 2,Bat Speed Avg,Bat Speed Score,Balance,Bat Path,Contact,Timing,High Motor,Total\n';
+
+            sortedAll.forEach(p => {
+                const h = p.hitting || {};
+                const batSpeed = h.batSpeed || [null, null];
+                const bs1 = batSpeed[0] !== null ? batSpeed[0] : '';
+                const bs2 = batSpeed[1] !== null ? batSpeed[1] : '';
+                const bsAvg = getAverageBatSpeed(batSpeed);
+                const bsAvgStr = bsAvg !== null ? bsAvg.toFixed(1) : '';
+                const bsScore = calculateBatSpeedScore(batSpeed);
+
+                const balance = calculateAverageScore(h.evaluation || {}, 'balance').toFixed(1);
+                const batPath = calculateAverageScore(h.evaluation || {}, 'batPath').toFixed(1);
+                const contact = calculateAverageScore(h.evaluation || {}, 'contact').toFixed(1);
+                const timing = calculateAverageScore(h.evaluation || {}, 'timing').toFixed(1);
+                const highMotor = calculateAverageScore(h.evaluation || {}, 'highMotor').toFixed(1);
+
+                const total = calculateHittingTotal(p);
+
+                csv += `"${p.name}",${bs1},${bs2},${bsAvgStr},${bsScore},${balance},${batPath},${contact},${timing},${highMotor},${total.toFixed(1)}\n`;
+            });
+
+            // =====================
+            // INFIELD DETAILS
+            // =====================
+            csv += '\n\n=== INFIELD DETAILS ===\n';
+            csv += 'Name,Fielding Mech,Arm Str/Acc,Receiving Mech,MI Feed Mech,Agility/Expl,High Motor,Total\n';
+
+            sortedAll.forEach(p => {
+                const inf = p.infield || {};
+                const fieldingMechanics = calculateAverageScore(inf.evaluation || {}, 'fieldingMechanics').toFixed(1);
+                const armStrength = calculateAverageScore(inf.evaluation || {}, 'armStrength').toFixed(1);
+                const receivingMechanics = calculateAverageScore(inf.evaluation || {}, 'receivingMechanics').toFixed(1);
+                const miFeedMechanics = calculateAverageScore(inf.evaluation || {}, 'miFeedMechanics').toFixed(1);
+                const agilityExplosiveness = calculateAverageScore(inf.evaluation || {}, 'agilityExplosiveness').toFixed(1);
+                const highMotor = calculateAverageScore(inf.evaluation || {}, 'highMotor').toFixed(1);
+
+                const total = calculateInfieldTotal(p);
+
+                csv += `"${p.name}",${fieldingMechanics},${armStrength},${receivingMechanics},${miFeedMechanics},${agilityExplosiveness},${highMotor},${total.toFixed(1)}\n`;
+            });
+
+            // =====================
+            // OUTFIELD DETAILS
+            // =====================
+            csv += '\n\n=== OUTFIELD DETAILS ===\n';
+            csv += 'Name,Fielding Mech,Arm Str/Acc,Range/Agility,Fly Ball Pos/Trans,High Motor,Total\n';
+
+            sortedAll.forEach(p => {
+                const outf = p.outfield || {};
+                const fieldingMechanics = calculateAverageScore(outf.evaluation || {}, 'fieldingMechanics').toFixed(1);
+                const armStrength = calculateAverageScore(outf.evaluation || {}, 'armStrength').toFixed(1);
+                const rangeAgility = calculateAverageScore(outf.evaluation || {}, 'rangeAgility').toFixed(1);
+                const flyBallTransition = calculateAverageScore(outf.evaluation || {}, 'flyBallTransition').toFixed(1);
+                const highMotor = calculateAverageScore(outf.evaluation || {}, 'highMotor').toFixed(1);
+
+                const total = calculateOutfieldTotal(p);
+
+                csv += `"${p.name}",${fieldingMechanics},${armStrength},${rangeAgility},${flyBallTransition},${highMotor},${total.toFixed(1)}\n`;
+            });
+
+            // =====================
+            // THROWING DETAILS
+            // =====================
+            csv += '\n\n=== THROWING DETAILS ===\n';
+            csv += 'Name,Velocity 1,Velocity 2,Velocity Avg,Score\n';
+
+            sortedAll.forEach(p => {
+                const t = p.throwing || {};
+                const velocity = t.velocity || [null, null];
+                const v1 = velocity[0] !== null ? velocity[0] : '';
+                const v2 = velocity[1] !== null ? velocity[1] : '';
+                const vAvg = getAverageVelocity(velocity);
+                const vAvgStr = vAvg !== null ? vAvg.toFixed(1) : '';
+                const score = calculateThrowingTotal(p);
+
+                csv += `"${p.name}",${v1},${v2},${vAvgStr},${score.toFixed(1)}\n`;
+            });
+
+            // =====================
+            // INTANGIBLES DETAILS
+            // =====================
+            csv += '\n\n=== INTANGIBLES DETAILS ===\n';
+            csv += 'Name,Awareness,Leadership,Enthusiasm,Total\n';
+
+            sortedAll.forEach(p => {
+                const intang = p.intangibles || {};
+                const awareness = calculateAverageScore(intang.evaluation || {}, 'awareness').toFixed(1);
+                const leadership = calculateAverageScore(intang.evaluation || {}, 'leadership').toFixed(1);
+                const enthusiasm = calculateAverageScore(intang.evaluation || {}, 'enthusiasm').toFixed(1);
+
+                const total = calculateIntangiblesTotal(p);
+
+                csv += `"${p.name}",${awareness},${leadership},${enthusiasm},${total.toFixed(1)}\n`;
+            });
+
+            // =====================
             // COACH NOTES SECTION
             // =====================
             csv += '\n\n=== COACH NOTES ===\n';
