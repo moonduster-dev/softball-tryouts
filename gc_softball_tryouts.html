@@ -655,10 +655,52 @@
                 const saved = localStorage.getItem(STORAGE_KEY);
                 if (saved) {
                     players = JSON.parse(saved);
+                    migratePlayerData();
                 }
             } catch (e) {
                 console.error('Error loading data:', e);
                 players = [];
+            }
+        }
+
+        // Migrate old data formats to new coach-keyed format
+        function migratePlayerData() {
+            let needsSave = false;
+            players.forEach(player => {
+                // Migrate fielding data from array format to coach-keyed format
+                if (player.fielding) {
+                    const fieldingDrills = ['groundballs', 'flyball', 'flyballtagup'];
+                    fieldingDrills.forEach(drillId => {
+                        if (Array.isArray(player.fielding[drillId])) {
+                            // Old format: array of attempts - convert to empty object (lose old data)
+                            player.fielding[drillId] = {};
+                            needsSave = true;
+                        }
+                    });
+                    // Migrate infield drills if they have direct scores instead of coach keys
+                    const infieldDrills = ['thirdToFirstGrounders', 'thirdToFirstBunt', 'ssToFirst', 'ssToSecond'];
+                    infieldDrills.forEach(drillId => {
+                        if (player.fielding[drillId] && typeof player.fielding[drillId] === 'object') {
+                            // Check if it has direct score keys (old format) vs coach keys (new format)
+                            if (player.fielding[drillId].footwork !== undefined ||
+                                player.fielding[drillId].mechanics !== undefined) {
+                                // Old format with direct scores - convert to empty object
+                                player.fielding[drillId] = {};
+                                needsSave = true;
+                            }
+                        }
+                    });
+                }
+                // Migrate baserunning scrimmage to evaluation
+                if (player.baserunning && player.baserunning.scrimmage && !player.baserunning.evaluation) {
+                    player.baserunning.evaluation = player.baserunning.scrimmage;
+                    delete player.baserunning.scrimmage;
+                    needsSave = true;
+                }
+            });
+            if (needsSave) {
+                saveData();
+                console.log('Migrated player data to new format');
             }
         }
 
@@ -1269,7 +1311,9 @@
 
         // Render fielding drill with multi-coach scoring (for Ground Balls, Fly Ball, Fly Ball Tagup)
         function renderFieldingDrill(player, f, drillId, categories) {
-            const drillData = f[drillId] || {};
+            let drillData = f[drillId] || {};
+            // Handle old array format
+            if (Array.isArray(drillData)) drillData = {};
             const myScores = drillData[currentUser] || {};
 
             return `
@@ -1304,7 +1348,11 @@
                 { id: 'strength', name: 'Strength/Accuracy of Throws' },
                 { id: 'intangibles', name: 'Intangibles' }
             ];
-            const drillData = f[drillId] || {};
+            let drillData = f[drillId] || {};
+            // Handle old direct-score format (migrate on the fly)
+            if (drillData.footwork !== undefined || drillData.mechanics !== undefined) {
+                drillData = {};
+            }
             const myScores = drillData[currentUser] || {};
 
             return `
@@ -1885,9 +1933,12 @@
         }
 
         function calculateAverageScore(coachScores, drillId) {
+            if (!coachScores || typeof coachScores !== 'object') return 0;
+            // Skip if it's an array (old format)
+            if (Array.isArray(coachScores)) return 0;
             const scores = [];
             Object.values(coachScores).forEach(coach => {
-                if (coach[drillId] !== undefined && coach[drillId] !== null) {
+                if (coach && typeof coach === 'object' && coach[drillId] !== undefined && coach[drillId] !== null) {
                     scores.push(coach[drillId]);
                 }
             });
@@ -1896,9 +1947,12 @@
         }
 
         function countCoachScores(coachScores, drillId) {
+            if (!coachScores || typeof coachScores !== 'object') return 0;
+            // Skip if it's an array (old format)
+            if (Array.isArray(coachScores)) return 0;
             let count = 0;
             Object.values(coachScores).forEach(coach => {
-                if (coach[drillId] !== undefined && coach[drillId] !== null) count++;
+                if (coach && typeof coach === 'object' && coach[drillId] !== undefined && coach[drillId] !== null) count++;
             });
             return count;
         }
