@@ -3587,23 +3587,23 @@
 
             sortedAll.forEach(p => {
                 const b = p.baserunning || {};
-                const h1b = b.h1b || {};
-                const tbh = b['2bh'] || {};
+                const h1b = b.h1b || { times: [null, null], missed1b: [false, false] };
+                const tbh = b['2bh'] || { times: [null, null], missed3b: [false, false] };
                 const exp = b.explosiveness || {};
 
                 const h1bTimes = h1b.times || [null, null];
-                const h1bMissed = h1b.missedBag || [false, false];
+                const h1bMissed = h1b.missed1b || [false, false];
                 const h1bAdj1 = h1bTimes[0] !== null ? (h1bTimes[0] + (h1bMissed[0] ? 0.5 : 0)) : '';
                 const h1bAdj2 = h1bTimes[1] !== null ? (h1bTimes[1] + (h1bMissed[1] ? 0.5 : 0)) : '';
-                const h1bAvg = getAverageTime([h1bAdj1 || null, h1bAdj2 || null]) || '';
-                const h1bScore = calculateH1BScore(h1b);
+                const h1bAvg = getAdjustedAvgH1B(h1b);
+                const h1bScore = calculateSpeedScore('h1b', h1bAvg);
 
                 const tbhTimes = tbh.times || [null, null];
-                const tbhMissed = tbh.missedBag || [false, false];
+                const tbhMissed = tbh.missed3b || [false, false];
                 const tbhAdj1 = tbhTimes[0] !== null ? (tbhTimes[0] + (tbhMissed[0] ? 1 : 0)) : '';
                 const tbhAdj2 = tbhTimes[1] !== null ? (tbhTimes[1] + (tbhMissed[1] ? 1 : 0)) : '';
-                const tbhAvg = getAverageTime([tbhAdj1 || null, tbhAdj2 || null]) || '';
-                const tbhScore = calculate2BHScore(tbh);
+                const tbhAvg = getAdjustedAvg2BH(tbh);
+                const tbhScore = calculateSpeedScore('2bh', tbhAvg);
 
                 const proAgility = exp.proAgility || [null, null];
                 const proAg1 = proAgility[0] !== null ? proAgility[0] : '';
