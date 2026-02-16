@@ -737,8 +737,8 @@
                 // Explosiveness
                 proagility: [null, null],
                 broadjump: [{ feet: null, inches: null }, { feet: null, inches: null }],
-                // Scrimmage scores (by coach)
-                scrimmage: {},
+                // Your Evaluation scores (by coach)
+                evaluation: {},
                 notes: []  // Array of { coach: string, text: string, timestamp: string }
             };
         }
@@ -751,29 +751,14 @@
 
         function createFieldingData() {
             return {
-                // Ground Balls drill (2 attempts, each with 5 scoring categories)
-                groundballs: [
-                    { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null },
-                    { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null }
-                ],
-                // Fly Ball drill (2 attempts, each with 5 scoring categories)
-                flyball: [
-                    { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null },
-                    { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null }
-                ],
-                // Fly Ball Tagup drill (2 attempts, each with 5 scoring categories)
-                flyballtagup: [
-                    { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null },
-                    { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null }
-                ],
-                // 3B -> 1B Grounders (4 scoring categories)
-                thirdToFirstGrounders: { footwork: null, mechanics: null, strength: null, intangibles: null },
-                // 3B -> 1B Bunt (4 scoring categories)
-                thirdToFirstBunt: { footwork: null, mechanics: null, strength: null, intangibles: null },
-                // SS -> 1B (4 scoring categories)
-                ssToFirst: { footwork: null, mechanics: null, strength: null, intangibles: null },
-                // SS -> 2B Feeds/Throws (4 scoring categories)
-                ssToSecond: { footwork: null, mechanics: null, strength: null, intangibles: null },
+                // Each drill uses coach-keyed scoring: { coachName: { category: score, ... }, ... }
+                groundballs: {},      // 5 categories: footwork, technique, moveintothrow, strongthrow, intangibles
+                flyball: {},          // 5 categories: footwork, technique, moveintothrow, strongthrow, intangibles
+                flyballtagup: {},     // 5 categories: footwork, technique, moveintothrow, strongthrow, intangibles
+                thirdToFirstGrounders: {}, // 4 categories: footwork, mechanics, strength, intangibles
+                thirdToFirstBunt: {},      // 4 categories: footwork, mechanics, strength, intangibles
+                ssToFirst: {},             // 4 categories: footwork, mechanics, strength, intangibles
+                ssToSecond: {},            // 4 categories: footwork, mechanics, strength, intangibles
                 notes: []
             };
         }
@@ -1110,12 +1095,12 @@
                         </div>
                     </div>
 
-                    <!-- Scrimmage Scores -->
+                    <!-- Your Evaluation -->
                     <div class="mb-6">
-                        <h3 class="text-lg font-semibold mb-3 text-green-700">📋 Scrimmage Scores (Your Evaluation)</h3>
+                        <h3 class="text-lg font-semibold mb-3 text-green-700">📋 Your Evaluation</h3>
                         <p class="text-sm text-gray-500 mb-3">All coaches evaluate these - scores are averaged</p>
 
-                        ${renderScrimmageScores(player)}
+                        ${renderBaserunningEvaluation(player)}
                     </div>
 
                     <div class="mt-4 p-3 bg-green-100 rounded-lg">
@@ -1128,9 +1113,9 @@
             `;
         }
 
-        function renderScrimmageScores(player) {
-            const scrimmage = player.baserunning?.scrimmage || {};
-            const myScores = scrimmage[currentUser] || {};
+        function renderBaserunningEvaluation(player) {
+            const evaluation = player.baserunning?.evaluation || {};
+            const myScores = evaluation[currentUser] || {};
 
             const drills = [
                 { id: 'runningform', name: 'Running Form', max: 5 },
@@ -1144,14 +1129,14 @@
                             <h4 class="font-medium mb-2">${drill.name}</h4>
                             <div class="flex gap-2">
                                 ${[1, 2, 3, 4, 5].map(v => `
-                                    <button onclick="updateScrimmageScore(${player.id}, '${drill.id}', ${v})"
+                                    <button onclick="updateBaserunningEvaluation(${player.id}, '${drill.id}', ${v})"
                                         class="score-btn flex-1 py-2 rounded-lg ${myScores[drill.id] == v ? 'bg-green-600 text-white' : 'bg-white border hover:bg-green-100'}">
                                         ${v}
                                     </button>
                                 `).join('')}
                             </div>
                             <div class="text-xs text-gray-500 mt-1">
-                                Avg: ${calculateAverageScore(scrimmage, drill.id).toFixed(1)} (${countCoachScores(scrimmage, drill.id)} coaches)
+                                Avg: ${calculateAverageScore(evaluation, drill.id).toFixed(1)} (${countCoachScores(evaluation, drill.id)} coaches)
                             </div>
                         </div>
                     `).join('')}
@@ -1231,107 +1216,45 @@
                         <img src="fielding.jpg" alt="Fielding" class="w-6 h-6 object-contain"> Fielding - ${player.name}
                     </h2>
 
-                    <!-- Ground Balls (2 attempts) -->
+                    <!-- Ground Balls (Your Evaluation) -->
                     <div class="mb-6">
-                        <h3 class="text-lg font-semibold mb-3 text-green-700">Ground Balls (2 attempts)</h3>
-                        ${[0, 1].map(attemptIdx => `
-                            <div class="mb-4 p-4 bg-green-50 rounded-lg">
-                                <h4 class="font-semibold mb-3">Attempt ${attemptIdx + 1}</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
-                                    ${scoreCategories.map(cat => `
-                                        <div class="p-2 bg-white rounded border">
-                                            <label class="text-xs font-medium text-gray-600 block mb-1">${cat.name}</label>
-                                            <div class="flex gap-1">
-                                                ${[1, 2, 3, 4, 5].map(v => `
-                                                    <button onclick="updateGroundBalls(${player.id}, ${attemptIdx}, '${cat.id}', ${v})"
-                                                        class="flex-1 py-1 text-sm rounded ${f.groundballs[attemptIdx]?.[cat.id] == v ? 'bg-green-600 text-white' : 'bg-gray-100 hover:bg-green-100'}">
-                                                        ${v}
-                                                    </button>
-                                                `).join('')}
-                                            </div>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                                <div class="mt-2 text-sm text-gray-600">
-                                    Attempt ${attemptIdx + 1} Total: <strong>${calculateGroundBallAttemptTotal(f.groundballs[attemptIdx])}</strong>/25
-                                </div>
-                            </div>
-                        `).join('')}
+                        <h3 class="text-lg font-semibold mb-3 text-green-700">Ground Balls</h3>
+                        <p class="text-sm text-gray-500 mb-3">Your Evaluation - scores are averaged across coaches</p>
+                        ${renderFieldingDrill(player, f, 'groundballs', scoreCategories)}
                         <div class="p-3 bg-green-100 rounded-lg">
-                            <strong>Ground Balls Average:</strong> ${calculateGroundBallsAverage(f.groundballs).toFixed(1)}/25
+                            <strong>Ground Balls Average:</strong> ${calculateFieldingDrillAverage(f.groundballs || {}, scoreCategories.map(c => c.id)).toFixed(1)}/25
                         </div>
                     </div>
 
-                    <!-- Fly Ball (2 attempts) -->
+                    <!-- Fly Ball (Your Evaluation) -->
                     <div class="mb-6">
-                        <h3 class="text-lg font-semibold mb-3 text-green-700">Fly Ball (2 attempts)</h3>
-                        ${[0, 1].map(attemptIdx => `
-                            <div class="mb-4 p-4 bg-green-50 rounded-lg">
-                                <h4 class="font-semibold mb-3">Attempt ${attemptIdx + 1}</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
-                                    ${scoreCategories.map(cat => `
-                                        <div class="p-2 bg-white rounded border">
-                                            <label class="text-xs font-medium text-gray-600 block mb-1">${cat.name}</label>
-                                            <div class="flex gap-1">
-                                                ${[1, 2, 3, 4, 5].map(v => `
-                                                    <button onclick="updateFlyBall(${player.id}, ${attemptIdx}, '${cat.id}', ${v})"
-                                                        class="flex-1 py-1 text-sm rounded ${f.flyball?.[attemptIdx]?.[cat.id] == v ? 'bg-green-600 text-white' : 'bg-gray-100 hover:bg-green-100'}">
-                                                        ${v}
-                                                    </button>
-                                                `).join('')}
-                                            </div>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                                <div class="mt-2 text-sm text-gray-600">
-                                    Attempt ${attemptIdx + 1} Total: <strong>${calculateFlyBallAttemptTotal(f.flyball?.[attemptIdx])}</strong>/25
-                                </div>
-                            </div>
-                        `).join('')}
+                        <h3 class="text-lg font-semibold mb-3 text-green-700">Fly Ball</h3>
+                        <p class="text-sm text-gray-500 mb-3">Your Evaluation - scores are averaged across coaches</p>
+                        ${renderFieldingDrill(player, f, 'flyball', scoreCategories)}
                         <div class="p-3 bg-green-100 rounded-lg">
-                            <strong>Fly Ball Average:</strong> ${calculateFlyBallAverage(f.flyball).toFixed(1)}/25
+                            <strong>Fly Ball Average:</strong> ${calculateFieldingDrillAverage(f.flyball || {}, scoreCategories.map(c => c.id)).toFixed(1)}/25
                         </div>
                     </div>
 
-                    <!-- Fly Ball Tagup (2 attempts) -->
+                    <!-- Fly Ball Tagup (Your Evaluation) -->
                     <div class="mb-6">
-                        <h3 class="text-lg font-semibold mb-3 text-green-700">Fly Ball Tagup (2 attempts)</h3>
-                        ${[0, 1].map(attemptIdx => `
-                            <div class="mb-4 p-4 bg-green-50 rounded-lg">
-                                <h4 class="font-semibold mb-3">Attempt ${attemptIdx + 1}</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
-                                    ${scoreCategories.map(cat => `
-                                        <div class="p-2 bg-white rounded border">
-                                            <label class="text-xs font-medium text-gray-600 block mb-1">${cat.name}</label>
-                                            <div class="flex gap-1">
-                                                ${[1, 2, 3, 4, 5].map(v => `
-                                                    <button onclick="updateFlyBallTagup(${player.id}, ${attemptIdx}, '${cat.id}', ${v})"
-                                                        class="flex-1 py-1 text-sm rounded ${f.flyballtagup?.[attemptIdx]?.[cat.id] == v ? 'bg-green-600 text-white' : 'bg-gray-100 hover:bg-green-100'}">
-                                                        ${v}
-                                                    </button>
-                                                `).join('')}
-                                            </div>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                                <div class="mt-2 text-sm text-gray-600">
-                                    Attempt ${attemptIdx + 1} Total: <strong>${calculateFlyBallTagupAttemptTotal(f.flyballtagup?.[attemptIdx])}</strong>/25
-                                </div>
-                            </div>
-                        `).join('')}
+                        <h3 class="text-lg font-semibold mb-3 text-green-700">Fly Ball Tagup</h3>
+                        <p class="text-sm text-gray-500 mb-3">Your Evaluation - scores are averaged across coaches</p>
+                        ${renderFieldingDrill(player, f, 'flyballtagup', scoreCategories)}
                         <div class="p-3 bg-green-100 rounded-lg">
-                            <strong>Fly Ball Tagup Average:</strong> ${calculateFlyBallTagupAverage(f.flyballtagup).toFixed(1)}/25
+                            <strong>Fly Ball Tagup Average:</strong> ${calculateFieldingDrillAverage(f.flyballtagup || {}, scoreCategories.map(c => c.id)).toFixed(1)}/25
                         </div>
                     </div>
 
                     <!-- Infield Drills -->
                     <div class="mb-6">
                         <h3 class="text-lg font-semibold mb-3 text-green-700">Infield Drills</h3>
+                        <p class="text-sm text-gray-500 mb-3">Your Evaluation - scores are averaged across coaches</p>
 
-                        ${renderInfieldDrill(player, f, 'thirdToFirstGrounders', '3B → 1B Grounders')}
-                        ${renderInfieldDrill(player, f, 'thirdToFirstBunt', '3B → 1B Bunt')}
-                        ${renderInfieldDrill(player, f, 'ssToFirst', 'SS → 1B')}
-                        ${renderInfieldDrill(player, f, 'ssToSecond', 'SS → 2B Feeds/Throws')}
+                        ${renderInfieldDrillCoach(player, f, 'thirdToFirstGrounders', '3B → 1B Grounders')}
+                        ${renderInfieldDrillCoach(player, f, 'thirdToFirstBunt', '3B → 1B Bunt')}
+                        ${renderInfieldDrillCoach(player, f, 'ssToFirst', 'SS → 1B')}
+                        ${renderInfieldDrillCoach(player, f, 'ssToSecond', 'SS → 2B Feeds/Throws')}
                     </div>
 
                     <div class="mt-4 p-3 bg-green-100 rounded-lg">
@@ -1344,13 +1267,45 @@
             `;
         }
 
-        function renderInfieldDrill(player, f, drillId, drillName) {
+        // Render fielding drill with multi-coach scoring (for Ground Balls, Fly Ball, Fly Ball Tagup)
+        function renderFieldingDrill(player, f, drillId, categories) {
+            const drillData = f[drillId] || {};
+            const myScores = drillData[currentUser] || {};
+
+            return `
+                <div class="mb-4 p-4 bg-green-50 rounded-lg">
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                        ${categories.map(cat => `
+                            <div class="p-2 bg-white rounded border">
+                                <label class="text-xs font-medium text-gray-600 block mb-1">${cat.name}</label>
+                                <div class="flex gap-1">
+                                    ${[1, 2, 3, 4, 5].map(v => `
+                                        <button onclick="updateFieldingDrill(${player.id}, '${drillId}', '${cat.id}', ${v})"
+                                            class="flex-1 py-1 text-sm rounded ${myScores[cat.id] == v ? 'bg-green-600 text-white' : 'bg-gray-100 hover:bg-green-100'}">
+                                            ${v}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1">
+                                    Avg: ${calculateAverageScore(drillData, cat.id).toFixed(1)} (${countCoachScores(drillData, cat.id)})
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render infield drill with multi-coach scoring
+        function renderInfieldDrillCoach(player, f, drillId, drillName) {
             const infieldCategories = [
                 { id: 'footwork', name: 'Footwork' },
                 { id: 'mechanics', name: 'Fielding/Throwing Mechanics' },
                 { id: 'strength', name: 'Strength/Accuracy of Throws' },
                 { id: 'intangibles', name: 'Intangibles' }
             ];
+            const drillData = f[drillId] || {};
+            const myScores = drillData[currentUser] || {};
 
             return `
                 <div class="mb-4 p-4 bg-green-50 rounded-lg">
@@ -1361,17 +1316,20 @@
                                 <label class="text-xs font-medium text-gray-600 block mb-1">${cat.name}</label>
                                 <div class="flex gap-1">
                                     ${[1, 2, 3, 4, 5].map(v => `
-                                        <button onclick="updateInfieldDrill(${player.id}, '${drillId}', '${cat.id}', ${v})"
-                                            class="flex-1 py-1 text-sm rounded ${f[drillId]?.[cat.id] == v ? 'bg-green-600 text-white' : 'bg-gray-100 hover:bg-green-100'}">
+                                        <button onclick="updateFieldingDrill(${player.id}, '${drillId}', '${cat.id}', ${v})"
+                                            class="flex-1 py-1 text-sm rounded ${myScores[cat.id] == v ? 'bg-green-600 text-white' : 'bg-gray-100 hover:bg-green-100'}">
                                             ${v}
                                         </button>
                                     `).join('')}
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1">
+                                    Avg: ${calculateAverageScore(drillData, cat.id).toFixed(1)} (${countCoachScores(drillData, cat.id)})
                                 </div>
                             </div>
                         `).join('')}
                     </div>
                     <div class="mt-2 text-sm text-gray-600">
-                        Total: <strong>${calculateInfieldDrillTotal(f[drillId])}</strong>/20
+                        Total: <strong>${calculateFieldingDrillAverage(drillData, infieldCategories.map(c => c.id)).toFixed(1)}</strong>/20
                     </div>
                 </div>
             `;
@@ -1613,14 +1571,14 @@
             renderScoringArea();
         }
 
-        function updateScrimmageScore(playerId, drillId, value) {
+        function updateBaserunningEvaluation(playerId, drillId, value) {
             const player = players.find(p => p.id === playerId);
             if (!player) return;
             if (!player.baserunning) player.baserunning = createBaserunningData();
-            if (!player.baserunning.scrimmage) player.baserunning.scrimmage = {};
-            if (!player.baserunning.scrimmage[currentUser]) player.baserunning.scrimmage[currentUser] = {};
+            if (!player.baserunning.evaluation) player.baserunning.evaluation = {};
+            if (!player.baserunning.evaluation[currentUser]) player.baserunning.evaluation[currentUser] = {};
 
-            player.baserunning.scrimmage[currentUser][drillId] = value;
+            player.baserunning.evaluation[currentUser][drillId] = value;
             saveData();
             renderScoringArea();
         }
@@ -1639,68 +1597,14 @@
         // ============================================
         // FIELDING UPDATE FUNCTIONS
         // ============================================
-        function updateGroundBalls(playerId, attemptIdx, category, value) {
+        // Unified update function for all fielding drills (coach-keyed scoring)
+        function updateFieldingDrill(playerId, drillId, category, value) {
             const player = players.find(p => p.id === playerId);
             if (!player) return;
             if (!player.fielding) player.fielding = createFieldingData();
-            if (!player.fielding.groundballs) {
-                player.fielding.groundballs = [
-                    { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null },
-                    { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null }
-                ];
-            }
-            if (!player.fielding.groundballs[attemptIdx]) {
-                player.fielding.groundballs[attemptIdx] = { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null };
-            }
-            player.fielding.groundballs[attemptIdx][category] = value;
-            saveData();
-            renderScoringArea();
-        }
-
-        function updateFlyBall(playerId, attemptIdx, category, value) {
-            const player = players.find(p => p.id === playerId);
-            if (!player) return;
-            if (!player.fielding) player.fielding = createFieldingData();
-            if (!player.fielding.flyball || !Array.isArray(player.fielding.flyball)) {
-                player.fielding.flyball = [
-                    { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null },
-                    { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null }
-                ];
-            }
-            if (!player.fielding.flyball[attemptIdx]) {
-                player.fielding.flyball[attemptIdx] = { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null };
-            }
-            player.fielding.flyball[attemptIdx][category] = value;
-            saveData();
-            renderScoringArea();
-        }
-
-        function updateFlyBallTagup(playerId, attemptIdx, category, value) {
-            const player = players.find(p => p.id === playerId);
-            if (!player) return;
-            if (!player.fielding) player.fielding = createFieldingData();
-            if (!player.fielding.flyballtagup || !Array.isArray(player.fielding.flyballtagup)) {
-                player.fielding.flyballtagup = [
-                    { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null },
-                    { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null }
-                ];
-            }
-            if (!player.fielding.flyballtagup[attemptIdx]) {
-                player.fielding.flyballtagup[attemptIdx] = { footwork: null, technique: null, moveintothrow: null, strongthrow: null, intangibles: null };
-            }
-            player.fielding.flyballtagup[attemptIdx][category] = value;
-            saveData();
-            renderScoringArea();
-        }
-
-        function updateInfieldDrill(playerId, drillId, category, value) {
-            const player = players.find(p => p.id === playerId);
-            if (!player) return;
-            if (!player.fielding) player.fielding = createFieldingData();
-            if (!player.fielding[drillId]) {
-                player.fielding[drillId] = { footwork: null, mechanics: null, strength: null, intangibles: null };
-            }
-            player.fielding[drillId][category] = value;
+            if (!player.fielding[drillId]) player.fielding[drillId] = {};
+            if (!player.fielding[drillId][currentUser]) player.fielding[drillId][currentUser] = {};
+            player.fielding[drillId][currentUser][category] = value;
             saveData();
             renderScoringArea();
         }
@@ -1730,46 +1634,16 @@
         // ============================================
         // FIELDING & THROWING CALCULATION FUNCTIONS
         // ============================================
-        function calculateGroundBallAttemptTotal(attempt) {
-            if (!attempt) return 0;
-            const categories = ['footwork', 'technique', 'moveintothrow', 'strongthrow', 'intangibles'];
-            return categories.reduce((sum, cat) => sum + (attempt[cat] || 0), 0);
-        }
-
-        function calculateGroundBallsAverage(groundballs) {
-            if (!groundballs || !Array.isArray(groundballs)) return 0;
-            const totals = groundballs.map(attempt => calculateGroundBallAttemptTotal(attempt));
-            const validTotals = totals.filter(t => t > 0);
-            if (validTotals.length === 0) return 0;
-            return validTotals.reduce((sum, t) => sum + t, 0) / validTotals.length;
-        }
-
-        function calculateFlyBallAttemptTotal(attempt) {
-            if (!attempt) return 0;
-            const categories = ['footwork', 'technique', 'moveintothrow', 'strongthrow', 'intangibles'];
-            return categories.reduce((sum, cat) => sum + (attempt[cat] || 0), 0);
-        }
-
-        function calculateFlyBallAverage(flyball) {
-            if (!flyball || !Array.isArray(flyball)) return 0;
-            const totals = flyball.map(attempt => calculateFlyBallAttemptTotal(attempt));
-            const validTotals = totals.filter(t => t > 0);
-            if (validTotals.length === 0) return 0;
-            return validTotals.reduce((sum, t) => sum + t, 0) / validTotals.length;
-        }
-
-        function calculateFlyBallTagupAttemptTotal(attempt) {
-            if (!attempt) return 0;
-            const categories = ['footwork', 'technique', 'moveintothrow', 'strongthrow', 'intangibles'];
-            return categories.reduce((sum, cat) => sum + (attempt[cat] || 0), 0);
-        }
-
-        function calculateFlyBallTagupAverage(flyballtagup) {
-            if (!flyballtagup || !Array.isArray(flyballtagup)) return 0;
-            const totals = flyballtagup.map(attempt => calculateFlyBallTagupAttemptTotal(attempt));
-            const validTotals = totals.filter(t => t > 0);
-            if (validTotals.length === 0) return 0;
-            return validTotals.reduce((sum, t) => sum + t, 0) / validTotals.length;
+        // Calculate average across coaches for a fielding drill
+        // drillData = { coach1: { cat1: score, cat2: score }, coach2: { ... } }
+        // categories = ['footwork', 'technique', ...]
+        function calculateFieldingDrillAverage(drillData, categories) {
+            if (!drillData || typeof drillData !== 'object') return 0;
+            let total = 0;
+            for (const cat of categories) {
+                total += calculateAverageScore(drillData, cat);
+            }
+            return total;
         }
 
         function calculateVelocityScore(velocity) {
@@ -1783,28 +1657,22 @@
             return 1;
         }
 
-        function calculateInfieldDrillTotal(drill) {
-            if (!drill) return 0;
-            const categories = ['footwork', 'mechanics', 'strength', 'intangibles'];
-            let total = 0;
-            for (const cat of categories) {
-                if (drill[cat] !== null && drill[cat] !== undefined) {
-                    total += drill[cat];
-                }
-            }
-            return total;
-        }
-
         function calculateFieldingTotal(player) {
             const f = player.fielding || {};
-            const groundBallsAvg = calculateGroundBallsAverage(f.groundballs || []);
-            const flyBallAvg = calculateFlyBallAverage(f.flyball || []);
-            const flyBallTagupAvg = calculateFlyBallTagupAverage(f.flyballtagup || []);
-            // Add infield drill totals (4 drills × max 20 points each = 80 points)
-            const infieldTotal = calculateInfieldDrillTotal(f.thirdToFirstGrounders) +
-                                 calculateInfieldDrillTotal(f.thirdToFirstBunt) +
-                                 calculateInfieldDrillTotal(f.ssToFirst) +
-                                 calculateInfieldDrillTotal(f.ssToSecond);
+            const outfieldCategories = ['footwork', 'technique', 'moveintothrow', 'strongthrow', 'intangibles'];
+            const infieldCategories = ['footwork', 'mechanics', 'strength', 'intangibles'];
+
+            // Outfield drills (5 categories × 5 max each = 25 max per drill)
+            const groundBallsAvg = calculateFieldingDrillAverage(f.groundballs || {}, outfieldCategories);
+            const flyBallAvg = calculateFieldingDrillAverage(f.flyball || {}, outfieldCategories);
+            const flyBallTagupAvg = calculateFieldingDrillAverage(f.flyballtagup || {}, outfieldCategories);
+
+            // Infield drills (4 categories × 5 max each = 20 max per drill)
+            const infieldTotal = calculateFieldingDrillAverage(f.thirdToFirstGrounders || {}, infieldCategories) +
+                                 calculateFieldingDrillAverage(f.thirdToFirstBunt || {}, infieldCategories) +
+                                 calculateFieldingDrillAverage(f.ssToFirst || {}, infieldCategories) +
+                                 calculateFieldingDrillAverage(f.ssToSecond || {}, infieldCategories);
+
             return groundBallsAvg + flyBallAvg + flyBallTagupAvg + infieldTotal;
         }
 
@@ -2060,11 +1928,11 @@
             total += calculateProAgilityScore(b.proagility || []);
             total += calculateBroadJumpScore(b.broadjump || []);
 
-            // Scrimmage (10 points max averaged)
-            const scrimmage = b.scrimmage || {};
-            const scrimmgeDrills = ['runningform', 'intangibles'];
-            scrimmgeDrills.forEach(drill => {
-                total += calculateAverageScore(scrimmage, drill);
+            // Your Evaluation (10 points max averaged)
+            const evaluation = b.evaluation || {};
+            const evalDrills = ['runningform', 'intangibles'];
+            evalDrills.forEach(drill => {
+                total += calculateAverageScore(evaluation, drill);
             });
 
             return Math.round(total * 10) / 10;
@@ -2187,13 +2055,10 @@
                         <tr><td><strong>Broad Jump</strong></td><td>Enter feet and inches for 2 attempts (scored on average)</td></tr>
                     </table>
 
-                    <p><strong>Scrimmage Scores</strong> (each coach enters their own 1-3 scores):</p>
+                    <p><strong>Your Evaluation</strong> (each coach enters their own 1-5 scores):</p>
                     <ul>
-                        <li>Chop Step</li>
-                        <li>Rounding</li>
-                        <li>Sliding</li>
-                        <li>Softball IQ</li>
-                        <li>Aggressiveness</li>
+                        <li>Running Form</li>
+                        <li>Intangibles</li>
                     </ul>
 
                     <h3>Intangibles (15 points max)</h3>
@@ -2490,9 +2355,9 @@
                             <div><span class="text-gray-500">Broad Jump (Avg):</span> ${getAverageBroadJump(b.broadjump || []) || 'N/A'} (${calculateBroadJumpScore(b.broadjump || [])}/5)</div>
                         </div>
                         <div class="mt-2 text-sm">
-                            <span class="text-gray-500">Scrimmage Scores (Avg):</span>
-                            Running Form: ${calculateAverageScore(b.scrimmage || {}, 'runningform').toFixed(1)} |
-                            Intangibles: ${calculateAverageScore(b.scrimmage || {}, 'intangibles').toFixed(1)}
+                            <span class="text-gray-500">Your Evaluation (Avg):</span>
+                            Running Form: ${calculateAverageScore(b.evaluation || {}, 'runningform').toFixed(1)} |
+                            Intangibles: ${calculateAverageScore(b.evaluation || {}, 'intangibles').toFixed(1)}
                         </div>
                         ${baserunningNotes.length > 0 ? `
                             <div class="mt-2 p-2 bg-blue-50 rounded text-sm">
@@ -2506,16 +2371,16 @@
                     <div class="mb-4">
                         <h4 class="font-semibold text-green-700 border-b border-green-200 pb-1 mb-2">Fielding Details</h4>
                         <div class="grid grid-cols-3 gap-2 text-sm">
-                            <div><span class="text-gray-500">Ground Balls (Avg):</span> ${calculateGroundBallsAverage(f.groundballs || []).toFixed(1)}/25</div>
-                            <div><span class="text-gray-500">Fly Ball (Avg):</span> ${calculateFlyBallAverage(f.flyball || []).toFixed(1)}/25</div>
-                            <div><span class="text-gray-500">Fly Ball Tagup (Avg):</span> ${calculateFlyBallTagupAverage(f.flyballtagup || []).toFixed(1)}/25</div>
+                            <div><span class="text-gray-500">Ground Balls (Avg):</span> ${calculateFieldingDrillAverage(f.groundballs || {}, ['footwork', 'technique', 'moveintothrow', 'strongthrow', 'intangibles']).toFixed(1)}/25</div>
+                            <div><span class="text-gray-500">Fly Ball (Avg):</span> ${calculateFieldingDrillAverage(f.flyball || {}, ['footwork', 'technique', 'moveintothrow', 'strongthrow', 'intangibles']).toFixed(1)}/25</div>
+                            <div><span class="text-gray-500">Fly Ball Tagup (Avg):</span> ${calculateFieldingDrillAverage(f.flyballtagup || {}, ['footwork', 'technique', 'moveintothrow', 'strongthrow', 'intangibles']).toFixed(1)}/25</div>
                         </div>
                         <div class="mt-2 text-sm text-gray-600 font-medium">Infield Drills:</div>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm mt-1">
-                            <div><span class="text-gray-500">3B→1B Grounders:</span> ${calculateInfieldDrillTotal(f.thirdToFirstGrounders)}/20</div>
-                            <div><span class="text-gray-500">3B→1B Bunt:</span> ${calculateInfieldDrillTotal(f.thirdToFirstBunt)}/20</div>
-                            <div><span class="text-gray-500">SS→1B:</span> ${calculateInfieldDrillTotal(f.ssToFirst)}/20</div>
-                            <div><span class="text-gray-500">SS→2B Feeds:</span> ${calculateInfieldDrillTotal(f.ssToSecond)}/20</div>
+                            <div><span class="text-gray-500">3B→1B Grounders:</span> ${calculateFieldingDrillAverage(f.thirdToFirstGrounders || {}, ['footwork', 'mechanics', 'strength', 'intangibles']).toFixed(1)}/20</div>
+                            <div><span class="text-gray-500">3B→1B Bunt:</span> ${calculateFieldingDrillAverage(f.thirdToFirstBunt || {}, ['footwork', 'mechanics', 'strength', 'intangibles']).toFixed(1)}/20</div>
+                            <div><span class="text-gray-500">SS→1B:</span> ${calculateFieldingDrillAverage(f.ssToFirst || {}, ['footwork', 'mechanics', 'strength', 'intangibles']).toFixed(1)}/20</div>
+                            <div><span class="text-gray-500">SS→2B Feeds:</span> ${calculateFieldingDrillAverage(f.ssToSecond || {}, ['footwork', 'mechanics', 'strength', 'intangibles']).toFixed(1)}/20</div>
                         </div>
                         ${fieldingNotes.length > 0 ? `
                             <div class="mt-2 p-2 bg-green-50 rounded text-sm">
