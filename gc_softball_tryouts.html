@@ -3049,16 +3049,108 @@
         }
 
         function exportData() {
-            // Simple CSV export
-            let csv = 'Name,Number,Catching,Baserunning,Fielding,Throwing,Intangibles,Total\n';
-            players.forEach(p => {
-                const catching = calculateCatchingTotal(p);
+            let csv = '';
+
+            // =====================
+            // ALL PLAYERS SECTION (ordered by score, no catching/pitching)
+            // =====================
+            csv += '=== ALL PLAYERS (Ranked by Score) ===\n';
+            csv += 'Rank,Name,Number,Baserunning,Fielding,Throwing,Intangibles,Total\n';
+
+            const sortedAll = [...players].sort((a, b) => {
+                const totalA = calculateBaserunningTotal(a) + calculateFieldingTotal(a) + calculateThrowingTotal(a) + calculateIntangiblesTotal(a);
+                const totalB = calculateBaserunningTotal(b) + calculateFieldingTotal(b) + calculateThrowingTotal(b) + calculateIntangiblesTotal(b);
+                return totalB - totalA;
+            });
+
+            sortedAll.forEach((p, idx) => {
                 const baserunning = calculateBaserunningTotal(p);
                 const fielding = calculateFieldingTotal(p);
                 const throwing = calculateThrowingTotal(p);
                 const intangibles = calculateIntangiblesTotal(p);
-                const total = catching + baserunning + fielding + throwing + intangibles;
-                csv += `"${p.name}","${p.number || ''}",${catching},${baserunning.toFixed(1)},${fielding.toFixed(1)},${throwing.toFixed(1)},${intangibles.toFixed(1)},${total.toFixed(1)}\n`;
+                const total = baserunning + fielding + throwing + intangibles;
+                csv += `${idx + 1},"${p.name}","${p.number || ''}",${baserunning.toFixed(1)},${fielding.toFixed(1)},${throwing.toFixed(1)},${intangibles.toFixed(1)},${total.toFixed(1)}\n`;
+            });
+
+            // =====================
+            // CATCHERS SECTION
+            // =====================
+            csv += '\n\n=== CATCHERS (Ranked by Total with Catching) ===\n';
+            csv += 'Rank,Name,Pop Time Avg,Pop Time Score,Setup/Stance,Arm Str/Acc,Block/Popups,Framing,Foot/Agility,High Motor,Catching Total,Baserunning,Fielding,Throwing,Intangibles,Grand Total\n';
+
+            const catchers = players.filter(p => CATCHERS.includes(p.name)).sort((a, b) => {
+                const totalA = calculateCatchingTotal(a) + calculateBaserunningTotal(a) + calculateFieldingTotal(a) + calculateThrowingTotal(a) + calculateIntangiblesTotal(a);
+                const totalB = calculateCatchingTotal(b) + calculateBaserunningTotal(b) + calculateFieldingTotal(b) + calculateThrowingTotal(b) + calculateIntangiblesTotal(b);
+                return totalB - totalA;
+            });
+
+            catchers.forEach((p, idx) => {
+                const c = p.catching || {};
+                const popTimeAvg = getAverageTime(c.poptime || []) || 'N/A';
+                const popTimeScore = calculatePopTimeScore(c.poptime || []);
+                const setupStance = calculateAverageScore(c.evaluation || {}, 'setupStance').toFixed(1);
+                const armStrength = calculateAverageScore(c.evaluation || {}, 'armStrength').toFixed(1);
+                const blockingPopups = calculateAverageScore(c.evaluation || {}, 'blockingPopups').toFixed(1);
+                const framing = calculateAverageScore(c.evaluation || {}, 'framing').toFixed(1);
+                const footworkAgility = calculateAverageScore(c.evaluation || {}, 'footworkAgility').toFixed(1);
+                const highMotor = calculateAverageScore(c.evaluation || {}, 'highMotor').toFixed(1);
+                const catchingTotal = calculateCatchingTotal(p);
+                const baserunning = calculateBaserunningTotal(p);
+                const fielding = calculateFieldingTotal(p);
+                const throwing = calculateThrowingTotal(p);
+                const intangibles = calculateIntangiblesTotal(p);
+                const grandTotal = catchingTotal + baserunning + fielding + throwing + intangibles;
+
+                csv += `${idx + 1},"${p.name}",${popTimeAvg},${popTimeScore},${setupStance},${armStrength},${blockingPopups},${framing},${footworkAgility},${highMotor},${catchingTotal.toFixed(1)},${baserunning.toFixed(1)},${fielding.toFixed(1)},${throwing.toFixed(1)},${intangibles.toFixed(1)},${grandTotal.toFixed(1)}\n`;
+            });
+
+            // =====================
+            // PITCHERS SECTION
+            // =====================
+            csv += '\n\n=== PITCHERS (Ranked by Total with Pitching) ===\n';
+            csv += 'Rank,Name,Mechanics,Athleticism,# Pitches,Pitching Total,Baserunning,Fielding,Throwing,Intangibles,Grand Total\n';
+
+            const pitchers = players.filter(p => PITCHERS.includes(p.name)).sort((a, b) => {
+                const totalA = calculatePitchingTotal(a) + calculateBaserunningTotal(a) + calculateFieldingTotal(a) + calculateThrowingTotal(a) + calculateIntangiblesTotal(a);
+                const totalB = calculatePitchingTotal(b) + calculateBaserunningTotal(b) + calculateFieldingTotal(b) + calculateThrowingTotal(b) + calculateIntangiblesTotal(b);
+                return totalB - totalA;
+            });
+
+            pitchers.forEach((p, idx) => {
+                const pt = p.pitching || {};
+                const mechanics = calculateAverageScore(pt.evaluation || {}, 'mechanics').toFixed(1);
+                const athleticism = calculateAverageScore(pt.evaluation || {}, 'athleticism').toFixed(1);
+                const numPitches = pt.numPitches || 0;
+                const pitchingTotal = calculatePitchingTotal(p);
+                const baserunning = calculateBaserunningTotal(p);
+                const fielding = calculateFieldingTotal(p);
+                const throwing = calculateThrowingTotal(p);
+                const intangibles = calculateIntangiblesTotal(p);
+                const grandTotal = pitchingTotal + baserunning + fielding + throwing + intangibles;
+
+                csv += `${idx + 1},"${p.name}",${mechanics},${athleticism},${numPitches},${pitchingTotal.toFixed(1)},${baserunning.toFixed(1)},${fielding.toFixed(1)},${throwing.toFixed(1)},${intangibles.toFixed(1)},${grandTotal.toFixed(1)}\n`;
+            });
+
+            // =====================
+            // PITCHER PITCH-BY-PITCH DETAILS
+            // =====================
+            csv += '\n\n=== PITCHER PITCH DETAILS ===\n';
+
+            pitchers.forEach(p => {
+                const pt = p.pitching || {};
+                csv += `\n"${p.name}" Pitches:\n`;
+                csv += 'Pitch Type,Speed 1 (mph),Speed 2 (mph),Control (1-5)\n';
+
+                if (pt.pitches && pt.pitches.length > 0) {
+                    pt.pitches.forEach(pitch => {
+                        const speed1 = pitch.speeds?.[0] || '';
+                        const speed2 = pitch.speeds?.[1] || '';
+                        const control = pitch.control || '';
+                        csv += `"${pitch.type}",${speed1},${speed2},${control}\n`;
+                    });
+                } else {
+                    csv += '(No pitches recorded)\n';
+                }
             });
 
             const blob = new Blob([csv], { type: 'text/csv' });
