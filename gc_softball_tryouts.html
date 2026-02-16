@@ -1650,7 +1650,14 @@
             const player = players.find(p => p.id === playerId);
             if (!player) return;
             if (!player.fielding) player.fielding = createFieldingData();
-            if (!player.fielding[drillId]) player.fielding[drillId] = {};
+            // Handle old array format or missing drill data
+            if (!player.fielding[drillId] || Array.isArray(player.fielding[drillId])) {
+                player.fielding[drillId] = {};
+            }
+            // Handle old direct-score format (has footwork/mechanics directly)
+            if (player.fielding[drillId].footwork !== undefined || player.fielding[drillId].mechanics !== undefined) {
+                player.fielding[drillId] = {};
+            }
             if (!player.fielding[drillId][currentUser]) player.fielding[drillId][currentUser] = {};
             player.fielding[drillId][currentUser][category] = value;
             saveData();
