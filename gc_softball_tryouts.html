@@ -1002,6 +1002,9 @@
                                                 </button>
                                             `).join('')}
                                         </div>
+                                        <div class="text-xs text-gray-500 mt-1">
+                                            Avg: ${calculateAverageScore(evaluation, cat.id).toFixed(1)} (${countCoachScores(evaluation, cat.id)} coaches)
+                                        </div>
                                     </div>
                                 `;
                             }).join('')}
@@ -1466,6 +1469,9 @@
                                                     ${v}
                                                 </button>
                                             `).join('')}
+                                        </div>
+                                        <div class="text-xs text-gray-500 mt-1">
+                                            Avg: ${calculateAverageScore(evaluation, cat.id).toFixed(1)} (${countCoachScores(evaluation, cat.id)} coaches)
                                         </div>
                                     </div>
                                 `;
