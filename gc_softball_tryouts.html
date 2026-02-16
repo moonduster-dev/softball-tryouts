@@ -3475,7 +3475,19 @@
             // ALL PLAYERS SECTION (ordered by score, no catching/pitching)
             // =====================
             csv += '=== ALL PLAYERS (Ranked by Score) ===\n';
-            csv += 'Rank,Name,Baserunning,Hitting,Infield,Outfield,Throwing,Intangibles,Total\n';
+            csv += 'Rank,Name,Grand Total,';
+            // Baserunning columns
+            csv += 'H-1B Avg,H-1B Score,2B-H Avg,2B-H Score,Pro Agility Avg,Pro Agility Score,Broad Jump Avg,Broad Jump Score,Baserunning Total,';
+            // Hitting columns
+            csv += 'Bat Speed Avg,Bat Speed Score,Balance,Bat Path,Contact,Timing,Hit High Motor,Hitting Total,';
+            // Infield columns
+            csv += 'IF Fielding Mech,IF Arm Str/Acc,Receiving Mech,MI Feed Mech,IF Agility/Expl,IF High Motor,Infield Total,';
+            // Outfield columns
+            csv += 'OF Fielding Mech,OF Arm Str/Acc,Range/Agility,Fly Ball Pos/Trans,OF High Motor,Outfield Total,';
+            // Throwing columns
+            csv += 'Velocity Avg,Throwing Score,';
+            // Intangibles columns
+            csv += 'Awareness,Leadership,Enthusiasm,Intangibles Total\n';
 
             const sortedAll = [...players].sort((a, b) => {
                 const totalA = calculateBaserunningTotal(a) + calculateHittingTotal(a) + calculateInfieldTotal(a) + calculateOutfieldTotal(a) + calculateThrowingTotal(a) + calculateIntangiblesTotal(a);
@@ -3484,14 +3496,79 @@
             });
 
             sortedAll.forEach((p, idx) => {
-                const baserunning = calculateBaserunningTotal(p);
-                const hitting = calculateHittingTotal(p);
-                const infield = calculateInfieldTotal(p);
-                const outfield = calculateOutfieldTotal(p);
-                const throwing = calculateThrowingTotal(p);
-                const intangibles = calculateIntangiblesTotal(p);
-                const total = baserunning + hitting + infield + outfield + throwing + intangibles;
-                csv += `${idx + 1},"${p.name}",${baserunning.toFixed(1)},${hitting.toFixed(1)},${infield.toFixed(1)},${outfield.toFixed(1)},${throwing.toFixed(1)},${intangibles.toFixed(1)},${total.toFixed(1)}\n`;
+                const baserunningTotal = calculateBaserunningTotal(p);
+                const hittingTotal = calculateHittingTotal(p);
+                const infieldTotal = calculateInfieldTotal(p);
+                const outfieldTotal = calculateOutfieldTotal(p);
+                const throwingTotal = calculateThrowingTotal(p);
+                const intangiblesTotal = calculateIntangiblesTotal(p);
+                const grandTotal = baserunningTotal + hittingTotal + infieldTotal + outfieldTotal + throwingTotal + intangiblesTotal;
+
+                // Baserunning details
+                const b = p.baserunning || {};
+                const h1b = b.h1b || { times: [null, null], missed1b: [false, false] };
+                const tbh = b['2bh'] || { times: [null, null], missed3b: [false, false] };
+                const exp = b.explosiveness || {};
+                const h1bAvg = getAdjustedAvgH1B(h1b);
+                const h1bScore = calculateSpeedScore('h1b', h1bAvg);
+                const tbhAvg = getAdjustedAvg2BH(tbh);
+                const tbhScore = calculateSpeedScore('2bh', tbhAvg);
+                const proAgility = exp.proAgility || [null, null];
+                const proAgAvg = getAverageTime(proAgility) || '';
+                const proAgScore = calculateProAgilityScore(proAgility);
+                const broadJump = exp.broadJump || [null, null];
+                const bjAvg = getAverageBroadJump(broadJump);
+                const bjAvgStr = bjAvg ? `${bjAvg.feet}'${bjAvg.inches}"` : '';
+                const bjScore = calculateBroadJumpScore(broadJump);
+
+                // Hitting details
+                const h = p.hitting || {};
+                const batSpeed = h.batSpeed || [null, null];
+                const bsAvg = getAverageBatSpeed(batSpeed);
+                const bsAvgStr = bsAvg !== null ? bsAvg.toFixed(1) : '';
+                const bsScore = calculateBatSpeedScore(batSpeed);
+                const hitBalance = calculateAverageScore(h.evaluation || {}, 'balance').toFixed(1);
+                const hitBatPath = calculateAverageScore(h.evaluation || {}, 'batPath').toFixed(1);
+                const hitContact = calculateAverageScore(h.evaluation || {}, 'contact').toFixed(1);
+                const hitTiming = calculateAverageScore(h.evaluation || {}, 'timing').toFixed(1);
+                const hitHighMotor = calculateAverageScore(h.evaluation || {}, 'highMotor').toFixed(1);
+
+                // Infield details
+                const inf = p.infield || {};
+                const infFieldingMech = calculateAverageScore(inf.evaluation || {}, 'fieldingMechanics').toFixed(1);
+                const infArmStr = calculateAverageScore(inf.evaluation || {}, 'armStrength').toFixed(1);
+                const infReceiving = calculateAverageScore(inf.evaluation || {}, 'receivingMechanics').toFixed(1);
+                const infMiFeed = calculateAverageScore(inf.evaluation || {}, 'miFeedMechanics').toFixed(1);
+                const infAgility = calculateAverageScore(inf.evaluation || {}, 'agilityExplosiveness').toFixed(1);
+                const infHighMotor = calculateAverageScore(inf.evaluation || {}, 'highMotor').toFixed(1);
+
+                // Outfield details
+                const outf = p.outfield || {};
+                const outfFieldingMech = calculateAverageScore(outf.evaluation || {}, 'fieldingMechanics').toFixed(1);
+                const outfArmStr = calculateAverageScore(outf.evaluation || {}, 'armStrength').toFixed(1);
+                const outfRange = calculateAverageScore(outf.evaluation || {}, 'rangeAgility').toFixed(1);
+                const outfFlyBall = calculateAverageScore(outf.evaluation || {}, 'flyBallTransition').toFixed(1);
+                const outfHighMotor = calculateAverageScore(outf.evaluation || {}, 'highMotor').toFixed(1);
+
+                // Throwing details
+                const t = p.throwing || {};
+                const velocity = t.velocity || [null, null];
+                const vAvg = getAverageVelocity(velocity);
+                const vAvgStr = vAvg !== null ? vAvg.toFixed(1) : '';
+
+                // Intangibles details
+                const intang = p.intangibles || {};
+                const awareness = calculateAverageScore(intang.evaluation || {}, 'awareness').toFixed(1);
+                const leadership = calculateAverageScore(intang.evaluation || {}, 'leadership').toFixed(1);
+                const enthusiasm = calculateAverageScore(intang.evaluation || {}, 'enthusiasm').toFixed(1);
+
+                csv += `${idx + 1},"${p.name}",${grandTotal.toFixed(1)},`;
+                csv += `${h1bAvg},${h1bScore},${tbhAvg},${tbhScore},${proAgAvg},${proAgScore},${bjAvgStr},${bjScore},${baserunningTotal.toFixed(1)},`;
+                csv += `${bsAvgStr},${bsScore},${hitBalance},${hitBatPath},${hitContact},${hitTiming},${hitHighMotor},${hittingTotal.toFixed(1)},`;
+                csv += `${infFieldingMech},${infArmStr},${infReceiving},${infMiFeed},${infAgility},${infHighMotor},${infieldTotal.toFixed(1)},`;
+                csv += `${outfFieldingMech},${outfArmStr},${outfRange},${outfFlyBall},${outfHighMotor},${outfieldTotal.toFixed(1)},`;
+                csv += `${vAvgStr},${throwingTotal.toFixed(1)},`;
+                csv += `${awareness},${leadership},${enthusiasm},${intangiblesTotal.toFixed(1)}\n`;
             });
 
             // =====================
