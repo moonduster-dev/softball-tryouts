@@ -114,8 +114,8 @@ function updateReadableSheet(players) {
     'H→1B Avg', 'H→1B Score', '2B→H Avg', '2B→H Score', 'H→3B Adj', 'H→3B Score', 'H→H Adj', 'H→H Score',
     // Baserunning Explosiveness
     'Pro Agility Avg', 'Pro Agility Score', 'Broad Jump Avg', 'Broad Jump Score',
-    // Scrimmage (averaged)
-    'Chop Step Avg', 'Rounding Avg', 'Sliding Avg', 'Softball IQ Avg', 'Aggressiveness Avg',
+    // Baserunning Evaluation (averaged)
+    'BR High Motor', 'BR Intangibles',
     'Baserunning Total', 'Baserunning Notes',
     // Intangibles (averaged)
     'Awareness Avg', 'Leadership Avg', 'Enthusiasm Avg', 'Intangibles Total', 'Intangibles Notes',
@@ -179,15 +179,12 @@ function updateReadableSheet(players) {
     const broadJumpAvg = getAverageBroadJump(b.broadjump || []);
     const broadJumpScore = calculateBroadJumpScore(b.broadjump || []);
 
-    // Scrimmage averages
-    const scrimmage = b.scrimmage || {};
-    const chopstepAvg = calculateAverageScore(scrimmage, 'chopstep');
-    const roundingAvg = calculateAverageScore(scrimmage, 'rounding');
-    const slidingAvg = calculateAverageScore(scrimmage, 'sliding');
-    const softballiqAvg = calculateAverageScore(scrimmage, 'softballiq');
-    const aggressivenessAvg = calculateAverageScore(scrimmage, 'aggressiveness');
+    // Baserunning evaluation averages (2 categories: highmotor, intangibles)
+    const brEval = b.evaluation || {};
+    const brHighMotorAvg = calculateAverageScore(brEval, 'highmotor');
+    const brIntangiblesAvg = calculateAverageScore(brEval, 'intangibles');
 
-    const baserunningTotal = h1bScore + tbhScore + h3bScore + hhScore + proAgilityScore + broadJumpScore + chopstepAvg + roundingAvg + slidingAvg + softballiqAvg + aggressivenessAvg;
+    const baserunningTotal = h1bScore + tbhScore + h3bScore + hhScore + proAgilityScore + broadJumpScore + brHighMotorAvg + brIntangiblesAvg;
 
     // Intangibles averages
     const awarenessAvg = calculateAverageScore(intang, 'awareness');
@@ -248,11 +245,8 @@ function updateReadableSheet(players) {
       proAgilityScore,
       broadJumpAvg || '',
       broadJumpScore,
-      chopstepAvg.toFixed(1),
-      roundingAvg.toFixed(1),
-      slidingAvg.toFixed(1),
-      softballiqAvg.toFixed(1),
-      aggressivenessAvg.toFixed(1),
+      brHighMotorAvg.toFixed(1),
+      brIntangiblesAvg.toFixed(1),
       baserunningTotal.toFixed(1),
       baserunningNotes,
       awarenessAvg.toFixed(1),
@@ -535,10 +529,10 @@ function getGrandTotal(player) {
   const proAgilityScore = calculateProAgilityScore(b.proagility || []);
   const broadJumpScore = calculateBroadJumpScore(b.broadjump || []);
 
-  const scrimmage = b.scrimmage || {};
-  const scrimmageTotal = calculateAverageScore(scrimmage, 'chopstep') + calculateAverageScore(scrimmage, 'rounding') + calculateAverageScore(scrimmage, 'sliding') + calculateAverageScore(scrimmage, 'softballiq') + calculateAverageScore(scrimmage, 'aggressiveness');
+  const brEval = b.evaluation || {};
+  const brEvalTotal = calculateAverageScore(brEval, 'highmotor') + calculateAverageScore(brEval, 'intangibles');
 
-  const baserunningTotal = h1bScore + tbhScore + h3bScore + hhScore + proAgilityScore + broadJumpScore + scrimmageTotal;
+  const baserunningTotal = h1bScore + tbhScore + h3bScore + hhScore + proAgilityScore + broadJumpScore + brEvalTotal;
 
   // Intangibles
   const intangiblesTotal = calculateAverageScore(intang, 'awareness') + calculateAverageScore(intang, 'leadership') + calculateAverageScore(intang, 'enthusiasm');
