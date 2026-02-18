@@ -3750,8 +3750,8 @@
                 const infFieldingMech = calculateAverageScore(inf.evaluation || {}, 'fieldingMechanics').toFixed(1);
                 const infArmStr = calculateAverageScore(inf.evaluation || {}, 'armStrength').toFixed(1);
                 const infReceiving = calculateAverageScore(inf.evaluation || {}, 'receivingMechanics').toFixed(1);
-                const infMiFeed = calculateAverageScore(inf.evaluation || {}, 'miFeedMechanics').toFixed(1);
-                const infAgility = calculateAverageScore(inf.evaluation || {}, 'agilityExplosiveness').toFixed(1);
+                const infMiFeed = calculateAverageScore(inf.evaluation || {}, 'miFeed').toFixed(1);
+                const infAgility = calculateAverageScore(inf.evaluation || {}, 'agility').toFixed(1);
                 const infHighMotor = calculateAverageScore(inf.evaluation || {}, 'highMotor').toFixed(1);
 
                 // Outfield details
@@ -3759,7 +3759,7 @@
                 const outfFieldingMech = calculateAverageScore(outf.evaluation || {}, 'fieldingMechanics').toFixed(1);
                 const outfArmStr = calculateAverageScore(outf.evaluation || {}, 'armStrength').toFixed(1);
                 const outfRange = calculateAverageScore(outf.evaluation || {}, 'rangeAgility').toFixed(1);
-                const outfFlyBall = calculateAverageScore(outf.evaluation || {}, 'flyBallTransition').toFixed(1);
+                const outfFlyBall = calculateAverageScore(outf.evaluation || {}, 'flyBallMechanics').toFixed(1);
                 const outfHighMotor = calculateAverageScore(outf.evaluation || {}, 'highMotor').toFixed(1);
 
                 // Throwing details
@@ -3953,8 +3953,8 @@
                 const fieldingMechanics = calculateAverageScore(inf.evaluation || {}, 'fieldingMechanics').toFixed(1);
                 const armStrength = calculateAverageScore(inf.evaluation || {}, 'armStrength').toFixed(1);
                 const receivingMechanics = calculateAverageScore(inf.evaluation || {}, 'receivingMechanics').toFixed(1);
-                const miFeedMechanics = calculateAverageScore(inf.evaluation || {}, 'miFeedMechanics').toFixed(1);
-                const agilityExplosiveness = calculateAverageScore(inf.evaluation || {}, 'agilityExplosiveness').toFixed(1);
+                const miFeedMechanics = calculateAverageScore(inf.evaluation || {}, 'miFeed').toFixed(1);
+                const agilityExplosiveness = calculateAverageScore(inf.evaluation || {}, 'agility').toFixed(1);
                 const highMotor = calculateAverageScore(inf.evaluation || {}, 'highMotor').toFixed(1);
 
                 const total = calculateInfieldTotal(p);
@@ -3973,7 +3973,7 @@
                 const fieldingMechanics = calculateAverageScore(outf.evaluation || {}, 'fieldingMechanics').toFixed(1);
                 const armStrength = calculateAverageScore(outf.evaluation || {}, 'armStrength').toFixed(1);
                 const rangeAgility = calculateAverageScore(outf.evaluation || {}, 'rangeAgility').toFixed(1);
-                const flyBallTransition = calculateAverageScore(outf.evaluation || {}, 'flyBallTransition').toFixed(1);
+                const flyBallTransition = calculateAverageScore(outf.evaluation || {}, 'flyBallMechanics').toFixed(1);
                 const highMotor = calculateAverageScore(outf.evaluation || {}, 'highMotor').toFixed(1);
 
                 const total = calculateOutfieldTotal(p);
