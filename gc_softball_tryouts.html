@@ -3730,7 +3730,7 @@
                 const proAgScore = calculateProAgilityScore(proAgility);
                 const broadJump = b.broadjump || [null, null];
                 const bjAvg = getAverageBroadJump(broadJump);
-                const bjAvgStr = bjAvg ? `${bjAvg.feet}'${bjAvg.inches}"` : '';
+                const bjAvgStr = bjAvg || '';
                 const bjScore = calculateBroadJumpScore(broadJump);
 
                 // Hitting details
@@ -3908,7 +3908,7 @@
                 const bj1 = formatBJValue(broadJump[0]);
                 const bj2 = formatBJValue(broadJump[1]);
                 const bjAvg = getAverageBroadJump(broadJump);
-                const bjAvgStr = bjAvg ? `${bjAvg.feet}'${bjAvg.inches}"` : '';
+                const bjAvgStr = bjAvg || '';
                 const bjScore = calculateBroadJumpScore(broadJump);
 
                 const total = calculateBaserunningTotal(p);
