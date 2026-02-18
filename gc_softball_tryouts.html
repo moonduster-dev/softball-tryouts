@@ -3721,15 +3721,14 @@
                 const b = p.baserunning || {};
                 const h1b = b.h1b || { times: [null, null], missed1b: [false, false] };
                 const tbh = b['2bh'] || { times: [null, null], missed3b: [false, false] };
-                const exp = b.explosiveness || {};
                 const h1bAvg = getAdjustedAvgH1B(h1b);
                 const h1bScore = calculateSpeedScore('h1b', h1bAvg);
                 const tbhAvg = getAdjustedAvg2BH(tbh);
                 const tbhScore = calculateSpeedScore('2bh', tbhAvg);
-                const proAgility = exp.proAgility || [null, null];
+                const proAgility = b.proagility || [null, null];
                 const proAgAvg = getAverageTime(proAgility) || '';
                 const proAgScore = calculateProAgilityScore(proAgility);
-                const broadJump = exp.broadJump || [null, null];
+                const broadJump = b.broadjump || [null, null];
                 const bjAvg = getAverageBroadJump(broadJump);
                 const bjAvgStr = bjAvg ? `${bjAvg.feet}'${bjAvg.inches}"` : '';
                 const bjScore = calculateBroadJumpScore(broadJump);
@@ -3879,7 +3878,6 @@
                 const b = p.baserunning || {};
                 const h1b = b.h1b || { times: [null, null], missed1b: [false, false] };
                 const tbh = b['2bh'] || { times: [null, null], missed3b: [false, false] };
-                const exp = b.explosiveness || {};
 
                 const h1bTimes = h1b.times || [null, null];
                 const h1bMissed = h1b.missed1b || [false, false];
@@ -3895,13 +3893,13 @@
                 const tbhAvg = getAdjustedAvg2BH(tbh);
                 const tbhScore = calculateSpeedScore('2bh', tbhAvg);
 
-                const proAgility = exp.proAgility || [null, null];
+                const proAgility = b.proagility || [null, null];
                 const proAg1 = proAgility[0] !== null ? proAgility[0] : '';
                 const proAg2 = proAgility[1] !== null ? proAgility[1] : '';
                 const proAgAvg = getAverageTime(proAgility) || '';
                 const proAgScore = calculateProAgilityScore(proAgility);
 
-                const broadJump = exp.broadJump || [null, null];
+                const broadJump = b.broadjump || [null, null];
                 const formatBJValue = (val) => {
                     if (!val) return '';
                     if (typeof val === 'object') return `${val.feet || 0}'${val.inches || 0}"`;
