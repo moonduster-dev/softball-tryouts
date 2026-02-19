@@ -110,6 +110,8 @@ function updateReadableSheet(players) {
     'IF Fielding Mech', 'IF Arm Strength', 'IF Receiving Mech', 'IF MI Feed', 'IF Agility', 'IF High Motor', 'Infield Total', 'Infield Notes',
     // Outfield (averaged)
     'OF Fielding Mech', 'OF Arm Strength', 'OF Range/Agility', 'OF Fly Ball', 'OF High Motor', 'Outfield Total', 'Outfield Notes',
+    // Hitting (averaged)
+    'Bat Speed Avg', 'Bat Speed Score', 'Balance', 'Bat Path', 'Contact', 'Timing', 'Hit High Motor', 'Hitting Total', 'Hitting Notes',
     // Baserunning Speed
     'H→1B Avg', 'H→1B Score', '2B→H Avg', '2B→H Score', 'H→3B Adj', 'H→3B Score', 'H→H Adj', 'H→H Score',
     // Baserunning Explosiveness
@@ -163,6 +165,18 @@ function updateReadableSheet(players) {
     const ofHighMotorAvg = calculateAverageScore(outfEval, 'highMotor');
     const outfieldTotal = ofFieldingMechAvg + ofArmStrengthAvg + ofRangeAgilityAvg + ofFlyBallAvg + ofHighMotorAvg;
 
+    // Hitting averages (5 evaluation categories + bat speed)
+    const h = player.hitting || {};
+    const batSpeedAvg = getAverageBatSpeed(h.batSpeed || []);
+    const batSpeedScore = calculateBatSpeedScore(h.batSpeed || []);
+    const hitEval = h.evaluation || {};
+    const hitBalanceAvg = calculateAverageScore(hitEval, 'balance');
+    const hitBatPathAvg = calculateAverageScore(hitEval, 'batPath');
+    const hitContactAvg = calculateAverageScore(hitEval, 'contact');
+    const hitTimingAvg = calculateAverageScore(hitEval, 'timing');
+    const hitHighMotorAvg = calculateAverageScore(hitEval, 'highMotor');
+    const hittingTotal = batSpeedScore + hitBalanceAvg + hitBatPathAvg + hitContactAvg + hitTimingAvg + hitHighMotorAvg;
+
     // Baserunning speed calculations - using averages
     const h1bAvg = getAdjustedAvgH1B(b.h1b || { times: [null, null], missed1b: [false, false] });
     const h1bScore = calculateSpeedScore('h1b', h1bAvg);
@@ -192,12 +206,13 @@ function updateReadableSheet(players) {
     const enthusiasmAvg = calculateAverageScore(intang, 'enthusiasm');
     const intangiblesTotal = awarenessAvg + leadershipAvg + enthusiasmAvg;
 
-    const grandTotal = catchingTotal + infieldTotal + outfieldTotal + baserunningTotal + intangiblesTotal;
+    const grandTotal = catchingTotal + infieldTotal + outfieldTotal + hittingTotal + baserunningTotal + intangiblesTotal;
 
     // Format notes for each category
     const catchingNotes = formatNotes(c.notes || []);
     const infieldNotes = formatNotes(inf.notes || []);
     const outfieldNotes = formatNotes(outf.notes || []);
+    const hittingNotes = formatNotes(h.notes || []);
     const baserunningNotes = formatNotes(b.notes || []);
     const intangiblesNotes = formatNotes(intang.notes || []);
 
@@ -232,6 +247,16 @@ function updateReadableSheet(players) {
       ofHighMotorAvg.toFixed(1),
       outfieldTotal.toFixed(1),
       outfieldNotes,
+      // Hitting
+      batSpeedAvg || '',
+      batSpeedScore,
+      hitBalanceAvg.toFixed(1),
+      hitBatPathAvg.toFixed(1),
+      hitContactAvg.toFixed(1),
+      hitTimingAvg.toFixed(1),
+      hitHighMotorAvg.toFixed(1),
+      hittingTotal.toFixed(1),
+      hittingNotes,
       // Baserunning
       h1bAvg || '',
       h1bScore,
@@ -489,6 +514,24 @@ function calculateBroadJumpScore(jumps) {
   return 5;
 }
 
+function getAverageBatSpeed(batSpeed) {
+  if (!batSpeed || !Array.isArray(batSpeed)) return null;
+  const valid = batSpeed.filter(v => v !== null && v !== undefined);
+  if (valid.length === 0) return null;
+  const avg = valid.reduce((a, b) => a + b, 0) / valid.length;
+  return Math.round(avg);
+}
+
+function calculateBatSpeedScore(batSpeed) {
+  const avg = getAverageBatSpeed(batSpeed);
+  if (avg === null) return 0;
+  if (avg >= 70) return 5;
+  if (avg >= 63) return 4;
+  if (avg >= 55) return 3;
+  if (avg >= 48) return 2;
+  return 1;
+}
+
 function calculateAverageScore(coachScores, drillId) {
   if (!coachScores) return 0;
   const scores = [];
@@ -507,6 +550,7 @@ function getGrandTotal(player) {
   const intang = player.intangibles || {};
   const inf = player.infield || {};
   const outf = player.outfield || {};
+  const h = player.hitting || {};
 
   // Catching
   const poptimeScore = calculatePopTimeScore(c.poptime || []);
@@ -520,6 +564,10 @@ function getGrandTotal(player) {
   // Outfield (5 categories)
   const outfEval = outf.evaluation || {};
   const outfieldTotal = calculateAverageScore(outfEval, 'fieldingMechanics') + calculateAverageScore(outfEval, 'armStrength') + calculateAverageScore(outfEval, 'rangeAgility') + calculateAverageScore(outfEval, 'flyBallMechanics') + calculateAverageScore(outfEval, 'highMotor');
+
+  // Hitting (bat speed + 5 evaluation categories)
+  const hitEval = h.evaluation || {};
+  const hittingTotal = calculateBatSpeedScore(h.batSpeed || []) + calculateAverageScore(hitEval, 'balance') + calculateAverageScore(hitEval, 'batPath') + calculateAverageScore(hitEval, 'contact') + calculateAverageScore(hitEval, 'timing') + calculateAverageScore(hitEval, 'highMotor');
 
   // Baserunning - using averages for multi-attempt drills
   const h1bScore = calculateSpeedScore('h1b', getAdjustedAvgH1B(b.h1b || { times: [null, null], missed1b: [false, false] }));
@@ -537,7 +585,7 @@ function getGrandTotal(player) {
   // Intangibles
   const intangiblesTotal = calculateAverageScore(intang, 'awareness') + calculateAverageScore(intang, 'leadership') + calculateAverageScore(intang, 'enthusiasm');
 
-  return catchingTotal + infieldTotal + outfieldTotal + baserunningTotal + intangiblesTotal;
+  return catchingTotal + infieldTotal + outfieldTotal + hittingTotal + baserunningTotal + intangiblesTotal;
 }
 
 function getOrCreateSheet() {
