@@ -46,8 +46,10 @@ function doPost(e) {
 
     const sheet = getOrCreateSheet();
 
+    // Clear existing data instead of deleting rows (avoids frozen row issues)
     if (sheet.getLastRow() > 1) {
-      sheet.deleteRows(2, sheet.getLastRow() - 1);
+      const numRowsToClear = sheet.getLastRow() - 1;
+      sheet.getRange(2, 1, numRowsToClear, 2).clearContent();
     }
 
     sheet.getRange(2, 1).setValue(JSON.stringify(players));
