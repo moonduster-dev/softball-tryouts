@@ -2111,6 +2111,7 @@
             player.hitting.batSpeed[index] = value === '' ? null : parseInt(value);
             saveData();
             renderScoringArea();
+            renderAllPlayers();
         }
 
         // Update hitting evaluation score
@@ -2127,6 +2128,7 @@
             player.hitting.evaluation[currentUser][category] = value;
             saveData();
             renderScoringArea();
+            renderAllPlayers();
         }
 
         // Get average bat speed
