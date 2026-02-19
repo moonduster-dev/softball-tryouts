@@ -847,10 +847,6 @@
         let playerSelectMode = 'all';  // 'all' or 'groups'
         const AUTO_UPLOAD_DELAY = 500; // 0.5 second delay before auto-sync (reduced for faster saves)
 
-        // Define catchers and pitchers
-        const CATCHERS = ['Isabel', 'Sophia', 'Claire', 'Lauryn', 'Katelyn'];
-        const PITCHERS = ['MDR', 'Cayla', 'Maddy', 'Ashley', 'Autumn'];
-
         // Define tryout groups
         const TRYOUT_GROUPS = {
             'A': ['Maggie', 'Sophia', 'Clara', 'Mairin', 'Aubrey', 'Autumn', 'Ashley', 'Louisa', 'Molly', 'London'],
@@ -3671,9 +3667,9 @@
             // Filter players based on view
             let filteredPlayers = [...players];
             if (playerViewFilter === 'catchers') {
-                filteredPlayers = players.filter(p => CATCHERS.includes(p.name));
+                filteredPlayers = players.filter(p => TRYOUT_GROUPS['Catchers'].includes(p.name));
             } else if (playerViewFilter === 'pitchers') {
-                filteredPlayers = players.filter(p => PITCHERS.includes(p.name));
+                filteredPlayers = players.filter(p => TRYOUT_GROUPS['Pitchers'].includes(p.name));
             }
 
             // Sort by total score
@@ -4055,7 +4051,7 @@
             csv += '\n\n--- CATCHERS (Ranked by Total with Catching) ---\n';
             csv += 'Rank,Name,Pop Time Avg,Pop Time Score,Setup/Stance,Arm Str/Acc,Block/Popups,Framing,Foot/Agility,High Motor,Catching Total,Baserunning,Hitting,Infield,Outfield,Throwing,Intangibles,Grand Total\n';
 
-            const catchers = players.filter(p => CATCHERS.includes(p.name)).sort((a, b) => {
+            const catchers = players.filter(p => TRYOUT_GROUPS['Catchers'].includes(p.name)).sort((a, b) => {
                 const totalA = calculateCatchingTotal(a) + calculateBaserunningTotal(a) + calculateHittingTotal(a) + calculateInfieldTotal(a) + calculateOutfieldTotal(a) + calculateThrowingTotal(a) + calculateIntangiblesTotal(a);
                 const totalB = calculateCatchingTotal(b) + calculateBaserunningTotal(b) + calculateHittingTotal(b) + calculateInfieldTotal(b) + calculateOutfieldTotal(b) + calculateThrowingTotal(b) + calculateIntangiblesTotal(b);
                 return totalB - totalA;
@@ -4089,7 +4085,7 @@
             csv += '\n\n--- PITCHERS (Ranked by Total with Pitching) ---\n';
             csv += 'Rank,Name,Mechanics,Athleticism,# Pitches,Pitching Total,Baserunning,Hitting,Infield,Outfield,Throwing,Intangibles,Grand Total\n';
 
-            const pitchers = players.filter(p => PITCHERS.includes(p.name)).sort((a, b) => {
+            const pitchers = players.filter(p => TRYOUT_GROUPS['Pitchers'].includes(p.name)).sort((a, b) => {
                 const totalA = calculatePitchingTotal(a) + calculateBaserunningTotal(a) + calculateHittingTotal(a) + calculateInfieldTotal(a) + calculateOutfieldTotal(a) + calculateThrowingTotal(a) + calculateIntangiblesTotal(a);
                 const totalB = calculatePitchingTotal(b) + calculateBaserunningTotal(b) + calculateHittingTotal(b) + calculateInfieldTotal(b) + calculateOutfieldTotal(b) + calculateThrowingTotal(b) + calculateIntangiblesTotal(b);
                 return totalB - totalA;
