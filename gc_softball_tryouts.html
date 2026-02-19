@@ -988,6 +988,126 @@
             };
         }
 
+        // Archive key for storing reset data
+        const ARCHIVE_KEY = 'gc_softball_tryouts_archive';
+
+        // Get archived data
+        function getArchivedData() {
+            try {
+                const archived = localStorage.getItem(ARCHIVE_KEY);
+                return archived ? JSON.parse(archived) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        // Save to archive
+        function archiveData(playerName, section, data) {
+            const archive = getArchivedData();
+            archive.push({
+                playerName: playerName,
+                section: section,
+                data: data,
+                timestamp: new Date().toISOString(),
+                archivedBy: currentUser
+            });
+            // Keep only last 100 archived items to prevent localStorage overflow
+            if (archive.length > 100) {
+                archive.splice(0, archive.length - 100);
+            }
+            localStorage.setItem(ARCHIVE_KEY, JSON.stringify(archive));
+        }
+
+        // Reset section data for a player
+        function resetSectionData(playerId, section) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+
+            const sectionNames = {
+                catching: 'Catching',
+                baserunning: 'Baserunning',
+                hitting: 'Hitting',
+                infield: 'Infield',
+                outfield: 'Outfield',
+                throwing: 'Throwing',
+                pitching: 'Pitching',
+                intangibles: 'Intangibles'
+            };
+
+            if (!confirm(`Reset all ${sectionNames[section]} data for ${player.name}? Data will be archived.`)) return;
+
+            // Archive the old data before resetting
+            if (player[section]) {
+                archiveData(player.name, section, JSON.parse(JSON.stringify(player[section])));
+            }
+
+            switch(section) {
+                case 'catching':
+                    player.catching = createCatchingData();
+                    break;
+                case 'baserunning':
+                    player.baserunning = createBaserunningData();
+                    break;
+                case 'hitting':
+                    player.hitting = createHittingData();
+                    break;
+                case 'infield':
+                    player.infield = createInfieldData();
+                    break;
+                case 'outfield':
+                    player.outfield = createOutfieldData();
+                    break;
+                case 'throwing':
+                    player.throwing = createThrowingData();
+                    break;
+                case 'pitching':
+                    player.pitching = createPitchingData();
+                    break;
+                case 'intangibles':
+                    player.intangibles = createIntangiblesData();
+                    break;
+            }
+
+            saveData();
+            renderScoringArea();
+            renderAllPlayers();
+            showSaveStatus(`✓ ${sectionNames[section]} reset (archived)`);
+        }
+
+        // View archived data (for debugging/recovery)
+        function viewArchivedData() {
+            const archive = getArchivedData();
+            if (archive.length === 0) {
+                alert('No archived data found.');
+                return;
+            }
+            console.log('Archived Data:', archive);
+            alert(`${archive.length} archived item(s) found. Check browser console (F12) for details.`);
+        }
+
+        // Restore archived data for a player section
+        function restoreFromArchive(playerName, section) {
+            const archive = getArchivedData();
+            const matches = archive.filter(a => a.playerName === playerName && a.section === section);
+            if (matches.length === 0) {
+                alert(`No archived ${section} data found for ${playerName}.`);
+                return;
+            }
+            // Get most recent
+            const latest = matches[matches.length - 1];
+            const player = players.find(p => p.name === playerName);
+            if (!player) {
+                alert(`Player ${playerName} not found.`);
+                return;
+            }
+            if (!confirm(`Restore ${section} data for ${playerName} from ${new Date(latest.timestamp).toLocaleString()}?`)) return;
+            player[section] = latest.data;
+            saveData();
+            renderScoringArea();
+            renderAllPlayers();
+            showSaveStatus(`✓ ${section} restored from archive`);
+        }
+
         function deletePlayer(id) {
             if (!confirm('Are you sure you want to delete this player?')) return;
             players = players.filter(p => p.id !== id);
@@ -1233,7 +1353,10 @@
 
             return `
                 <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-                    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2"><img src="catcher.jpg" alt="Catcher" class="w-6 h-6 object-contain"> Catching - ${player.name}</h2>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold flex items-center gap-2"><img src="catcher.jpg" alt="Catcher" class="w-6 h-6 object-contain"> Catching - ${player.name}</h2>
+                        <button onclick="resetSectionData(${player.id}, 'catching')" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm">🗑️ Reset Section</button>
+                    </div>
 
                     <!-- Pop Time -->
                     <div class="mb-6 p-4 bg-purple-50 rounded-lg">
@@ -1368,7 +1491,10 @@
 
             return `
                 <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-                    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">🏃 Baserunning - ${player.name}</h2>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold flex items-center gap-2">🏃 Baserunning - ${player.name}</h2>
+                        <button onclick="resetSectionData(${player.id}, 'baserunning')" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm">🗑️ Reset Section</button>
+                    </div>
 
                     <!-- Speed Metrics -->
                     <div class="mb-6">
@@ -1540,7 +1666,10 @@
 
             return `
                 <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-                    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">⭐ Intangibles - ${player.name}</h2>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold flex items-center gap-2">⭐ Intangibles - ${player.name}</h2>
+                        <button onclick="resetSectionData(${player.id}, 'intangibles')" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm">🗑️ Reset Section</button>
+                    </div>
                     <p class="text-sm text-gray-500 mb-4">All coaches evaluate these - scores are averaged</p>
 
                     <div class="space-y-4">
@@ -1598,9 +1727,12 @@
 
             return `
                 <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-                    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
-                        <img src="fielding.jpg" alt="Infield" class="w-6 h-6 object-contain"> Infield - ${player.name}
-                    </h2>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold flex items-center gap-2">
+                            <img src="fielding.jpg" alt="Infield" class="w-6 h-6 object-contain"> Infield - ${player.name}
+                        </h2>
+                        <button onclick="resetSectionData(${player.id}, 'infield')" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm">🗑️ Reset Section</button>
+                    </div>
 
                     <div class="mb-4">
                         <h3 class="text-lg font-semibold mb-2 flex items-center gap-2">📋 Your Evaluation</h3>
@@ -1677,9 +1809,12 @@
 
             return `
                 <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-                    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
-                        <img src="fielding.jpg" alt="Outfield" class="w-6 h-6 object-contain"> Outfield - ${player.name}
-                    </h2>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold flex items-center gap-2">
+                            <img src="fielding.jpg" alt="Outfield" class="w-6 h-6 object-contain"> Outfield - ${player.name}
+                        </h2>
+                        <button onclick="resetSectionData(${player.id}, 'outfield')" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm">🗑️ Reset Section</button>
+                    </div>
 
                     <div class="mb-4">
                         <h3 class="text-lg font-semibold mb-2 flex items-center gap-2">📋 Your Evaluation</h3>
@@ -1743,9 +1878,12 @@
 
             return `
                 <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-                    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
-                        <img src="softball fielding.JPG" alt="Throwing" class="w-6 h-6 object-contain"> Throwing - ${player.name}
-                    </h2>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold flex items-center gap-2">
+                            <img src="softball fielding.JPG" alt="Throwing" class="w-6 h-6 object-contain"> Throwing - ${player.name}
+                        </h2>
+                        <button onclick="resetSectionData(${player.id}, 'throwing')" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm">🗑️ Reset Section</button>
+                    </div>
 
                     <!-- Throwing Velocity (2 attempts) -->
                     <div class="mb-6">
@@ -1800,9 +1938,12 @@
 
             return `
                 <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-                    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
-                        <img src="pitching.jpg" alt="Pitching" class="w-6 h-6 object-contain"> Pitching - ${player.name}
-                    </h2>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold flex items-center gap-2">
+                            <img src="pitching.jpg" alt="Pitching" class="w-6 h-6 object-contain"> Pitching - ${player.name}
+                        </h2>
+                        <button onclick="resetSectionData(${player.id}, 'pitching')" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm">🗑️ Reset Section</button>
+                    </div>
 
                     <!-- Your Evaluation -->
                     <div class="mb-6 p-4 bg-pink-50 rounded-lg">
@@ -2043,9 +2184,12 @@
 
             return `
                 <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-                    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
-                        <img src="hitting.jpg" alt="Hitting" class="w-6 h-6 object-contain"> Hitting - ${player.name}
-                    </h2>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold flex items-center gap-2">
+                            <img src="hitting.jpg" alt="Hitting" class="w-6 h-6 object-contain"> Hitting - ${player.name}
+                        </h2>
+                        <button onclick="resetSectionData(${player.id}, 'hitting')" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm">🗑️ Reset Section</button>
+                    </div>
 
                     <!-- Bat Speed -->
                     <div class="mb-6 p-4 bg-orange-50 rounded-lg">
