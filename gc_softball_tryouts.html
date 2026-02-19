@@ -106,6 +106,21 @@
                             🗑️ Clear All Data
                         </button>
                     </div>
+                    <div id="archiveControls" class="hidden mt-4 pt-4 border-t border-gray-200">
+                        <h4 class="text-md font-semibold mb-2">📦 Archive Management (Bob only)</h4>
+                        <div class="flex gap-2 flex-wrap">
+                            <button onclick="exportArchive()" class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700">
+                                ⬇️ Export Archive
+                            </button>
+                            <label class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 cursor-pointer">
+                                ⬆️ Import Archive
+                                <input type="file" accept=".json" onchange="importArchive(event)" class="hidden">
+                            </label>
+                            <button onclick="viewArchivedData()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+                                👁️ View Archive
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Scoring Configuration Section -->
@@ -720,6 +735,11 @@
             document.getElementById('appContent').classList.remove('hidden');
             document.getElementById('currentUserDisplay').textContent = user.charAt(0).toUpperCase() + user.slice(1);
 
+            // Show archive controls only for Bob
+            if (user === 'bob') {
+                document.getElementById('archiveControls').classList.remove('hidden');
+            }
+
             initApp();
         }
 
@@ -745,6 +765,12 @@
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('appContent').classList.remove('hidden');
                 document.getElementById('currentUserDisplay').textContent = savedUser.charAt(0).toUpperCase() + savedUser.slice(1);
+
+                // Show archive controls only for Bob
+                if (savedUser === 'bob') {
+                    document.getElementById('archiveControls').classList.remove('hidden');
+                }
+
                 initApp();
             }
         }
@@ -1108,6 +1134,52 @@
             showSaveStatus(`✓ ${section} restored from archive`);
         }
 
+        // Export archive to downloadable JSON file
+        function exportArchive() {
+            const archive = getArchivedData();
+            if (archive.length === 0) {
+                alert('No archived data to export.');
+                return;
+            }
+            const dataStr = JSON.stringify(archive, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `softball_archive_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Import archive from JSON file
+        function importArchive(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (!Array.isArray(imported)) {
+                        alert('Invalid archive file format.');
+                        return;
+                    }
+                    const existing = getArchivedData();
+                    const merged = [...existing, ...imported];
+                    // Keep last 200 when importing (allow more for imports)
+                    if (merged.length > 200) {
+                        merged.splice(0, merged.length - 200);
+                    }
+                    localStorage.setItem(ARCHIVE_KEY, JSON.stringify(merged));
+                    alert(`Imported ${imported.length} archived item(s). Total: ${merged.length}`);
+                } catch (err) {
+                    alert('Error reading archive file: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
         function deletePlayer(id) {
             if (!confirm('Are you sure you want to delete this player?')) return;
             players = players.filter(p => p.id !== id);
@@ -1355,7 +1427,7 @@
                 <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-xl font-semibold flex items-center gap-2"><img src="catcher.jpg" alt="Catcher" class="w-6 h-6 object-contain"> Catching - ${player.name}</h2>
-                        <button onclick="resetSectionData(${player.id}, 'catching')" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm">🗑️ Reset Section</button>
+                        ${currentUser === 'bob' ? `<button onclick="resetSectionData(${player.id}, 'catching')" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm">🗑️ Reset Section</button>` : ''}
                     </div>
 
                     <!-- Pop Time -->
@@ -1493,7 +1565,7 @@
                 <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-xl font-semibold flex items-center gap-2">🏃 Baserunning - ${player.name}</h2>
-                        <button onclick="resetSectionData(${player.id}, 'baserunning')" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm">🗑️ Reset Section</button>
+                        ${currentUser === 'bob' ? `<button onclick="resetSectionData(${player.id}, 'baserunning')" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm">🗑️ Reset Section</button>` : ''}
                     </div>
 
                     <!-- Speed Metrics -->
@@ -1668,7 +1740,7 @@
                 <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-xl font-semibold flex items-center gap-2">⭐ Intangibles - ${player.name}</h2>
-                        <button onclick="resetSectionData(${player.id}, 'intangibles')" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm">🗑️ Reset Section</button>
+                        ${currentUser === 'bob' ? `<button onclick="resetSectionData(${player.id}, 'intangibles')" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm">🗑️ Reset Section</button>` : ''}
                     </div>
                     <p class="text-sm text-gray-500 mb-4">All coaches evaluate these - scores are averaged</p>
 
@@ -1731,7 +1803,7 @@
                         <h2 class="text-xl font-semibold flex items-center gap-2">
                             <img src="fielding.jpg" alt="Infield" class="w-6 h-6 object-contain"> Infield - ${player.name}
                         </h2>
-                        <button onclick="resetSectionData(${player.id}, 'infield')" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm">🗑️ Reset Section</button>
+                        ${currentUser === 'bob' ? `<button onclick="resetSectionData(${player.id}, 'infield')" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm">🗑️ Reset Section</button>` : ''}
                     </div>
 
                     <div class="mb-4">
@@ -1813,7 +1885,7 @@
                         <h2 class="text-xl font-semibold flex items-center gap-2">
                             <img src="fielding.jpg" alt="Outfield" class="w-6 h-6 object-contain"> Outfield - ${player.name}
                         </h2>
-                        <button onclick="resetSectionData(${player.id}, 'outfield')" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm">🗑️ Reset Section</button>
+                        ${currentUser === 'bob' ? `<button onclick="resetSectionData(${player.id}, 'outfield')" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm">🗑️ Reset Section</button>` : ''}
                     </div>
 
                     <div class="mb-4">
@@ -1882,7 +1954,7 @@
                         <h2 class="text-xl font-semibold flex items-center gap-2">
                             <img src="softball fielding.JPG" alt="Throwing" class="w-6 h-6 object-contain"> Throwing - ${player.name}
                         </h2>
-                        <button onclick="resetSectionData(${player.id}, 'throwing')" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm">🗑️ Reset Section</button>
+                        ${currentUser === 'bob' ? `<button onclick="resetSectionData(${player.id}, 'throwing')" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm">🗑️ Reset Section</button>` : ''}
                     </div>
 
                     <!-- Throwing Velocity (2 attempts) -->
@@ -1942,7 +2014,7 @@
                         <h2 class="text-xl font-semibold flex items-center gap-2">
                             <img src="pitching.jpg" alt="Pitching" class="w-6 h-6 object-contain"> Pitching - ${player.name}
                         </h2>
-                        <button onclick="resetSectionData(${player.id}, 'pitching')" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm">🗑️ Reset Section</button>
+                        ${currentUser === 'bob' ? `<button onclick="resetSectionData(${player.id}, 'pitching')" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm">🗑️ Reset Section</button>` : ''}
                     </div>
 
                     <!-- Your Evaluation -->
@@ -2188,7 +2260,7 @@
                         <h2 class="text-xl font-semibold flex items-center gap-2">
                             <img src="hitting.jpg" alt="Hitting" class="w-6 h-6 object-contain"> Hitting - ${player.name}
                         </h2>
-                        <button onclick="resetSectionData(${player.id}, 'hitting')" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm">🗑️ Reset Section</button>
+                        ${currentUser === 'bob' ? `<button onclick="resetSectionData(${player.id}, 'hitting')" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm">🗑️ Reset Section</button>` : ''}
                     </div>
 
                     <!-- Bat Speed -->
