@@ -1312,6 +1312,7 @@
             player.catching.evaluation[currentUser][category] = value;
             saveData();
             renderScoringArea();
+            renderAllPlayers();
         }
 
         function calculateCatchingEvalTotal(evaluation, coach) {
@@ -1334,6 +1335,7 @@
             player.catching[field][index] = numVal;
             saveData();
             renderScoringArea();
+            renderAllPlayers();
         }
 
         function calculateCatchingDrillAverage(evaluation, categories) {
@@ -1653,6 +1655,7 @@
             player.infield.evaluation[currentUser][category] = value;
             saveData();
             renderScoringArea();
+            renderAllPlayers();
         }
 
         // ============================================
@@ -1731,6 +1734,7 @@
             player.outfield.evaluation[currentUser][category] = value;
             saveData();
             renderScoringArea();
+            renderAllPlayers();
         }
 
         // ============================================
@@ -1912,6 +1916,7 @@
             player.pitching.evaluation[currentUser][category] = value;
             saveData();
             renderScoringArea();
+            renderAllPlayers();
         }
 
         function updatePitchingNumPitches(playerId, value) {
@@ -1921,6 +1926,7 @@
             player.pitching.numPitches = value === '' ? null : parseInt(value);
             saveData();
             renderScoringArea();
+            renderAllPlayers();
         }
 
         function addPitch(playerId) {
@@ -1944,6 +1950,7 @@
             select.value = '';
             saveData();
             renderScoringArea();
+            renderAllPlayers();
         }
 
         function removePitch(playerId, pitchIdx) {
@@ -1952,6 +1959,7 @@
             player.pitching.pitches.splice(pitchIdx, 1);
             saveData();
             renderScoringArea();
+            renderAllPlayers();
         }
 
         function updatePitchSpeed(playerId, pitchIdx, attemptIdx, value) {
@@ -1962,6 +1970,7 @@
             player.pitching.pitches[pitchIdx].speeds[attemptIdx] = value === '' ? null : parseInt(value);
             saveData();
             renderScoringArea();
+            renderAllPlayers();
         }
 
         function updatePitchControl(playerId, pitchIdx, value) {
@@ -1971,6 +1980,7 @@
             player.pitching.pitches[pitchIdx].control = value;
             saveData();
             renderScoringArea();
+            renderAllPlayers();
         }
 
         function calculatePitchingTotal(player) {
@@ -2340,6 +2350,7 @@
             player.baserunning[drill].times[index] = value === '' ? null : parseFloat(value);
             saveData();
             renderScoringArea();
+            renderAllPlayers();
         }
 
         function updateSpeedCheckbox(playerId, drill, field, index, checked) {
@@ -2350,6 +2361,7 @@
             player.baserunning[drill][field][index] = checked;
             saveData();
             renderScoringArea();
+            renderAllPlayers();
         }
 
         function updateExplosiveness(playerId, drill, index, value) {
@@ -2360,6 +2372,7 @@
             player.baserunning[drill][index] = value === '' ? null : parseFloat(value);
             saveData();
             renderScoringArea();
+            renderAllPlayers();
         }
 
         function updateBroadJump(playerId, index, field, value) {
@@ -2378,6 +2391,7 @@
             player.baserunning.broadjump[index][field] = value === '' ? null : parseInt(value);
             saveData();
             renderScoringArea();
+            renderAllPlayers();
         }
 
         function updateBaserunningEvaluation(playerId, drillId, value) {
@@ -2390,6 +2404,7 @@
             player.baserunning.evaluation[currentUser][drillId] = value;
             saveData();
             renderScoringArea();
+            renderAllPlayers();
         }
 
         function updateIntangibleScore(playerId, drillId, value) {
@@ -2401,6 +2416,7 @@
             player.intangibles[currentUser][drillId] = value;
             saveData();
             renderScoringArea();
+            renderAllPlayers();
         }
 
         // ============================================
@@ -2416,6 +2432,7 @@
             player.throwing.velocity[attemptIdx] = value === '' ? null : parseFloat(value);
             saveData();
             renderScoringArea();
+            renderAllPlayers();
         }
 
         function getAverageVelocity(velocities) {
