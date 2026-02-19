@@ -2,7 +2,7 @@
 // This code runs on Google's servers and connects your app to Google Sheets
 
 // INSTRUCTIONS:
-// 1. Open your Google Spreadsheet: https://docs.google.com/spreadsheets/d/1szLJvVQfPBQJk2SDz2YzP4TJBw4hjAfpnmlWI9fVuUY
+// 1. Open your Google Spreadsheet
 // 2. Go to Extensions → Apps Script
 // 3. DELETE ALL EXISTING CODE
 // 4. Copy and paste ALL of this code
@@ -29,14 +29,14 @@ function doGet(e) {
 
 function doPost(e) {
   try {
-    let players;
+    var players;
     if (e.parameter && e.parameter.data) {
       players = JSON.parse(e.parameter.data);
     } else if (e.postData && e.postData.contents) {
-      const formData = e.postData.contents;
-      const params = formData.split('&').reduce((acc, pair) => {
-        const [key, value] = pair.split('=');
-        acc[decodeURIComponent(key)] = decodeURIComponent(value);
+      var formData = e.postData.contents;
+      var params = formData.split('&').reduce(function(acc, pair) {
+        var parts = pair.split('=');
+        acc[decodeURIComponent(parts[0])] = decodeURIComponent(parts[1] || '');
         return acc;
       }, {});
       players = JSON.parse(params.data || '[]');
@@ -44,11 +44,11 @@ function doPost(e) {
       throw new Error('No data received');
     }
 
-    const sheet = getOrCreateSheet();
+    var sheet = getOrCreateSheet();
 
     // Clear existing data instead of deleting rows (avoids frozen row issues)
     if (sheet.getLastRow() > 1) {
-      const numRowsToClear = sheet.getLastRow() - 1;
+      var numRowsToClear = sheet.getLastRow() - 1;
       sheet.getRange(2, 1, numRowsToClear, 2).clearContent();
     }
 
@@ -75,10 +75,10 @@ function doPost(e) {
 
 function loadData() {
   try {
-    const sheet = getOrCreateSheet();
-    const data = sheet.getDataRange().getValues();
+    var sheet = getOrCreateSheet();
+    var data = sheet.getDataRange().getValues();
 
-    let result = '[]';
+    var result = '[]';
     if (data.length > 1) {
       result = data[1][0] || '[]';
     }
@@ -95,8 +95,8 @@ function loadData() {
 }
 
 function updateReadableSheet(players) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let readableSheet = ss.getSheetByName(READABLE_SHEET_NAME);
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var readableSheet = ss.getSheetByName(READABLE_SHEET_NAME);
 
   if (!readableSheet) {
     readableSheet = ss.insertSheet(READABLE_SHEET_NAME);
@@ -104,8 +104,8 @@ function updateReadableSheet(players) {
 
   readableSheet.clear();
 
-  // Headers match CSV export exactly
-  const headers = [
+  // Headers match CSV export ALL PLAYERS section exactly
+  var headers = [
     'Rank', 'Name', 'Grand Total',
     // Baserunning
     'H-1B Avg', 'H-1B Score', '2B-H Avg', '2B-H Score', 'Pro Agility Avg', 'Pro Agility Score', 'Broad Jump Avg', 'Broad Jump Score', 'Baserunning Total',
@@ -118,9 +118,7 @@ function updateReadableSheet(players) {
     // Throwing
     'Velocity Avg', 'Throwing Score',
     // Intangibles
-    'Awareness', 'Leadership', 'Enthusiasm', 'Intangibles Total',
-    // Catching
-    'Pop Time Avg', 'Pop Time Score', 'Setup/Stance', 'Arm Str/Acc', 'Block/Popups', 'Framing', 'Foot/Agility', 'Catch High Motor', 'Catching Total'
+    'Awareness', 'Leadership', 'Enthusiasm', 'Intangibles Total'
   ];
 
   readableSheet.getRange(1, 1, 1, headers.length).setValues([headers]);
@@ -129,15 +127,17 @@ function updateReadableSheet(players) {
 
   if (players.length === 0) return;
 
-  const rows = players.map(function(player) {
-    // Calculate totals first (matches CSV export logic exactly)
+  var rows = [];
+  for (var p = 0; p < players.length; p++) {
+    var player = players[p];
+
+    // Calculate totals (matches CSV export logic exactly)
     var baserunningTotal = calculateBaserunningTotal(player);
     var hittingTotal = calculateHittingTotal(player);
     var infieldTotal = calculateInfieldTotal(player);
     var outfieldTotal = calculateOutfieldTotal(player);
     var throwingTotal = calculateThrowingTotal(player);
     var intangiblesTotal = calculateIntangiblesTotal(player);
-    var catchingTotal = calculateCatchingTotal(player);
     var grandTotal = baserunningTotal + hittingTotal + infieldTotal + outfieldTotal + throwingTotal + intangiblesTotal;
 
     // Baserunning details
@@ -149,130 +149,109 @@ function updateReadableSheet(players) {
     var tbhAvg = getAdjustedAvg2BH(tbh);
     var tbhScore = calculateSpeedScore('2bh', tbhAvg);
     var proAgility = b.proagility || [null, null];
-    var proAgAvg = getAverageTime(proAgility) || '';
+    var proAgAvg = getAverageTime(proAgility);
     var proAgScore = calculateProAgilityScore(proAgility);
     var broadJump = b.broadjump || [null, null];
     var bjAvg = getAverageBroadJump(broadJump);
-    var bjAvgStr = bjAvg || '';
     var bjScore = calculateBroadJumpScore(broadJump);
 
     // Hitting details
     var h = player.hitting || {};
     var batSpeed = h.batSpeed || [null, null];
     var bsAvg = getAverageBatSpeed(batSpeed);
-    var bsAvgStr = bsAvg !== null ? bsAvg.toFixed(1) : '';
     var bsScore = calculateBatSpeedScore(batSpeed);
-    var hitBalance = calculateAverageScore(h.evaluation || {}, 'balance').toFixed(1);
-    var hitBatPath = calculateAverageScore(h.evaluation || {}, 'batPath').toFixed(1);
-    var hitContact = calculateAverageScore(h.evaluation || {}, 'contact').toFixed(1);
-    var hitTiming = calculateAverageScore(h.evaluation || {}, 'timing').toFixed(1);
-    var hitHighMotor = calculateAverageScore(h.evaluation || {}, 'highMotor').toFixed(1);
+    var hitEval = h.evaluation || {};
+    var hitBalance = calculateAverageScore(hitEval, 'balance');
+    var hitBatPath = calculateAverageScore(hitEval, 'batPath');
+    var hitContact = calculateAverageScore(hitEval, 'contact');
+    var hitTiming = calculateAverageScore(hitEval, 'timing');
+    var hitHighMotor = calculateAverageScore(hitEval, 'highMotor');
 
     // Infield details
     var inf = player.infield || {};
-    var infFieldingMech = calculateAverageScore(inf.evaluation || {}, 'fieldingMechanics').toFixed(1);
-    var infArmStr = calculateAverageScore(inf.evaluation || {}, 'armStrength').toFixed(1);
-    var infReceiving = calculateAverageScore(inf.evaluation || {}, 'receivingMechanics').toFixed(1);
-    var infMiFeed = calculateAverageScore(inf.evaluation || {}, 'miFeed').toFixed(1);
-    var infAgility = calculateAverageScore(inf.evaluation || {}, 'agility').toFixed(1);
-    var infHighMotor = calculateAverageScore(inf.evaluation || {}, 'highMotor').toFixed(1);
+    var infEval = inf.evaluation || {};
+    var infFieldingMech = calculateAverageScore(infEval, 'fieldingMechanics');
+    var infArmStr = calculateAverageScore(infEval, 'armStrength');
+    var infReceiving = calculateAverageScore(infEval, 'receivingMechanics');
+    var infMiFeed = calculateAverageScore(infEval, 'miFeed');
+    var infAgility = calculateAverageScore(infEval, 'agility');
+    var infHighMotor = calculateAverageScore(infEval, 'highMotor');
 
     // Outfield details
     var outf = player.outfield || {};
-    var outfFieldingMech = calculateAverageScore(outf.evaluation || {}, 'fieldingMechanics').toFixed(1);
-    var outfArmStr = calculateAverageScore(outf.evaluation || {}, 'armStrength').toFixed(1);
-    var outfRange = calculateAverageScore(outf.evaluation || {}, 'rangeAgility').toFixed(1);
-    var outfFlyBall = calculateAverageScore(outf.evaluation || {}, 'flyBallMechanics').toFixed(1);
-    var outfHighMotor = calculateAverageScore(outf.evaluation || {}, 'highMotor').toFixed(1);
+    var outfEval = outf.evaluation || {};
+    var outfFieldingMech = calculateAverageScore(outfEval, 'fieldingMechanics');
+    var outfArmStr = calculateAverageScore(outfEval, 'armStrength');
+    var outfRange = calculateAverageScore(outfEval, 'rangeAgility');
+    var outfFlyBall = calculateAverageScore(outfEval, 'flyBallMechanics');
+    var outfHighMotor = calculateAverageScore(outfEval, 'highMotor');
 
     // Throwing details
     var t = player.throwing || {};
     var velocity = t.velocity || [null, null];
     var vAvg = getAverageVelocity(velocity);
-    var vAvgStr = vAvg !== null ? vAvg.toFixed(1) : '';
 
     // Intangibles details
     var intang = player.intangibles || {};
-    var awareness = calculateAverageScore(intang, 'awareness').toFixed(1);
-    var leadership = calculateAverageScore(intang, 'leadership').toFixed(1);
-    var enthusiasm = calculateAverageScore(intang, 'enthusiasm').toFixed(1);
+    var awareness = calculateAverageScore(intang, 'awareness');
+    var leadership = calculateAverageScore(intang, 'leadership');
+    var enthusiasm = calculateAverageScore(intang, 'enthusiasm');
 
-    // Catching details
-    var c = player.catching || {};
-    var popTimeAvg = getAverageTime(c.poptime || []) || '';
-    var popTimeScore = calculatePopTimeScore(c.poptime || []);
-    var setupStance = calculateAverageScore(c.evaluation || {}, 'setupStance').toFixed(1);
-    var armStrength = calculateAverageScore(c.evaluation || {}, 'armStrength').toFixed(1);
-    var blockingPopups = calculateAverageScore(c.evaluation || {}, 'blockingPopups').toFixed(1);
-    var framing = calculateAverageScore(c.evaluation || {}, 'framing').toFixed(1);
-    var footworkAgility = calculateAverageScore(c.evaluation || {}, 'footworkAgility').toFixed(1);
-    var catchHighMotor = calculateAverageScore(c.evaluation || {}, 'highMotor').toFixed(1);
-
-    return [
-      0, // placeholder for rank, will be set after sorting
+    rows.push([
+      0, // placeholder for rank
       player.name,
-      grandTotal.toFixed(1),
+      roundTo1(grandTotal),
       // Baserunning
-      h1bAvg || '',
+      h1bAvg || 'N/A',
       h1bScore,
-      tbhAvg || '',
+      tbhAvg || 'N/A',
       tbhScore,
-      proAgAvg,
+      proAgAvg || '',
       proAgScore,
-      bjAvgStr,
+      bjAvg || '',
       bjScore,
-      baserunningTotal.toFixed(1),
+      roundTo1(baserunningTotal),
       // Hitting
-      bsAvgStr,
+      bsAvg !== null ? bsAvg : '',
       bsScore,
-      hitBalance,
-      hitBatPath,
-      hitContact,
-      hitTiming,
-      hitHighMotor,
-      hittingTotal.toFixed(1),
+      roundTo1(hitBalance),
+      roundTo1(hitBatPath),
+      roundTo1(hitContact),
+      roundTo1(hitTiming),
+      roundTo1(hitHighMotor),
+      roundTo1(hittingTotal),
       // Infield
-      infFieldingMech,
-      infArmStr,
-      infReceiving,
-      infMiFeed,
-      infAgility,
-      infHighMotor,
-      infieldTotal.toFixed(1),
+      roundTo1(infFieldingMech),
+      roundTo1(infArmStr),
+      roundTo1(infReceiving),
+      roundTo1(infMiFeed),
+      roundTo1(infAgility),
+      roundTo1(infHighMotor),
+      roundTo1(infieldTotal),
       // Outfield
-      outfFieldingMech,
-      outfArmStr,
-      outfRange,
-      outfFlyBall,
-      outfHighMotor,
-      outfieldTotal.toFixed(1),
+      roundTo1(outfFieldingMech),
+      roundTo1(outfArmStr),
+      roundTo1(outfRange),
+      roundTo1(outfFlyBall),
+      roundTo1(outfHighMotor),
+      roundTo1(outfieldTotal),
       // Throwing
-      vAvgStr,
-      throwingTotal.toFixed(1),
+      vAvg !== null ? vAvg : '',
+      throwingTotal,
       // Intangibles
-      awareness,
-      leadership,
-      enthusiasm,
-      intangiblesTotal.toFixed(1),
-      // Catching
-      popTimeAvg,
-      popTimeScore,
-      setupStance,
-      armStrength,
-      blockingPopups,
-      framing,
-      footworkAgility,
-      catchHighMotor,
-      catchingTotal.toFixed(1)
-    ];
-  });
+      roundTo1(awareness),
+      roundTo1(leadership),
+      roundTo1(enthusiasm),
+      roundTo1(intangiblesTotal)
+    ]);
+  }
 
-  // Sort by grand total (column index 2) descending
+  // Sort by grand total descending
   rows.sort(function(a, b) {
-    return parseFloat(b[2]) - parseFloat(a[2]);
+    return b[2] - a[2];
   });
 
-  // Set rank numbers after sorting
+  // Set rank numbers
   for (var i = 0; i < rows.length; i++) {
     rows[i][0] = i + 1;
   }
@@ -281,9 +260,18 @@ function updateReadableSheet(players) {
     readableSheet.getRange(2, 1, rows.length, headers.length).setValues(rows);
   }
 
-  for (var i = 1; i <= headers.length; i++) {
-    readableSheet.autoResizeColumn(i);
+  // Auto-resize columns
+  for (var col = 1; col <= headers.length; col++) {
+    readableSheet.autoResizeColumn(col);
   }
+}
+
+// ============================================
+// HELPER FUNCTION
+// ============================================
+function roundTo1(num) {
+  if (num === null || num === undefined || isNaN(num)) return 0;
+  return Math.round(num * 10) / 10;
 }
 
 // ============================================
@@ -345,38 +333,18 @@ function calculateIntangiblesTotal(player) {
   var intangibles = player.intangibles || {};
   var drills = ['awareness', 'leadership', 'enthusiasm'];
   var total = 0;
-  drills.forEach(function(drill) {
-    total += calculateAverageScore(intangibles, drill);
-  });
+  for (var i = 0; i < drills.length; i++) {
+    total += calculateAverageScore(intangibles, drills[i]);
+  }
   return total;
-}
-
-function calculateCatchingTotal(player) {
-  var c = player.catching || {};
-  var total = 0;
-  // Pop Time score
-  total += calculatePopTimeScore(c.poptime || []);
-  // Evaluation categories
-  var catchingCategories = ['setupStance', 'armStrength', 'blockingPopups', 'framing', 'footworkAgility', 'highMotor'];
-  total += calculateCatchingDrillAverage(c.evaluation || {}, catchingCategories);
-  return Math.round(total * 10) / 10;
 }
 
 function calculateFieldingDrillAverage(drillData, categories) {
   if (!drillData || typeof drillData !== 'object') return 0;
   var total = 0;
-  categories.forEach(function(cat) {
-    total += calculateAverageScore(drillData, cat);
-  });
-  return total;
-}
-
-function calculateCatchingDrillAverage(drillData, categories) {
-  if (!drillData || typeof drillData !== 'object') return 0;
-  var total = 0;
-  categories.forEach(function(cat) {
-    total += calculateAverageScore(drillData, cat);
-  });
+  for (var i = 0; i < categories.length; i++) {
+    total += calculateAverageScore(drillData, categories[i]);
+  }
   return total;
 }
 
@@ -384,14 +352,19 @@ function calculateAverageScore(coachScores, drillId) {
   if (!coachScores || typeof coachScores !== 'object') return 0;
   if (Array.isArray(coachScores)) return 0;
   var scores = [];
-  Object.keys(coachScores).forEach(function(key) {
-    var coach = coachScores[key];
+  var keys = Object.keys(coachScores);
+  for (var i = 0; i < keys.length; i++) {
+    var coach = coachScores[keys[i]];
     if (coach && typeof coach === 'object' && coach[drillId] !== undefined && coach[drillId] !== null) {
       scores.push(coach[drillId]);
     }
-  });
+  }
   if (scores.length === 0) return 0;
-  return scores.reduce(function(sum, s) { return sum + s; }, 0) / scores.length;
+  var sum = 0;
+  for (var j = 0; j < scores.length; j++) {
+    sum += scores[j];
+  }
+  return sum / scores.length;
 }
 
 function calculateVelocityScore(velocity) {
@@ -409,18 +382,20 @@ function calculateVelocityScore(velocity) {
 // HELPER FUNCTIONS
 // ============================================
 
-function formatNotes(notes) {
-  if (!notes || !Array.isArray(notes) || notes.length === 0) return '';
-  return notes.map(function(n) {
-    return n.coach + ': ' + n.text;
-  }).join(' | ');
-}
-
 function getAverageTime(times) {
   if (!times || !Array.isArray(times)) return null;
-  var valid = times.filter(function(t) { return t !== null && !isNaN(t); });
+  var valid = [];
+  for (var i = 0; i < times.length; i++) {
+    if (times[i] !== null && !isNaN(times[i])) {
+      valid.push(times[i]);
+    }
+  }
   if (valid.length === 0) return null;
-  var avg = valid.reduce(function(sum, t) { return sum + t; }, 0) / valid.length;
+  var sum = 0;
+  for (var j = 0; j < valid.length; j++) {
+    sum += valid[j];
+  }
+  var avg = sum / valid.length;
   return avg.toFixed(2);
 }
 
@@ -428,16 +403,21 @@ function getAverageBroadJumpInFeet(jumps) {
   if (!jumps || !Array.isArray(jumps)) return null;
   var valid = [];
 
-  jumps.forEach(function(jump) {
+  for (var i = 0; i < jumps.length; i++) {
+    var jump = jumps[i];
     if (jump && typeof jump === 'object' && jump.feet !== null && jump.feet !== undefined) {
       valid.push(jump.feet + ((jump.inches || 0) / 12));
     } else if (typeof jump === 'number') {
       valid.push(jump);
     }
-  });
+  }
 
   if (valid.length === 0) return null;
-  return valid.reduce(function(sum, v) { return sum + v; }, 0) / valid.length;
+  var sum = 0;
+  for (var j = 0; j < valid.length; j++) {
+    sum += valid[j];
+  }
+  return sum / valid.length;
 }
 
 function getAverageBroadJump(jumps) {
@@ -457,7 +437,11 @@ function getAdjustedAvgH1B(data) {
     }
   }
   if (adjusted.length === 0) return null;
-  var avg = adjusted.reduce(function(sum, t) { return sum + t; }, 0) / adjusted.length;
+  var sum = 0;
+  for (var j = 0; j < adjusted.length; j++) {
+    sum += adjusted[j];
+  }
+  var avg = sum / adjusted.length;
   return avg.toFixed(2);
 }
 
@@ -470,7 +454,11 @@ function getAdjustedAvg2BH(data) {
     }
   }
   if (adjusted.length === 0) return null;
-  var avg = adjusted.reduce(function(sum, t) { return sum + t; }, 0) / adjusted.length;
+  var sum = 0;
+  for (var j = 0; j < adjusted.length; j++) {
+    sum += adjusted[j];
+  }
+  var avg = sum / adjusted.length;
   return avg.toFixed(2);
 }
 
@@ -523,9 +511,18 @@ function calculateBroadJumpScore(jumps) {
 
 function getAverageBatSpeed(batSpeed) {
   if (!batSpeed || !Array.isArray(batSpeed)) return null;
-  var valid = batSpeed.filter(function(v) { return v !== null && v !== undefined; });
+  var valid = [];
+  for (var i = 0; i < batSpeed.length; i++) {
+    if (batSpeed[i] !== null && batSpeed[i] !== undefined) {
+      valid.push(batSpeed[i]);
+    }
+  }
   if (valid.length === 0) return null;
-  var avg = valid.reduce(function(a, b) { return a + b; }, 0) / valid.length;
+  var sum = 0;
+  for (var j = 0; j < valid.length; j++) {
+    sum += valid[j];
+  }
+  var avg = sum / valid.length;
   return Math.round(avg);
 }
 
@@ -541,9 +538,18 @@ function calculateBatSpeedScore(batSpeed) {
 
 function getAverageVelocity(velocities) {
   if (!velocities || !Array.isArray(velocities)) return null;
-  var valid = velocities.filter(function(v) { return v !== null && !isNaN(v); });
+  var valid = [];
+  for (var i = 0; i < velocities.length; i++) {
+    if (velocities[i] !== null && !isNaN(velocities[i])) {
+      valid.push(velocities[i]);
+    }
+  }
   if (valid.length === 0) return null;
-  return Math.round(valid.reduce(function(sum, v) { return sum + v; }, 0) / valid.length);
+  var sum = 0;
+  for (var j = 0; j < valid.length; j++) {
+    sum += valid[j];
+  }
+  return Math.round(sum / valid.length);
 }
 
 function getOrCreateSheet() {
