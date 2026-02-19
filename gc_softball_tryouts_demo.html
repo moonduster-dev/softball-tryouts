@@ -74,12 +74,7 @@
                     <button onclick="toggleSection('scoringConfigSection')" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
                         📊 Scoring Thresholds
                     </button>
-                    <button onclick="uploadToSheets()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                        ⬆️ Sync to Sheets
-                    </button>
-                    <button onclick="downloadFromSheets()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                        ⬇️ Download from Sheets
-                    </button>
+                    <!-- Sheets sync disabled for demo -->
                     <button onclick="showUserGuideModal()" class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700">
                         📖 User Guide
                     </button>
@@ -494,7 +489,7 @@
         // ============================================
         // CONFIGURATION
         // ============================================
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxkTRC_6ucRdv-PBiaNq4ybRGYzvUbhC0vBPJGrPf3xEHOmcs284Fij7TCRhUdvc6Z1/exec';
+        const GOOGLE_SCRIPT_URL = ''; // Demo mode - no Google Sheets sync
         const STORAGE_KEY = 'gc_softball_tryouts_2026_DEMO'; // Demo uses separate storage
         const APP_PASSWORD = 'nick2026';
         const VALID_USERS = ['nick', 'bob', 'sophia', 'amy', 'bill', 'gabby', 'guest'];
